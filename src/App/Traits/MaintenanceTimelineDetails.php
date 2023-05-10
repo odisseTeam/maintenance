@@ -29,13 +29,17 @@ trait MaintenanceTimelineDetails{
         ->leftjoin('maintenance_job_priority_history', 'maintenance_log.id_maintenance_job', '=', 'maintenance_job_priority_history.id_maintenance_job')
         ->leftjoin('users', 'maintenance_log.id_staff', '=', 'users.id')
         ->where('maintenance_log.id_maintenance_job',$maintenanceId)
-        ->select('maintenance_job.*','maintenance_job_staff_history.*','maintenance_job_status_history.*','maintenance_job_priority_history.*','maintenance_log.*',DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS staff"))
+        ->select('maintenance_log.*',DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS staff"))
+        ->groupBy('maintenance_log.id_maintenance_log')
+        ->groupBy('users.first_name')
+        ->groupBy('users.last_name')
+
         ->orderBy('log_date_time', 'asc')
         ->get();
 
         foreach($query as $qry){
-            if ($contains = Str::contains($qry->log_note, 'create a new maintenance')){
-                $header = $qry->staff.' Create a New Maintenance';
+            if ($contains = Str::contains($qry->log_note, 'Created')){
+                $header = $qry->staff.' Created a New Maintenance';
                 $qry->header = $header;
 
             }else{

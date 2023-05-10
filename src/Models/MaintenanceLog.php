@@ -6,10 +6,10 @@
 
  namespace Odisse\Maintenance\Models;
 
+use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\SLP\Formatter\SystemDateFormats;
 
 /**
  * Class MaintenanceLog
@@ -48,14 +48,15 @@ class MaintenanceLog extends Model
 	protected $fillable = [
 		'id_maintenance_job',
 		'id_staff',
-		'id_maintenance_job_priority',
 		'log_date_time',
 		'log_note',
 
 	];
 
 
-	public function getLogDateTimeAttribute($value)
+
+    // accessors for convert date formats
+    public function getLogDateTimeAttribute($value)
     {
         if( $value == null )
             return null;

@@ -42,24 +42,19 @@ class MaintenanceJobSla extends Model
 
 	protected $casts = [
 
+		'id_maintenance_job_sla_ref',
 		'id_maintenance_job',
-		'paused',
-		'pause_duration',
-		'finished',
+		'maintenance_job_sla_active',
+		
 
 	];
 
 
 
 	protected $fillable = [
+		'id_maintenance_job_sla_ref',
 		'id_maintenance_job',
-		'paused',
-		'pause_duration',
-		'finished',
-		'origin_date',
-		'maximum_expected_seen_date',
-		'expected_target_date',
-		'actual_target_date',
+		'maintenance_job_sla_active',	
 
 	];
 

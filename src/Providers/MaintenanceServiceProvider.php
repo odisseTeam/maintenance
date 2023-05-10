@@ -59,7 +59,7 @@ class MaintenanceServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../../config/Maintenance.php','maintenances');
 
         $this->app->bind('OdisseMaintenances', function () {
-        
+
             return new Manintenace;
         });
 

@@ -18,6 +18,7 @@ class CreateMaintainableTable extends Migration
             $table->integer('id_maintenance_job')->index('fk_maintainable_maintanance_job1_idx');
             $table->integer('maintenable_id');
             $table->string('maintenable_type',255);
+            $table->integer('maintainable_active')->default(1);
             $table->charset = "utf8";
             $table->collation = "utf8_general_ci";
 

@@ -1,6 +1,6 @@
 @extends('adminlte.layouts.sdr')
 
-@section('page_title', session('saas_title').' '.__('maintenance::dashboard.maintenance_dashboard'))
+@section('page_title', session('saas_title').' '.__('maintenance::maintenance_mgt.maintenance_management'))
 
 
 @section('css')
@@ -79,7 +79,7 @@
         <div class="box">
             <div class="box-header">
                 <h1>
-                    {{__('maintenance::dashboard.maintenance_dashboard')}}
+                    {{__('maintenance::maintenance_mgt.maintenance_management')}}
                 </h1>
             </div>
             <div class="box-body">
@@ -141,8 +141,8 @@
                                                             {{__('maintenance::dashboard.business')}}
                                                         </option> --}}
                                                         @foreach($businesses as $business)
-                                                            <option value="{{$business->id_saas_client_business}}">
-                                                                {{$business->business_name}}
+                                                            <option value="{{$business['id_saas_client_business']}}">
+                                                                {{$business['business_name']}}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -290,6 +290,7 @@
                                 <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>{{__('maintenance::maintenance_mgt.business')}}</th>
                                     <th>{{__('maintenance::dashboard.category')}}</th>
                                     <th>{{__('maintenance::dashboard.title')}}</th>
                                     <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
@@ -314,6 +315,7 @@
                                 <tfoot>
                                 <tr>
                                     <th>#</th>
+                                    <th>{{__('maintenance::maintenance_mgt.business')}}</th>
                                     <th>{{__('maintenance::dashboard.category')}}</th>
                                     <th>{{__('maintenance::dashboard.title')}}</th>
                                     <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
@@ -376,6 +378,7 @@
                         </div>
 
                         <p>{{trans('maintenance::dashboard.do_you_want_to_delete_maintenance')}}</p>
+                        <input type="hidden" id="deleted_business">
                         <input type="hidden" id="deleted_maintenance">
                 </div>
 
@@ -419,6 +422,7 @@
                         </div>
 
                         <input type="hidden" id="assigned_maintenance">
+                        <input type="hidden" id="assigned_business">
 
 
                         <!-- Business/contractor -->
@@ -430,8 +434,8 @@
                                 <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
                                     <option value="">{{trans('maintenance::dashboard.select_business_contractor')}}</option>
                                     @foreach ($businesses as $business)
-                                     <option value="B{{ $business->id_saas_client_business }}">
-                                        {{ $business->business_name }}
+                                     <option value="B{{$business['id_saas_client_business']}}">
+                                        {{ $business['business_name']}}
                                      </option>
                                     @endforeach
                                     @foreach ($contractors as $contractor)
@@ -530,7 +534,7 @@
             start_date = $('#search_start_date').val();
             end_date = $('#search_end_date').val();
 
-            send( '/maintenance/maintenances_list',  {
+            send( '/maintenance/mgt_maintenances_list',  {
                 business :business,
                 category :category,
                 priority :priority,
@@ -575,13 +579,15 @@
 
                     var id_maintenance_job = maintenance_list[k]["id_maintenance_job"];
                     var category = maintenance_list[k]["job_category_name"];
+                    var id_business = maintenance_list[k]["id_business"];
+                    var business_name = maintenance_list[k]["business_name"];
                     var title = maintenance_list[k]["maintenance_job_title"];
                     var sla = maintenance_list[k]["remain_time"];
                     var priority = maintenance_list[k]["priority_name"];
                     var status = maintenance_list[k]["job_status_name"];
                     var job_report_date_time = maintenance_list[k]["job_report_date_time"];
                     var job_start_date_time = maintenance_list[k]["job_start_date_time"]?maintenance_list[k]["job_start_date_time"]:'-';
-                    var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finished_date_time"]:'-';
+                    var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finish_date_time"]:'-';
                     var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
                     var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
 
@@ -589,16 +595,16 @@
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn"  >' +
                         '<i class="fa-solid fa-info" aria-hidden="true"></i></button>' +
                         '</a>' +
-                        '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_maintenance_job+')">'+
-                        '<i class="fa-solid fa-user"></i>'+
-                        '</button></a>'+
+                        // '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_business + ',' +id_maintenance_job+')">'+
+                        // '<i class="fa-solid fa-user"></i>'+
+                        // '</button></a>'+
 
-                        '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_maintenance_job+')">'+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_business +','+ id_maintenance_job+')">'+
                         '<i class="fa-solid fa-trash"></i>'+
                         '</button>';
 
 
-                    htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+category+"</td><td>"+title+"</td><td>"+sla+"</td><td>"
+                    htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+business_name+"</td><td>"+category+"</td><td>"+title+"</td><td>"+sla+"</td><td>"
                         +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+operation+"</td></tr>";
 
 
@@ -624,7 +630,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] }
                 ]
             });
 
@@ -654,8 +660,9 @@
 
         ///////////////////////////////////////////////////////
 
-        function showDeleteMaintenanceModal(id_maintenance){
+        function showDeleteMaintenanceModal(id_business , id_maintenance){
 
+            $('#deleted_business').val(id_business);
             $('#deleted_maintenance').val(id_maintenance);
             $('#err_msg_box_delete_maintenance').css('display' , 'none');
             $('#suc_msg_box_delete_maintenance').css('display' , 'none');
@@ -667,9 +674,12 @@
         function deleteMaintenance(){
             var spinHandle = loadingOverlay.activate();
 
+            let deleted_business = $( '#deleted_business' ).val();
             let deleted_maintenance = $( '#deleted_maintenance' ).val();
 
-            send( '/maintenance/delete/'+deleted_maintenance,  {
+            send( '/maintenance/mgt/delete/'+deleted_maintenance,  {
+                business:deleted_business,
+                maintenance:deleted_maintenance
             }, 'handleDeleteMaintenance', []);
         }
         ////////////////////////////////////////////////////////
@@ -723,21 +733,70 @@
         }
         ///////////////////////////////////////////////////////
 
-        function showAssignMaintenanceModal(id_maintenance){
+        function showAssignMaintenanceModal(id_business , id_maintenance){
 
+            $('#assigned_business').val(id_business);
             $('#assigned_maintenance').val(id_maintenance);
+
+            $('#business_contractor').find('option').not(':first').remove();
+            $('#user_agent').find('option').not(':first').remove();
+
+
+            var spinHandle = loadingOverlay.activate();
+
+            send( '/maintenance/mgt/business_contractors',  {
+                business :id_business,
+            }, 'handleLoadBusinessContractor', []);
+
+
+
+        }
+        ////////////////////////////////////////////////////////
+        function handleLoadBusinessContractor()
+        {
+            let message = return_value.message;
+            let res = return_value.code;
+            let business_list = return_value.businesses;
+            let contractor_list = return_value.contractors;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                $("#err_msg_box_assign_maintenance").css('display' , 'block');
+
+            }
+
+            else{
+
+                business_list.forEach(item => {
+                    var item_name = item.business_name;
+                    $('#business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
+                });
+                contractor_list.forEach(item => {
+                    $('#business_contractor').append(new Option(item.name ,'C'+item.id_contractor));
+                });
+
+
+            }
+
+
+            loadingOverlay.cancelAll();
             $('#err_msg_box_assign_maintenance').css('display' , 'none');
             $('#suc_msg_box_assign_maintenance').css('display' , 'none');
             $('#assignMaintenanceModal').modal('show');
 
         }
+
         ///////////////////////////////////////////////////////
         function loadUserAgents(){
 
             var spinHandle = loadingOverlay.activate();
+            business = $('#assigned_business').val();
             business_contractor = $('#business_contractor').val();
 
-            send( '/maintenance/business_contractor/user_agents',  {
+            send( '/maintenance/mgt/business_contractor/user_agents',  {
+                business :business,
                 business_contractor :business_contractor,
             }, 'handleLoadUserAgents', []);
 
@@ -747,7 +806,7 @@
         {
             let message = return_value.message;
             let res = return_value.code;
-            let user_list = return_value.result;
+            let user_list = return_value.agents;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -775,10 +834,12 @@
         ///////////////////////////////////////////////////////
         function assignMaintenance(){
             var spinHandle = loadingOverlay.activate();
+            business = $('#assigned_business').val();
             maintenance = $('#assigned_maintenance').val();
             user = $('#user_agent').val();
 
-            send( '/maintenance/assign_user',  {
+            send( '/maintenance/mgt/assign_user',  {
+                business :business,
                 maintenance :maintenance,
                 user :user,
             }, 'handleAssignMaintenance', []);

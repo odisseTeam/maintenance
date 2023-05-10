@@ -6,10 +6,10 @@
 
  namespace Odisse\Maintenance\Models;
 
+use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\SLP\Formatter\SystemDateFormats;
 
 /**
  * Class MaintenanceJob
@@ -26,7 +26,7 @@ use App\SLP\Formatter\SystemDateFormats;
  * @property text $maintenance_job_description
  * @property Carbon|null $job_report_date_time
  * @property Carbon|null $job_start_date_time
- * @property Carbon|null $job_finished_date_time
+ * @property Carbon|null $job_finish_date_time
 
  *
  * @property User $user
@@ -41,8 +41,6 @@ class MaintenanceJob extends Model
     protected $primaryKey = 'id_maintenance_job';
 	public $timestamps = false;
 
-          // Disable Laravel's mass assignment protection
-          protected $guarded = [];
 
 	protected $casts = [
 		'id_saas_client_business' => 'int',
@@ -70,28 +68,12 @@ class MaintenanceJob extends Model
 		'id_resident_reporter',
 		'job_start_date_time',
 		'job_report_date_time',
-		'job_finished_date_time'
+		'job_finish_date_time',
+        'maintenance_job_active'
 	];
 
 
-
-	public function getJobReportDateTimeAttribute($value)
-    {
-        if( $value == null )
-            return null;
-        else
-            return Carbon::parse($value)->format(SystemDateFormats::getDateTimeFormat());
-    }
-
-    public function setJobReportDateTimeAttribute($value)
-    {
-        if( $value == null )
-            $this->attributes['job_report_date_time'] = null;
-        else
-            $this->attributes['job_report_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
-    }
-
-
+    // accessors for convert date formats
     public function getJobStartDateTimeAttribute($value)
     {
         if( $value == null )
@@ -109,7 +91,8 @@ class MaintenanceJob extends Model
     }
 
 
-	public function getJobFinishedDateTimeAttribute($value)
+    // accessors for convert date formats
+    public function getJobReportDateTimeAttribute($value)
     {
         if( $value == null )
             return null;
@@ -117,12 +100,30 @@ class MaintenanceJob extends Model
             return Carbon::parse($value)->format(SystemDateFormats::getDateTimeFormat());
     }
 
-    public function setJobFinishedDateTimeAttribute($value)
+    public function setJobReportDateTimeAttribute($value)
     {
         if( $value == null )
-            $this->attributes['job_finished_date_time'] = null;
+            $this->attributes['job_report_date_time'] = null;
         else
-            $this->attributes['job_finished_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
+            $this->attributes['job_report_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
     }
+
+    // accessors for convert date formats
+    public function getJobFinishDateTimeAttribute($value)
+    {
+        if( $value == null )
+            return null;
+        else
+            return Carbon::parse($value)->format(SystemDateFormats::getDateTimeFormat());
+    }
+
+    public function setJobFinishDateTimeAttribute($value)
+    {
+        if( $value == null )
+            $this->attributes['job_finish_date_time'] = null;
+        else
+            $this->attributes['job_finish_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
+    }
+
 
 }

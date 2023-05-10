@@ -245,13 +245,15 @@
                         <div class="box">
                             <div class="box-body">
 
+                                <input type="hidden" id="changed_contractor" value="">
+
 
 
                                 <!-- Email -->
                                 <div class="form-group row">
-                                    <label class="col-xs-2 col-sm-2 col-md-2  text-right">{{trans('maintenance::contractor.email')}}:</label>
+                                    <label class="col-xs-3 col-sm-3 col-md-3  text-right">{{trans('maintenance::contractor.email')}}:</label>
 
-                                    <div class="col-xs-10 col-sm-10 col-md-10 text-left">
+                                    <div class="col-xs-9 col-sm-9 col-md-9 text-left">
                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
                                             <input type="text" class="form-control pull-right" placeholder="{{trans('maintenance::contractor.email_placeholder')}}" autocomplete="off" id="email" name="email"> {{-- value="@if (old('email')){{old('email')}}@elseif(null==old('_token') && isset($contractor)) {{$contractor->email}} @endif "> --}}
                                         </div>
@@ -264,11 +266,25 @@
 
                                 <!-- Password -->
                                 <div class="form-group row">
-                                    <label class="col-xs-2 col-sm-2 col-md-2  text-right">{{trans('maintenance::contractor.password')}}:</label>
+                                    <label class="col-xs-3 col-sm-3 col-md-3  text-right">{{trans('maintenance::contractor.password')}}:</label>
 
-                                    <div class="col-xs-10 col-sm-10 col-md-10 text-left">
+                                    <div class="col-xs-9 col-sm-9 col-md-9 text-left">
                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
                                             <input type="password" class="form-control pull-right" placeholder="{{trans('maintenance::contractor.password_placeholder')}}" autocomplete="off" id="password" name="password"> {{-- value="@if (old('password')){{old('password')}}@elseif(null==old('_token') && isset($contractor)) {{$contractor->password}} @endif "> --}}
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Confirm Password -->
+                                <div class="form-group row">
+                                    <label class="col-xs-3 col-sm-3 col-md-3  text-right">{{trans('maintenance::contractor.confirm_password')}}:</label>
+
+                                    <div class="col-xs-9 col-sm-9 col-md-9 text-left">
+                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                            <input type="password" class="form-control pull-right" placeholder="{{trans('maintenance::contractor.confirm_password_placeholder')}}" autocomplete="off" id="confirm_password" name="confirm_password"> {{-- value="@if (old('password')){{old('password')}}@elseif(null==old('_token') && isset($contractor)) {{$contractor->password}} @endif "> --}}
                                         </div>
 
                                     </div>
@@ -286,7 +302,7 @@
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
                     <button type="button" class="btn btn-primary"
-                        id="save_contractor" onclick="deleteContractor()">{{trans('maintenance::contractor.save')}}</button>
+                        id="save_contractor" onclick="changeContractorLoginSettings()">{{trans('maintenance::contractor.save')}}</button>
                 </div>
 
 
@@ -385,7 +401,7 @@
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" id="edit' + counter + '" >' +
                         '<i class="fa-solid fa-edit" aria-hidden="true"></i></button>' +
                         '</a>' +
-                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Login Settings" data-toggle="modal" data-target="#showLoginSettingsModal">'+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Login Settings" onclick="showLoginSettingsModal('+id_contractor+')">'+
                         '<i class="fa-solid fa-cogs"></i>'+
                         '</button>'+
 
@@ -453,6 +469,8 @@
         function showDeleteContractorModal(id_contractor){
 
             $('#deleted_contractor').val(id_contractor);
+            $("#err_msg_box_delete_contractor").css('display' , 'none');
+            $("#suc_msg_box_delete_contractor").css('display' , 'none');
             $('#deleteContractorModal').modal('show');
 
         }
@@ -494,6 +512,98 @@
 
 
             loadingOverlay.cancelAll();
+
+        }
+        /////////////////////////////////////////////////////////
+        function showLoginSettingsModal(id_contractor){
+
+            $('#password').val("");
+            $('#confirm_password').val("");
+            $('#email').val("");
+
+            var spinHandle = loadingOverlay.activate();
+
+
+
+            send( '/maintenance/contractor/email/'+id_contractor,  {
+            }, 'handleShowLoginSettingsModal', [id_contractor]);
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function handleShowLoginSettingsModal(id_contractor){
+
+            let user_info = return_value.user_info;
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+
+                $("#ajx_err_msg_login_setting").html(message);
+                $("#err_msg_box_login_setting").css('display' , 'block');
+
+            }
+            else if(user_info != null && user_info !="undefined"){
+                $('#email').val(user_info.email);
+            }
+
+
+
+            $('#changed_contractor').val(id_contractor);
+
+            $("#err_msg_box_login_setting").css('display' , 'none');
+            $("#suc_msg_box_login_setting").css('display' , 'none');
+
+            $('#showLoginSettingsModal').modal('show');
+            loadingOverlay.cancelAll();
+
+        }
+        /////////////////////////////////////////////////////////
+        function changeContractorLoginSettings(){
+            var spinHandle = loadingOverlay.activate();
+
+            let changed_contractor = $('#changed_contractor' ).val();
+            let email = $('#email' ).val();
+            let password = $('#password' ).val();
+            let password_confirmation = $('#confirm_password' ).val();
+
+
+            send( '/maintenance/contractor/login_settings/change',  {
+                contractor:changed_contractor,
+                email:email,
+                password:password,
+                password_confirmation:password_confirmation,
+            }, 'handleChangeContractorLoginSettings', []);
+        }
+        ///////////////////////////////////////////////////////////
+        function handleChangeContractorLoginSettings(){
+            loadingOverlay.cancelAll();
+
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+                $("#ajx_err_msg_login_setting").html(message);
+                $("#err_msg_box_login_setting").css('display' , 'block');
+            }
+            else{
+                $("#ajx_suc_msg_login_setting").html(message);
+                $("#suc_msg_box_login_setting").css('display' , 'block');
+            }
+
+
+
+            setTimeout(function() {$('#showLoginSettingsModal').modal('hide');}, 3000);
+
 
         }
 

@@ -35,6 +35,7 @@ class Maintainable extends Model
 	protected $casts = [
 		'id_maintenance_job' => 'int',
 		'maintenable_id' => 'int',
+		'maintainable_active'=>'int'
 
 	];
 
@@ -44,6 +45,7 @@ class Maintainable extends Model
 		'id_maintenance_job',
 		'maintenable_id',
 		'maintenable_type',
+		'maintainable_active',
 
 	];
 

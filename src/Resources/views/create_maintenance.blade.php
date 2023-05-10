@@ -1,6 +1,6 @@
 @extends('adminlte.layouts.sdr')
 
-@section('page_title', session('saas_title').' '.__('maintenance.maintenance'))
+@section('page_title', session('saas_title').' '.__('maintenance::maintenance.maintenance'))
 
 
 @section('body_class', 'login-page')
@@ -28,6 +28,12 @@
 
 @section('content')
 
+@if ($message = Session::get('message'))
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <strong>{{ $message }}</strong>
+</div>
+@endif
 @if(session()->has('message'))
     <div class="alert alert-success">
         {{ session()->get('message') }}
@@ -187,7 +193,7 @@
                                                     @if(isset($saas_client_businesses))
                                                     @foreach ($saas_client_businesses as $saas_client_business)
                                                      <option value="{{ $saas_client_business->id_saas_client_business }}"
-                                                        @if(($saas_client_business->id_saas_client_business == $saas_client_business->id_saas_client_business )||(old('saas_client_business') == $saas_client_business->id_saas_client_business)) {{ 'selected' }} @endif>
+                                                        @if((old('saas_client_business') == $saas_client_business->id_saas_client_business)) {{ 'selected' }} @endif>
                                                         {{ $saas_client_business->business_name }}
                                                      </option>
                                                     @endforeach
@@ -240,7 +246,7 @@
                                                     @if(isset($priorities))
                                                     @foreach ($priorities as $priority)
                                                      <option value="{{ $priority->id_maintenance_job_priority_ref }}"
-                                                        @if(($priority->id_maintenance_job_priority_ref == $priority->id_maintenance_job_priority_ref )||(old('priority') == $priority->id_maintenance_job_priority_ref)) {{ 'selected' }} @endif>
+                                                        @if((old('priority') == $priority->id_maintenance_job_priority_ref)) {{ 'selected' }} @endif>
                                                         {{ $priority->priority_name }}
                                                      </option>
                                                     @endforeach
@@ -575,6 +581,13 @@ function handleLoadResidentReporter(){
     if(res == "failure") {
 
     }
+    else if( residents == undefined || residents == null || residents == "undefined"){
+        console.log('ppppp');
+
+        let htmlValue = '<option value="">Select Resident Reporter</option>';
+        $('#resident_reporter').html(htmlValue);
+
+       }
     else if(residents != null && residents !="undefined"){
 
         // $('#template_sub_category').prop('disabled', false);

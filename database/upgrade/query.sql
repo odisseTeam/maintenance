@@ -16,3 +16,27 @@ INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_p
 VALUES ('maintenance.dashboard','/maintenance/dashboard','get',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
 VALUES ('maintenance.list','/maintenance/maintenances_list','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.delete','/maintenance/delete/{id_maintenance}','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('business_contractor.user_agent','/maintenance/business_contractor/user_agents','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.assign_user','/maintenance/assign_user','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('contractor.login_setting.change','/maintenance/contractor/login_settings/change','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('contractor.email.get','/maintenance/contractor/email/{id_contractor}','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.management','/maintenance/management','get',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.management.list','/maintenance/mgt_maintenances_list','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.management.list','/maintenancelist_details','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.maintenance.delete','/maintenance/mgt/delete/{id_maintenance}','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.business_contractor','/maintenance/mgt/business_contractors','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1,1);

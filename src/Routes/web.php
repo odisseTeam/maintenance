@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Odisse\Maintenance\Controllers\MTestController;
 use Odisse\Maintenance\Controllers\MaintenanceController;
 use Odisse\Maintenance\Controllers\MaintenanceDashboardController;
+use Odisse\Maintenance\Controllers\MaintenanceManagementController;
 use Odisse\Maintenance\Controllers\ContractorController;
 
 
@@ -27,8 +28,13 @@ Route::group(['prefix' => 'maintenance', 'middleware' => ['ProxyCAS', 'Authentic
     Route::get('/contractors', [ContractorController::class,'showContractorManagementPage'])->name('contractor_management_page');
     Route::post('/contractors', [ContractorController::class,'ajaxLoadContractors'])->name('load_contractors');
     Route::post('/contractor/delete/{id_contractor}', [ContractorController::class,'ajaxDeleteContractor'])->name('delete_contractor');
+    Route::post('/delete/{id_maintenance}', [MaintenanceDashboardController::class,'ajaxDeleteMaintenance'])->name('delete_maintenance');
     Route::get('/dashboard', [MaintenanceDashboardController::class,'showDashboardPage'])->name('maintenance_dashboard');
     Route::post('/maintenances_list', [MaintenanceDashboardController::class,'ajaxLoadMaintenances'])->name('load_maintenances');
+    Route::post('/business_contractor/user_agents', [MaintenanceDashboardController::class,'ajaxLoadUserAgents'])->name('load_users_agents');
+    Route::post('/assign_user', [MaintenanceDashboardController::class,'ajaxAssignMaintenanceToUser'])->name('assign_maintenance_to_user');
+    Route::post('/contractor/login_settings/change', [ContractorController::class,'ajaxChangeContractorLoginSetting']);
+    Route::post('/contractor/email/{id_contractor}', [ContractorController::class,'ajaxGetContractorEmail']);
 
     Route::post('/upload/file', [MaintenanceController::class,'ajaxUploadMaintenanceFile'])->name('file_upload');
 
@@ -39,7 +45,26 @@ Route::group(['prefix' => 'maintenance', 'middleware' => ['ProxyCAS', 'Authentic
    Route::post('/get/resident_reporter', [MaintenanceController::class,'ajaxGetResidentReporter'])->name('save_new_maintenance');
 
    //maintenance detail
-   Route::get('/detail/{maintenanceId}', [MaintenanceController::class,'showMaintenanceDetailPage'])->name('save_new_maintenance');
+   Route::get('/detail/{maintenanceId}', [MaintenanceController::class,'showMaintenanceDetailPage'])->name('maintenance_detail');
+
+   Route::post('/detail/edit', [MaintenanceController::class,'editMaintenanceDetail'])->name('save_new_maintenance');
+
+   Route::post('/timeline/get', [MaintenanceController::class,'ajaxGetMaintenanceTimeline'])->name('get_maintenance_timeline');
+
+   Route::post('/documents/get', [MaintenanceController::class,'ajaxGetMaintenanceDocuments'])->name('get_maintenance_document');
+
+   Route::post('/maintenance_document/delete', [MaintenanceController::class,'ajaxDeleteMaintenanceDocument'])->name('delete_maintenance_document');
+
+
+
+
+   Route::get('/management', [MaintenanceManagementController::class,'showManagementPage'])->name('maintenance_management');
+   Route::post('/mgt_maintenances_list', [MaintenanceManagementController::class,'ajaxLoadMaintenances'])->name('load_mgt_maintenances');
+   Route::post('/mgt/delete/{id_maintenance}', [MaintenanceManagementController::class,'ajaxMgtDeleteMaintenance'])->name('delete_maintenance');
+   Route::post('/mgt/business_contractors', [MaintenanceManagementController::class,'ajaxLoadBusinessContractors']);
+   Route::post('/mgt/business_contractor/user_agents', [MaintenanceManagementController::class,'ajaxLoadMgtUserAgents']);
+   Route::post('/mgt/assign_user', [MaintenanceManagementController::class,'ajaxMgtAssignMaintenanceToUser']);
+
 
 
 }

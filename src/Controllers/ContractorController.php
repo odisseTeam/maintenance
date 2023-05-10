@@ -305,6 +305,157 @@ class ContractorController extends Controller
     }
 
 
+    public function ajaxGetContractorEmail(Request $request , $id_contractor){
+
+        $user_info = Contractor::where('contractor.id_contractor' , $id_contractor)->
+        join('contractor_agent' , 'contractor_agent.id_contractor','contractor.id_contractor')->where('contractor_agent.contractor_agent_active' , 1)->
+        join('users' , 'users.id' , 'contractor_agent.id_user' )->where('users.is_deleted' , 0)->where('users.users_active' , 1)->first();
+
+
+        if($user_info){
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::SUCCESS,
+                'message' => trans('maintenance::contractor.contractor_agent_info_returned'),
+                'user_info' =>$user_info,
+                ]);
+        }
+        else{
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => trans('maintenance::contractor.contractor_agent_info_was_not_returned'),
+                ]);
+
+        }
+
+
+
+    }
+
+    public function ajaxChangeContractorLoginSetting(Request $request)
+    {
+
+        $user = Sentinel::getUser();
+
+        $validator = Validator::make($request->all(), [
+
+            'contractor' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string',
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("in Maintenance Package inside ContractorController- ajaxChangeContractorLoginSetting function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::ERROR,
+                  'message' => $validator,
+                ]);
+        }
+
+        try{
+            
+            DB::beginTransaction();
+            $contractor_agents = ContractorAgent::where('id_contractor' , $request->contractor)->where('contractor_agent_active' ,1 )->get();
+
+            if(count($contractor_agents)>0){
+                //update password
+                foreach($contractor_agents as $contractor_agent){
+                    $agent_user = User::find($contractor_agent->id_user);
+                    if($agent_user->email == $request->email){
+                        //only update password
+
+                        $sentinel_user = Sentinel::findById($contractor_agent->id_user);
+                        if( $agent_user != null ) {
+                            $hasher = Sentinel::getHasher();
+
+                            $password = $request->password;
+                            $passwordConf = $request->password_confirmation;
+
+                            if ($password != $passwordConf) {
+
+                                return response()->json(
+                                    [
+                                    'code' => ActionStatusConstants::ERROR,
+                                    'message' => trans('maintenance::contractor.password_and_confirmation_is_not_equal'),
+                                    ]);
+                            }
+
+
+                            Sentinel::update($sentinel_user, array('password' => $password));
+
+                            Log::info(" in ContractorController- ajaxDeleteContractor function "."Password changed for user ". $agent_user->email .  " (user id ". $user->id ." ) on " . date('Y-m-d H:i:s'));
+
+                            return response()->json(
+                                [
+                                'code' => ActionStatusConstants::ERROR,
+                                'message' => trans('maintenance::contractor.contractor_login_setting_edited'),
+                                ]);
+                        }
+                        else{
+
+                            Log::error("in ContractorController- ajaxChangeContractorLoginSetting function"."update user pass : "."by user:".$user->first_name . " " . $user->last_name);
+                            return response()->json(
+                                [
+                                'code' => ActionStatusConstants::ERROR,
+                                'message' => trans('maintenance::contractor.contractor_have_no_agent'),
+                                ]);
+
+                        }
+                    }
+                    else{
+                        //update email is not possible
+
+                        DB::rollback();
+                        return response()->json(
+                            [
+                            'code' => ActionStatusConstants::ERROR,
+                            'message' => trans('maintenance::contractor.update_email_is_not_possible'),
+                            ]);
+
+                    }
+                }
+
+
+            }
+            else{
+                //insert new user and contractor_agent for first time
+            }
+
+
+
+
+
+
+
+
+            DB::commit();
+        }
+        catch(\Exception $e){
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::ERROR,
+                  'message' => trans('maintenance::contractor.contractor_login_setting_not_changed'),
+                ]);
+
+        }
+
+
+
+
+    }
+
+
 
 }
 

@@ -49,6 +49,8 @@ return [
     'agent_list'=>'Agent List',
     'login_settings'=>'Login Settings',
     'login_agent_settings'=>'Login Agent Settings',
+    'confirm_password'=>'Confirm Password',
+    'confirm_password_placeholder'=>'Please Enter Password Again',
 
 
 
@@ -60,5 +62,9 @@ return [
     'new_contractor_created'=>'New contractor created.',
     'your_contractors_loaded'=>'Your contractors loaded.',
     'your_selected_contractor_deleted'=>'Your selected contractor deleted.',
+    'contractor_login_setting_not_changed'=>'Contractor login setting not changed!',
+    'contractor_agent_info_returned'=>'Contractor agent info returned.',
+    'contractor_agent_info_was_not_returned'=>'Contractor agent info was not returned.',
+    'contractor_login_setting_edited'=>'Contractor login setting edited.',
 
 ];

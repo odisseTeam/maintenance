@@ -55,7 +55,10 @@ return [
     'locations'=>'Locations ',
     'attach_file'=>'Attach File ',
     'attach_new_file'=>'Attach a new file ',
+    'maintenance_not_created'=>'Maintenance Did Not Created Successfully ',
+
     'maintenance_created_successfully'=>'Maintenance Created Successfully ',
+    
     'resident_reporter'=>'Resident Reporter ',
     'select_resident_reporter'=>'Select Resident Reporter  ',
 
@@ -65,12 +68,14 @@ return [
     'description'=>'Description ',
     'add_parent_job'=>'Add Parent Job ',
     'select_parent_job'=>'Select Parent Job ',
+    'select_assignee'=>'Select Assignee',
     'cancel'=>'Cancel ',
     'save'=>'Save ',
 
 
 
     'maintenance_detail'=>'View Maintenance Detail',
+    'maintenance_detaill'=>'Maintenance Detail',
     'add_comment'=>'Add a Comment',
     'select_status'=>'Select Status',
     'asignee'=>'Asignee',
@@ -78,7 +83,22 @@ return [
     'assignee'=>'Assignee',
     'people'=>'People',
     'select_maintenance_reporter'=>'Select Reporter',
-    'maintenance_timeline'=>'Maintenance Timeline'
+    'maintenance_timeline'=>'Maintenance Timeline',
+    'maintenance_documents'=>'Maintenance Documents',
+    'document_name'=>'Document Name',
+    'document_extention'=>'Document Type',
+    'description'=>'Description',
+    'operation'=>'Operation',
+    'delete_maintenance_document_modal'=>'Delete Maintenance Document Modal',
+    'are_you_sure_to_delete_maintenance_document'=>'Are you sure to delete this maintenance document?',
+    'get_maintenance_timeline_was_successful'=>'Get Maintenance Timeline Was  Succssfully',
+    'maintenance_document_deleted_succssfully'=>'Maintenance Document Deleted Succssfully',
+    'get_maintenance_document_was_successful'=>'Get Maintenance Document Was  Succssfully',
+    'maintenance_not_edited'=>'Maintenance Did Not Edited Succssfully',
+    
+    'you_can_not_see_maintenance_detail_page'=>'You Can Not See_ Mintenance Detail Page',
+    'get_resident_was_successful'=>'Get Resident Was Successful',
+    'get_resident_reporter_was_not_successful'=>'Get Resident Was Not Successful',
 
-
+    'maintenance_edited_successfully'=>'Maintenance Was Edited Succssfully',
 ];
