@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Odisse\Maintenance\Controllers\MTestController;
 use Odisse\Maintenance\Controllers\MaintenanceController;
 use Odisse\Maintenance\Controllers\MaintenanceDashboardController;
 use Odisse\Maintenance\Controllers\MaintenanceManagementController;
@@ -10,9 +9,10 @@ use Odisse\Maintenance\Controllers\ContractorController;
 
 Route::group(['prefix' => 'maintenance'],function () {
 
-Route::any('/demo', function(){
-    echo "OK";
-});
+    Route::any('/testItem', [MTestController::class,'testFunc']);
+    Route::any('/demo', function(){
+        echo "OK";
+    });
 });
 Route::group(['prefix' => 'maintenance', 'middleware' => ['ProxyCAS', 'AuthenticatedUsersMiddleware', 'settingsLoader']],function () {
 

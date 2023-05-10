@@ -28,7 +28,6 @@ class CreateMaintenanceJobStaffHistoryTable extends Migration
             $table->foreign('id_maintenance_staff', 'fk_maintenance_job_staff_history_user1_idx')->references('id')->on('users')->onUpdate('NO ACTION')->onDelete('NO ACTION');
             $table->foreign('id_maintenance_assignee', 'fk_maintenance_job_staff_history_user2_idx')->references('id')->on('users')->onUpdate('NO ACTION')->onDelete('NO ACTION');
             $table->foreign('id_maintenance_job', 'fk_maintenance_job_staff_history_maintanance_job1_idx')->references('id_maintenance_job')->on('maintenance_job')->onUpdate('NO ACTION')->onDelete('NO ACTION');
-            $table->foreign('id_maintenance_assignee', 'fk_maintenance_job_staff_history_user2_idx')->references('id')->on('users')->onUpdate('NO ACTION')->onDelete('NO ACTION');
 
         });
     }

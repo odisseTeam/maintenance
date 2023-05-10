@@ -31,7 +31,7 @@ VALUES ('maintenance.management','/maintenance/management','get',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
 VALUES ('maintenance.management.list','/maintenance/mgt_maintenances_list','post',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.management.list','/maintenancelist_details','post',1,1);
+VALUES ('maintenance.management.details','/maintenancelist_details','post',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
 VALUES ('mgt.maintenance.delete','/maintenance/mgt/delete/{id_maintenance}','post',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
@@ -40,3 +40,4 @@ INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_p
 VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
 VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1,1);
+

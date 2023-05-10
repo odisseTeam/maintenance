@@ -32,6 +32,7 @@ class MaintenanceServiceProvider extends ServiceProvider
 
         $this->loadRoutesFrom(dirname(__DIR__).'/Routes/web.php');
         $this->loadViewsFrom(dirname(__DIR__)."/Resources/views/",'maintenance');
+        $this->loadMigrationsFrom(dirname(__DIR__)."/../database/migrations/",'maintenance');
         // $this->loadViewComponentsAs(dirname(__DIR__)."/Resources/views/",'maintenance');
         $this->loadTranslationsFrom(dirname(__DIR__).'/Resources/lang/','maintenance');
 
@@ -88,9 +89,9 @@ class MaintenanceServiceProvider extends ServiceProvider
             __DIR__.'/../../config/Maintenance.php' => config_path('Maintenance.php'),
         ], 'config');
 
-        $this->publishes([
-            __DIR__.'/../../database/migrations/create_Maintenance_tables.php.stub' => $this->getMigrationFileName('create_Maintenance_tables.php'),
-        ], 'migrations');
+        // $this->publishes([
+        //     __DIR__.'/../../database/migrations/create_Maintenance_tables.php.stub' => $this->getMigrationFileName('create_Maintenance_tables.php'),
+        // ], 'migrations');
     }
 
     protected function registerCommands()
