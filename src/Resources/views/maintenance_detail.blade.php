@@ -590,10 +590,9 @@
                 var description = maintenance_documents_list[k]["description"];
 
 
-                var operation ='<a data-toggle="tooltip" title="Delete Maintenance Document"  data-original-title="Delete Maintenance Document" onclick="deleteMaintenanceDocument('+id_maintenance_job_document+')" >' +
-            '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" style="margin-right:20 px;"   >'+
-            '<i class="fa-solid fa-trash" ></i>'+
-            '</button></a>';
+                var operation ='<a data-toggle="tooltip" title="Delete Maintenance Document" class="btn btn-danger allign-btn"  data-original-title="Delete Maintenance Document" onclick="deleteMaintenanceDocument('+id_maintenance_job_document+')" >' +
+            '<i class="fa-solid fa-trash" ></i> </a>';
+            operation += '<a href="/maintenance/attachment/'+id_maintenance_job_document+'/download" class="btn btn-info allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
 
 
             htmlValue += "<tr><td>" + counter + "</td><td>" + document_name + "</td><td>" + document_extention

@@ -42,3 +42,62 @@ INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_p
 VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1,1);
 INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
 VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'maintenance.gattachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+
+
+-- Add base data to initialize package
+INSERT INTO public.maintenance_job_category_ref
+(job_category_code, job_category_name, job_category_icon, maintenance_job_category_ref_active)
+VALUES('NRML', 'normal', '-', 1);
+
+
+INSERT INTO public.maintenance_job_priority_ref
+(priority_code, priority_name, priority_icon, maintenance_job_priority_ref_active)
+VALUES('NRML', 'normal', '-', 1);
+
+INSERT INTO public.maintenance_job_status_ref
+(job_status_code, job_status_name, job_status_icon, maintenance_job_status_ref_active)
+VALUES('OPUN', 'Open_Unassigned', '-', 1),
+('OPAS', 'Open_Assigned', '-', 1),
+('HOLD', 'On_Hold', '-', 1),
+('INPR', 'In_Progress', '-', 1),
+('CLOS', 'Closed', '-', 1);
+
+
+INSERT INTO public.maintenance_job_sla_ref
+(id_saas_client_business, id_maintenance_job_priority_ref, id_client, maximum_expected_seen_minutes, expected_target_minutes, maintenance_job_sla_ref_active)
+VALUES(1, 1, 1, '30', '3000', 1),
+(1, 1, 1, '30', '3000', 1),
+(1, 1, 2, '30', '3000', 1),
+(1, 1, 3, '30', '3000', 1),
+(1, 1, 4, '30', '3000', 1),
+(1, 1, 5, '30', '3000', 1),
+(1, 1, 6, '30', '3000', 1),
+(1, 1, 7, '30', '3000', 1),
+(1, 1, 8, '30', '3000', 1),
+(1, 1, 10, '30', '3000', 1),
+(1, 1, 11, '30', '3000', 1),
+(1, 1, 12, '30', '3000', 1),
+(1, 1, 13, '30', '3000', 1),
+(1, 1, 14, '30', '3000', 1),
+(1, 1, 15, '30', '3000', 1),
+(1, 1, 16, '30', '3000', 1),
+(1, 1, 17, '30', '3000', 1),
+(1, 1, 18, '30', '3000', 1),
+(1, 1, 19, '30', '3000', 1),
+(1, 1, 20, '30', '3000', 1),
+(1, 1, 21, '30', '3000', 1),
+(1, 1, 22, '30', '3000', 1),
+(1, 1, 23, '30', '3000', 1),
+(1, 1, 24, '30', '3000', 1),
+(1, 1, 25, '30', '3000', 1),
+(1, 1, 26, '30', '3000', 1),
+(1, 1, 27, '30', '3000', 1);
+
+
+
+
+
+

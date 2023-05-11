@@ -5,7 +5,7 @@ use Odisse\Maintenance\Controllers\MaintenanceController;
 use Odisse\Maintenance\Controllers\MaintenanceDashboardController;
 use Odisse\Maintenance\Controllers\MaintenanceManagementController;
 use Odisse\Maintenance\Controllers\ContractorController;
-
+use Odisse\Maintenance\Controllers\MaintenanceAttachmentController;
 
 Route::group(['prefix' => 'maintenance'],function () {
 
@@ -40,6 +40,8 @@ Route::middleware(['ProxyCAS'])->group(
             Route::post('/contractor/email/{id_contractor}', [ContractorController::class,'ajaxGetContractorEmail']);
 
             Route::post('/upload/file', [MaintenanceController::class,'ajaxUploadMaintenanceFile'])->name('file_upload');
+
+            Route::get('/attachment/{id_attachment}/download', [MaintenanceAttachmentController::class,'downloadAttachment']);
 
            Route::post('/find/maintenance_title', [MaintenanceController::class,'ajaxFindMaintenanceTitle'])->name('find_maintenance_title');
 
