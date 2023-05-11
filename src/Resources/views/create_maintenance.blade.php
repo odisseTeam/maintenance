@@ -28,17 +28,18 @@
 
 @section('content')
 
-@if ($message = Session::get('message'))
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        <strong>{{ $message }}</strong>
-</div>
-@endif
-@if(session()->has('message'))
-    <div class="alert alert-success">
-        {{ session()->get('message') }}
-    </div>
-@endif
+
+    @if ($message = Session::get('message'))
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <strong>{{ $message }}</strong>
+        </div>
+    @endif
+    @if(session()->has('message'))
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    @endif
     @if(session('error'))
         <div class="box-body">
             <div class="alert alert-danger alert-dismissible">
@@ -55,6 +56,18 @@
             </div>
         </div>
     @endif
+    {{-- @if( $errors->any() )
+        <div class="box-body">
+
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                @foreach( $errors->all() as $error )
+                    <p><i class="icon fa-solid fa-ban"></i>{{$error}}</p>
+                @endforeach
+            </div>
+        </div>
+
+    @endif --}}
 
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -78,19 +91,24 @@
                                 <div class="form-group row">
                                     <div class="col-sm-12 col-xs-12 col-md-12">
 
-                    
 
 
-                                    
+
+
                                         <!-- maintenance title-->
 
                                         <div class="form-group row">
-                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.maintenance_title')}}:</label> 
+                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.maintenance_title')}}:</label>
 
                                             <div class="col-xs-10 col-sm-10 col-md-10">
                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                  <input class="form-control" name="maintenance_title" id="maintenance_title" ></input>
+                                                  <input
+                                                  class="form-control"
+                                                  name="maintenance_title"
+                                                  id="maintenance_title"
+                                                  value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif"
+                                                  />
                                                </div>
 
                                             </div>
@@ -117,21 +135,21 @@
                                             <div class="col-xs-10 col-sm-10 col-md-10">
                                                <div class=" input-group" id="contaner">
 
-                                            
+
                                                <p  name="" class="btn" id="selected_file"></p>
                                                <input id="nahayat" name="nahayat" type="hidden">
                                                     <!-- <input id="file" name="file" class="input" type="hidden"> -->
                                                         <select name="" id="all_attached_file" class="hidden"  hidden="hidden" style="width:0px ; border:0px;border: image width 0;"  multiple>
-                                                                   
-                                                        </select> 
-                                                    <button class="btn btn-default" id="attach_file_btn" type="button" onclick="showAttachFileModal()" >{{trans('maintenance::maintenance.attach_file')}}</button> 
 
-                                                        <button type="button" class="btn btn-default" 
+                                                        </select>
+                                                    <button class="btn btn-default" id="attach_file_btn" type="button" onclick="showAttachFileModal()" >{{trans('maintenance::maintenance.attach_file')}}</button>
+
+                                                        <button type="button" class="btn btn-default"
                                                         style="display: inline-block;border-radius:90%;margin-left:20px;"  onclick="showAttachFileModal()" ><i class="fa-plus" ></i></button>
 
 
                                                 </div>
-                                               
+
                                             </div>
                                         </div>
 
@@ -171,7 +189,7 @@
                                                      </option>
                                                     @endforeach
                                                     @else
-                                                        
+
                                                     @endif
 
 
@@ -198,7 +216,7 @@
                                                      </option>
                                                     @endforeach
                                                     @else
-                                                        
+
                                                     @endif
 
 
@@ -223,7 +241,7 @@
                                                      </option>
                                                     @endforeach
                                                     @else
-                                                        
+
                                                     @endif
 
 
@@ -251,7 +269,7 @@
                                                      </option>
                                                     @endforeach
                                                     @else
-                                                        
+
                                                     @endif
 
 
@@ -270,7 +288,7 @@
 
 
                                                 <select name="resident_reporter" id="resident_reporter" class="form-control select ">
-                                                  
+
 
 
                                                 </select>
@@ -288,7 +306,7 @@
                                                     <div class="input-group ">
 
                                                         <input class="form-control"  name="parent_job" id="parent_job"  style="display: inline-block;">
-                                                        
+
                                                             <span class="input-group-btn" >
                                                                 <button class="btn btn-default" type="button" style="display: inline-block;" onclick="showAddParentModal()">{{trans('maintenance::maintenance.select_parent_job')}}</button>
                                                             </span>
@@ -303,9 +321,9 @@
                             <div class="box-footer text-right">
 
 
-                                    <button class="btn btn-warning">{{trans('maintenance::maintenance.cancel')}}</button> 
+                                    <button class="btn btn-warning">{{trans('maintenance::maintenance.cancel')}}</button>
 
-                                   
+
 
                                 <button type="submit" id="save_maintenance"
                                     class="btn btn-primary">{{trans('maintenance::maintenance.save')}}</button>
@@ -340,7 +358,7 @@
                         <h4 style="margin-left:40px;">{{trans('maintenance::maintenance.attach_new_file')}}</h4>
 
                         </div>
-                        
+
                         <div class="box-body">
                            <!-- <div class="form-horizontal" id="attach_file_form"> -->
                            <form id="attach_file_form" method="post" enctype="multipart/form-data" novalidate
@@ -355,7 +373,7 @@
                                             <div id="ajx_suc_msg"></div>
                                         </div>
                                     <div class="row"  >
-        
+
                                     <!-- file -->
                                         <div class="row form-group col-sm-6 col-md-6 col-lg-6" >
                                             <label class="control-label col-sm-3 col-md-3 col-lg-3 col-md-offset-1">{{trans('maintenance::maintenance.file')}}:</label>
@@ -389,8 +407,8 @@
                         </div>
 
                     </div>
-                   
-                   
+
+
                 </div>
             </div>
         </div>
@@ -430,7 +448,7 @@
                                     <label class="control-label col-sm-3 col-md-3 col-lg-3">{{trans('maintenance::maintenance.parent_job')}}:</label>
 
                                     <select name="parent_job_modal[]" id="parent_job_modal" class="form-control  col-sm-8 col-md-8 col-lg8" placeholder="{{__('maintenance.select_parent_jobs')}}" style="width:40%"  >
-                                               <option value="0">{{trans('maintenance::maintenance.select_parent_job')}}</option>        
+                                               <option value="0">{{trans('maintenance::maintenance.select_parent_job')}}</option>
                                     @if(isset($jobs))
                                             @foreach ($jobs as $job)
                                                 <option value="{{ $job->id_maintenance_job }}">
@@ -438,11 +456,11 @@
                                                 </option>
                                             @endforeach
                                             @else
-                                                
+
                                             @endif
 
 
-                                        </select> 
+                                        </select>
                                 </div>
 
                                 </div>
@@ -458,7 +476,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
 
                 </div>
             </div>
@@ -486,7 +504,7 @@
     <script src="{{ asset('js/maintenance.js') }}"></script>
 
     <script>
-                    
+
       $('.select2').select2();
 
       $(document).ready(function () {
@@ -569,13 +587,13 @@
 }
        /////////////////////////////////////////////////////////////
 function handleLoadResidentReporter(){
-    
+
     console.log('tt');
 
     let res = return_value.code;
     let message = return_value.message;
     let residents = return_value.residents;
-   
+
     console.log(return_value.residents);
 
     if(res == "failure") {
@@ -629,7 +647,7 @@ function handleLoadResidentReporter(){
         $('#attach_file_form').submit(function(e) {
 
 
-            
+
             e.preventDefault();
 
             console.log('are');
@@ -706,10 +724,10 @@ function handleLoadResidentReporter(){
 
                             $("#attachFileModal").modal('hide');
 
-                           
+
                             // $('#contaner').append(
                             //     $('<input/>').attr('type', 'file').attr('value', response.uploaded_file));
-                           
+
                             // let a = document.getElementById("file");
                             // e.preventDefault();
                         //    $('#show_attached_file').val(response.uploaded_file);
@@ -741,9 +759,9 @@ function handleLoadResidentReporter(){
 
         let id_maintenance_job = $('#parent_job_modal').val();
 
-        send( '/maintenance/find/maintenance_title',  {id_maintenance_job: id_maintenance_job}, 
+        send( '/maintenance/find/maintenance_title',  {id_maintenance_job: id_maintenance_job},
         'handleShowMaintenanceJobTitle', []);
-    
+
 
 })
 //////////////////////////////////////////////////////
@@ -791,7 +809,7 @@ function showAddParentModal() {
 
 
 /////////////////////////////////////////////////////////
-       
+
     </script>
 
 @endsection

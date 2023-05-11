@@ -39,39 +39,42 @@ use Odisse\Maintenance\App\Traits\MaintenanceDetails;
 use Odisse\Maintenance\App\Traits\MaintenanceTimelineDetails;
 use Odisse\Maintenance\Models\ManintenanceJob;
 
+
+use App\Http\General\UserData;
+
 use Sentinel;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class MaintenanceController extends Controller
 {
+    use MaintenanceDetails;
+    use MaintenanceTimelineDetails;
 
-  use MaintenanceDetails;
-  use MaintenanceTimelineDetails;
-
-        public function testFunc()
-        {
-            return view('maintenance::test',['title' => 'sample component']);
-        }
-
-
-
-        public function newTest(){
-            return view('maintenance::create_maintenance');
-        }
+    public function testFunc()
+    {
+        return view('maintenance::test', ['title' => 'sample component']);
+    }
 
 
 
-        public function createNewMaintenancePage()
-      {
+    public function newTest()
+    {
+        return view('maintenance::create_maintenance');
+    }
 
-      
 
-            $user = Sentinel::getUser();
 
-            Log::info(" in MaintenanceController- createNewMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
+    public function createNewMaintenancePage()
+    {
 
-            try {
-              
+
+
+        $user = Sentinel::getUser();
+
+        Log::info(" in MaintenanceController- createNewMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        try {
+
             //get all maintenance category
             $maintenance_category = MaintenanceJobCategoryRef::all();
 
@@ -86,47 +89,49 @@ class MaintenanceController extends Controller
 
             $rooms = Room::all();
 
-            foreach($rooms as $room){
-              $room->id = 'Room'.$room->id_room;
-              $room->name = 'Room'.' '.$room->room_number_full;
+            foreach($rooms as $room) {
+                $room->id = 'Room'.$room->id_room;
+                $room->name = 'Room'.' '.$room->room_number_full;
 
             }
 
-            foreach($rooms as $room){
-              $locations[] = $room;
+            foreach($rooms as $room) {
+                $locations[] = $room;
             }
 
             $properties = Property::all();
-            
-            foreach($properties as $property){
-              $property->id = 'Property'.$property->id_property;
-              $property->name = 'Property'.' '.$property->property_name;
+
+            foreach($properties as $property) {
+                $property->id = 'Property'.$property->id_property;
+                $property->name = 'Property'.' '.$property->property_name;
 
             }
 
-            foreach($properties as $property){
-              $locations[] = $property;
+            foreach($properties as $property) {
+                $locations[] = $property;
             }
 
 
             $sites = Site::all();
 
 
-            foreach($sites as $site){
-              $site->id = 'Site'.$site->id_site;
-              $site->name = 'Site'.' '.$site->site_full_name;
+            foreach($sites as $site) {
+                $site->id = 'Site'.$site->id_site;
+                $site->name = 'Site'.' '.$site->site_full_name;
 
             }
-            foreach($sites as $site){
-              $locations[] = $site;
+            foreach($sites as $site) {
+                $locations[] = $site;
             }
 
             $jobs = MaintenanceJob::all();
 
 
 
-            return view('maintenance::create_maintenance',
-                        [
+            return view(
+                'maintenance::create_maintenance',
+                // UserData::getTheme().'.m.create_maintenance',
+                [
                           'maintenance_categories' => $maintenance_category,
                           'saas_client_businesses' => $saas_client_businesses,
                           'priorities' => $priorities,
@@ -135,20 +140,21 @@ class MaintenanceController extends Controller
 
 
                         ]
-                    );
+            );
 
-         } catch (\Exception $e) {
-              Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
-              . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
-        
-           return view('maintenance::create_maintenance')->with([ActionStatusConstants::ERROR=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
-        
+        } catch (\Exception $e) {
+            Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
+            . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
+
+            return view('maintenance::create_maintenance')->with([ActionStatusConstants::ERROR=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
+
         }
 
 
-      }
+    }
 
-      public function ajaxUploadMaintenanceFile(Request $request){
+      public function ajaxUploadMaintenanceFile(Request $request)
+      {
 
           $user = Sentinel::getUser();
 
@@ -156,108 +162,108 @@ class MaintenanceController extends Controller
 
 
           try {
-            DB::beginTransaction();
+              DB::beginTransaction();
 
 
-      
 
-            $validator = Validator::make($request->all(), [
-              'file' => 'required|mimes:doc,docx,jpg,jpeg,pdf,PNG,png,zip,rar|max:2048',
-              'description'=>'required'
-            ]);
-            if ($validator->fails()) {
 
-              Log::error("in MaintenanceController- ajaxUploadMaintenanceFile function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+              $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:doc,docx,jpg,jpeg,pdf,PNG,png,zip,rar|max:2048',
+                'description'=>'required'
+              ]);
+              if ($validator->fails()) {
 
-              return response()->json(['code' => ActionStatusConstants::FAILURE, 'message' => $validator->errors() ]);
-          }
-            
+                  Log::error("in MaintenanceController- ajaxUploadMaintenanceFile function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+                  return response()->json(['code' => ActionStatusConstants::FAILURE, 'message' => $validator->errors() ]);
+              }
+
 
 
               $file = $request->file('file');
               $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
 
-                // File extension
-                $extension = $file->getClientOriginalExtension();
+              // File extension
+              $extension = $file->getClientOriginalExtension();
 
-                //make a new directory for uploaded documents
+              //make a new directory for uploaded documents
               $maintenance_file_path = config('maintenances.maintenance_file_path');
 
-                  $path = $maintenance_file_path . 'uploaded_files' ;
-                  if (!\File::exists($path)) {
-                      \File::makeDirectory($path,0755,true);
-                  }
+              $path = $maintenance_file_path . 'uploaded_files' ;
+              if (!\File::exists($path)) {
+                  \File::makeDirectory($path, 0755, true);
+              }
 
 
-                  //save file in the directory
+              //save file in the directory
               $request->file->move($path, $fileName);
 
               $uploaded_file = $fileName;
 
-        
+
               DB::commit();
 
-                return response()->json(
+              return response()->json(
                   [
-                    'code' => ActionStatusConstants::SUCCESS,
-                    'uploaded_file'=>$file,
-                    'fileName'=>$fileName,
-                    'description'=>$request->description,
+                  'code' => ActionStatusConstants::SUCCESS,
+                  'uploaded_file'=>$file,
+                  'fileName'=>$fileName,
+                  'description'=>$request->description,
 
-                    'message' => trans('resident.other_contacts_not_updated'),
-                ]          
+                  'message' => trans('resident.other_contacts_not_updated'),
+                ]
               );
 
-            } catch (\Exception $e) {
+          } catch (\Exception $e) {
 
 
               Log::error(" in MaintenanceController - ajaxUploadMaintenanceFile function " . " upload maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
               Log::error($e->getMessage());
-  
+
               DB::rollBack();
-  
+
               return response()->json([
                   'code' => ActionStatusConstants::FAILURE,
                   'message' => trans('maintenance.maintenance_document_did_not_uploaded'),
               ]);
-  
+
           }
-  
+
       }
 
-      public function ajaxFindMaintenanceTitle(Request $request){
+      public function ajaxFindMaintenanceTitle(Request $request)
+      {
 
-                $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-                Log::info(" in MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info(" in MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
 
-                try {
+          try {
 
-                $id_maintenance_job = $request->id_maintenance_job;
-                $maintenace_job = MaintenanceJob::findOrFail($id_maintenance_job);
-                $maintenace_job_title_only = $maintenace_job->maintenance_job_title;
-                $maintenace_job_date = $maintenace_job->job_report_date_time;
+              $id_maintenance_job = $request->id_maintenance_job;
+              $maintenace_job = MaintenanceJob::findOrFail($id_maintenance_job);
+              $maintenace_job_title_only = $maintenace_job->maintenance_job_title;
+              $maintenace_job_date = $maintenace_job->job_report_date_time;
 
-                $maintenace_job_title = $maintenace_job_title_only.$maintenace_job_date;
+              $maintenace_job_title = $maintenace_job_title_only.$maintenace_job_date;
 
-                Log::info(" ine ". $maintenace_job_title." MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
+              Log::info(" ine ". $maintenace_job_title." MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
 
-                  return response()->json(
-                    [
-                        'code' => ActionStatusConstants::SUCCESS,
-                        'maintenace_job_title'=>$maintenace_job_title,
-                        'message' => trans('maintenance.find_maintenance_title_was_successful'),
+              return response()->json(
+                  [
+                    'code' => ActionStatusConstants::SUCCESS,
+                    'maintenace_job_title'=>$maintenace_job_title,
+                    'message' => trans('maintenance.find_maintenance_title_was_successful'),
                     ]
+              );
 
-                  );
+          } catch (\Exception $e) {
+              Log::error("in MaintenanceController- ajaxFindMaintenanceTitle function find maintenance title " . " by user "
+                  . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-                } catch (\Exception $e) {
-                  Log::error("in MaintenanceController- ajaxFindMaintenanceTitle function find maintenance title " . " by user "
-                      . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
+              return response()->json()->with([ActionStatusConstants::ERROR=>  trans('maintenance.get_maintenance_title_was_not_successful')]);
 
-                  return response()->json()->with([ActionStatusConstants::ERROR=>  trans('maintenance.get_maintenance_title_was_not_successful')]);
-
-              }
+          }
 
       }
 
@@ -265,17 +271,13 @@ class MaintenanceController extends Controller
       {
 
 
-        $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
 
 
-        Log::info(" in MaintenanceController- saveNewMaintenence function " . " try  to save new maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
-        try {
-          DB::beginTransaction();
-
-            $validator = Validator::make($request->all(), [
+          $validator = Validator::make($request->all(), [
               'maintenance_title' => 'required',
               'description'=>'required',
               'maintenance_date'=>'required|date_format:' . SystemDateFormats::getDateTimeFormat(),
@@ -286,90 +288,99 @@ class MaintenanceController extends Controller
 
 
             ]);
-            if ($validator->fails()) {
+          if ($validator->fails()) {
 
-              Log::error("in MaintenanceController- ajaxUploadMaintenanceFile function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+              Log::error("in MaintenanceController- saveNewMaintenence function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
+            //   dd($validator->errors());
 
-              return redirect(route('create_maintenance_page'))
+              return redirect()->back()
               ->withErrors($validator)
               ->withInput();
+          }
 
-             }
-
-             //save a new maintenance job
-            $maintenance_job = new MaintenanceJob();
-            $maintenance_job->id_saas_client_business =  $request->saas_client_business;
-            $maintenance_job->id_parent_job = 1;
-            $maintenance_job->id_saas_staff_reporter = $user->id;
-            $maintenance_job->job_report_date_time = $request->maintenance_date;
-            $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
-            $maintenance_job->id_maintenance_job_priority = $request->priority;
-            $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
-            $maintenance_job->maintenance_job_title = $request->maintenance_title;
-            $maintenance_job->maintenance_job_description = $request->description;
-            $maintenance_job->id_resident_reporter = $request->resident_reporter;
-          
-            $maintenance_job->save();
-
-            $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d H:i:s') : null;
-
-             //save a new maintenance job detail
-            $maintenance_job_detail = new MaintenanceJobDetail();
-            $maintenance_job_detail->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-            $maintenance_job_detail->maintenance_job_detail_date_time = $date_time;
-            $maintenance_job_detail->id_staff = null;
-            $maintenance_job_detail->job_detail_note = null;
-            $maintenance_job_detail->maintenance_job_detail_active = 1;
-            
-            $maintenance_job_detail->save();
-
-            //save a new status history for maintenance job 
-            $maintenance_job_status_history = new MaintenanceJobStatusHistory();
-            $maintenance_job_status_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-            $maintenance_job_status_history->id_maintenance_staff = $user->id;
-            $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
-            $maintenance_job_status_history->maintenance_status_start_date = $date_time;
-            $maintenance_job_status_history->maintenance_status_end_date = null;
-            $maintenance_job_status_history->maintenance_job_status_history_active = 1;
-
-            $maintenance_job_status_history->save();
-
-            //save a new priority history for maintenance job 
-            $maintenance_job_priority_history = new MaintenanceJobPriorityHistory();
-            $maintenance_job_priority_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-            $maintenance_job_priority_history->id_maintenance_job_priority_ref = $request->priority;
-            $maintenance_job_priority_history->priority_start_date_time = $date_time;
-            $maintenance_job_priority_history->priority_end_date_time = null;
-            $maintenance_job_priority_history->maintenance_job_priority_history_active = 1;
-
-            $maintenance_job_priority_history->save();
-            
-
-            $maintenance_file_path = config('maintenances.maintenance_file_path');
+          Log::info(" in MaintenanceController- saveNewMaintenence function " . " try  to save new maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
-            $desc =strtok($request->nahayat, '/');
-
-            $doc_number = substr_count($request->nahayat, '/');
-
-            $doc_parts = explode("/",$request->nahayat,$doc_number);
-
-            foreach( $doc_parts as $doc_part){
-
-                    $description_part = strtok($doc_part, '+');
-
-                  
-                    $name_part = substr($doc_part, strpos($doc_part, "+") + 1);   
-                    
-                    $name_part = substr($name_part, 0, -1);;
-
-                    $name_extension_part = substr($name_part, strpos($name_part, ".") + 1); 
-                   
-                    $path = $maintenance_file_path . 'uploaded_files/' ;
+          try {
+              DB::beginTransaction();
 
 
-                 //save documents of maintenance job 
+              //save a new maintenance job
+              $maintenance_job = new MaintenanceJob();
+              $maintenance_job->id_saas_client_business =  $request->saas_client_business;
+              $maintenance_job->id_parent_job = 1;
+              $maintenance_job->id_saas_staff_reporter = $user->id;
+              $maintenance_job->job_report_date_time = $request->maintenance_date;
+              $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
+              $maintenance_job->id_maintenance_job_priority = $request->priority;
+              $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
+              $maintenance_job->maintenance_job_title = $request->maintenance_title;
+              $maintenance_job->maintenance_job_description = $request->description;
+              $maintenance_job->id_resident_reporter = $request->resident_reporter;
+              $maintenance_job->maintenance_job_active = 1;
+
+              $maintenance_job->save();
+
+              $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d H:i:s') : null;
+
+              //save a new maintenance job detail
+              $maintenance_job_detail = new MaintenanceJobDetail();
+              $maintenance_job_detail->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+              $maintenance_job_detail->maintenance_job_detail_date_time = $date_time;
+              $maintenance_job_detail->id_staff = null;
+              $maintenance_job_detail->job_detail_note = null;
+              $maintenance_job_detail->maintenance_job_detail_active = 1;
+
+              $maintenance_job_detail->save();
+
+              //save a new status history for maintenance job
+              $maintenance_job_status_history = new MaintenanceJobStatusHistory();
+              $maintenance_job_status_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+              $maintenance_job_status_history->id_maintenance_staff = $user->id;
+              $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
+              $maintenance_job_status_history->maintenance_status_start_date = $date_time;
+              $maintenance_job_status_history->maintenance_status_end_date = null;
+              $maintenance_job_status_history->maintenance_job_status_history_active = 1;
+
+              $maintenance_job_status_history->save();
+
+              //save a new priority history for maintenance job
+              $maintenance_job_priority_history = new MaintenanceJobPriorityHistory();
+              $maintenance_job_priority_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+              $maintenance_job_priority_history->id_maintenance_job_priority_ref = $request->priority;
+              $maintenance_job_priority_history->priority_start_date_time = $date_time;
+              $maintenance_job_priority_history->priority_end_date_time = null;
+              $maintenance_job_priority_history->maintenance_job_priority_history_active = 1;
+
+              $maintenance_job_priority_history->save();
+
+
+              $maintenance_file_path = config('maintenances.maintenance_file_path');
+
+
+              $desc =strtok($request->nahayat, '/');
+
+              $doc_number = substr_count($request->nahayat, '/');
+
+              $doc_parts = explode("/", $request->nahayat, $doc_number);
+
+              foreach($doc_parts as $doc_part) {
+
+                  $description_part = strtok($doc_part, '+');
+
+
+                  $name_part = substr($doc_part, strpos($doc_part, "+") + 1);
+
+                  $name_part = substr($name_part, 0, -1);
+                  ;
+
+                  $name_extension_part = substr($name_part, strpos($name_part, ".") + 1);
+
+                  $path = $maintenance_file_path . 'uploaded_files/' ;
+
+
+                  //save documents of maintenance job
                   $maintenance_job_document = new MaintenanceJobDocument();
                   $maintenance_job_document->id_maintenance_job =  $maintenance_job->id_maintenance_job;
                   $maintenance_job_document->document_name = $name_part;
@@ -378,182 +389,189 @@ class MaintenanceController extends Controller
                   $maintenance_job_document->description = $description_part;
                   $maintenance_job_document->maintenance_job_document_active = 1;
 
-                
+
                   $maintenance_job_document->save();
 
-            }
+              }
 
-            $log_note = $user->first_name . " " . $user->last_name." Created a New Maintenance titled ".$maintenance_job->maintenance_job_title;
+              $log_note = $user->first_name . " " . $user->last_name." created a new maintenance titled : ".$maintenance_job->maintenance_job_title ;
 
-            //add a log for saving a new maintenance job
-            $maintenance_log = new MaintenanceLog();
-            $maintenance_log->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-            $maintenance_log->id_staff = $user->id;
-            $maintenance_log->log_date_time = $request->maintenance_date;
-            $maintenance_log->id_maintenance_job_priority = $request->priority;
-            $maintenance_log->log_note = $log_note;
-   
-            $maintenance_log->save();
+              //add a log for saving a new maintenance job
+              $maintenance_log = new MaintenanceLog();
+              $maintenance_log->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+              $maintenance_log->id_staff = $user->id;
+              $maintenance_log->log_date_time = $request->maintenance_date;
+            //   $maintenance_log->id_maintenance_job_priority = $request->priority;
+              $maintenance_log->log_note = $log_note;
 
-            $locations = $request->locations;
+              $maintenance_log->save();
+
+              $locations = $request->locations;
 
 
-            //save all maintenance locations in maintainable table
-            foreach($locations as $location){
+              //save all maintenance locations in maintainable table
+              foreach($locations as $location) {
 
-              switch ($location) {
-                case  Str::contains($location, 'Room'):
+                  switch ($location) {
+                      case  Str::contains($location, 'Room'):
 
-                  $maintainable_id =  strtok($location, 'Room');
+                          $maintainable_id =  strtok($location, 'Room');
 
-                  $maintainable = new Maintainable();
-                  $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                  $maintainable->maintenable_id =  $maintainable_id;
-                  $maintainable->maintenable_type = 'App\Models\Rooms';
-                
-                  $maintainable->save();
+                          $maintainable = new Maintainable();
+                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                          $maintainable->maintenable_id =  $maintainable_id;
+                          $maintainable->maintenable_type = 'App\Models\Rooms';
 
-                //  dd($maintainable_id);
-                  $active_booking = DB::table('booking_room')
-                  ->join('booking', 'booking_room.id_booking', '=', 'booking.id_booking')
-                  ->where('booking_room.id_room',$maintainable_id)
-                  ->where('booking.booking_status',BookingStatusConstants::Active)
-                  ->where('booking_room.room_check_out_date_time',null)
-                  ->select('booking.*','booking_room.*')
-                  ->groupBy('booking_room.id_booking_room')
-                  ->groupBy('booking.id_booking')
-                   ->get();
+                          $maintainable->save();
 
-                  //  dd($active_booking);
+                          //  dd($maintainable_id);
+                          $active_booking = DB::table('booking_room')
+                          ->join('booking', 'booking_room.id_booking', '=', 'booking.id_booking')
+                          ->where('booking_room.id_room', $maintainable_id)
+                          ->where('booking.booking_status', BookingStatusConstants::Active)
+                          ->where('booking_room.room_check_out_date_time', null)
+                          ->select('booking.*', 'booking_room.*')
+                          ->groupBy('booking_room.id_booking_room')
+                          ->groupBy('booking.id_booking')
+                           ->get();
 
-                   if($active_booking->isNotEmpty()){
-                   $id_client = $active_booking[0]->id_client;
+                          //  dd($active_booking);
 
-                   }else{
-                    $id_client = null;
-                   }
+                          if($active_booking->isNotEmpty()) {
+                              $id_client = $active_booking[0]->id_client;
 
-                   $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client',$id_client)
-                   ->where('id_maintenance_job_priority',$request->priority)->where('id_saas_client_business',$request->saas_client_business)->get();
+                          } else {
+                              $id_client = null;
+                          }
 
-                  //  dd($maintenance_sla_ref);
-                   if($maintenance_sla_ref->isNotEmpty()){
+                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
 
-                    $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job',$maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active',1)->get();
+                          //  dd($maintenance_sla_ref);
+                          if($maintenance_sla_ref->isNotEmpty()) {
 
-                    if($existence_of_maintenance_job_sla->isEmpty()){
+                              $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
 
-                      $maintenance_job_sla = new MaintenanceJobSla();
-                      $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
-                      $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                      $maintenance_job_sla->maintenance_job_sla_active = 1;
-                    
-                      $maintenance_job_sla->save();
+                              if($existence_of_maintenance_job_sla->isEmpty()) {
+
+                                  $maintenance_job_sla = new MaintenanceJobSla();
+                                  $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
+                                  $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                                  $maintenance_job_sla->maintenance_job_sla_active = 1;
+
+                                  $maintenance_job_sla->save();
+
+
+                              }
+
+                          }
+
+
+                          break;
+
+                      case Str::contains($location, 'Property'):
+
+                          $maintainable_id =  strtok($location, 'Property');
+
+                          $maintainable = new Maintainable();
+                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                          $maintainable->maintenable_id =  $maintainable_id;
+                          $maintainable->maintenable_type = 'App\Models\Property';
+
+                          $maintainable->save();
+
+                          break;
+                      case Str::contains($location, 'Site'):
+
+                          $maintainable_id =  strtok($location, 'Site');
+
+                          $maintainable = new Maintainable();
+                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                          $maintainable->maintenable_id =  $maintainable_id;
+                          $maintainable->maintenable_type = 'App\Models\Site';
+
+                          $maintainable->save();
+
+                          break;
 
 
                   }
- 
-                }
-               
 
-                break;
 
-                case Str::contains($location, 'Property'):
-                
-                  $maintainable_id =  strtok($location, 'Property');
-                 
-                  $maintainable = new Maintainable();
-                  $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                  $maintainable->maintenable_id =  $maintainable_id;
-                  $maintainable->maintenable_type = 'App\Models\Property';
-                
-                  $maintainable->save();
+              }
 
-                  break;
-                case Str::contains($location, 'Site'):
+              // session(['success' => 'value']);
+              DB::commit();
 
-                  $maintainable_id =  strtok($location, 'Site');
 
-                  $maintainable = new Maintainable();
-                  $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                  $maintainable->maintenable_id =  $maintainable_id;
-                  $maintainable->maintenable_type = 'App\Models\Site';
-                
-                  $maintainable->save();
-                  
-                  break;
-               
-                  
-              } 
+              $status = ActionStatusConstants::SUCCESS;
+              $message = 'Role created successfully';
 
-          
-            }
 
-            // session(['success' => 'value']);
-            DB::commit();
-        
-            // return redirect(route('create_maintenance_page'))->with(ActionStatusConstants::SUCCESS, trans('maintenance::maintenance.maintenance_created_successfully'));
-            return redirect()->route('create_maintenance_page')->with('message', 'Role created successfully.');
-
-            // return redirect()->back()
-            // ->with([
-            //   ActionStatusConstants::SUCCESS => trans('maintenance::maintenance.maintenance_created_successfully')
-            // ]);
 
           } catch (\Exception $e) {
 
+              Log::error(" in MaintenanceController - saveNewMaintenence function : save a new maintenance  was not successful by user " . $user->first_name . " " . $user->last_name);
+              Log::error($e->getMessage());
 
-            Log::error(" in MaintenanceController - saveNewMaintenence function " . "save a new maintenance " . $maintenance_job->maintenance_job_title . " was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-            Log::error($e->getMessage());
+              DB::rollBack();
 
-            DB::rollBack();
 
-            return redirect()->back([
-                'code' => ActionStatusConstants::FAILURE,
-                'message' => trans('maintenance.maintenance_not_created'),
-            ]);
+              $status = ActionStatusConstants::ERROR;
+              $message = trans('maintenance:maintenance.maintenance_not_created');
 
-        }
-          
+              return redirect()->back()
+                  ->withErrors($message)
+                  ->withInput();
+
+          }
+        return redirect('/maintenance/create/page')
+                ->withInput()
+                ->with(
+                    [ $status  => $message ]
+                );
+
+
+
 
       }
 
-      public function ajaxGetResidentReporter(Request $request){
+      public function ajaxGetResidentReporter(Request $request)
+      {
 
-              $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-              Log::info(" in MaintenanceController- ajaxGetResidentReporter function " . " try to get list of resident reporter based on selected locations  ------- by user " . $user->first_name . " " . $user->last_name);
-              
-              try {
+          Log::info(" in MaintenanceController- ajaxGetResidentReporter function " . " try to get list of resident reporter based on selected locations  ------- by user " . $user->first_name . " " . $user->last_name);
+
+          try {
 
               $rooms = [];
               $locations = $request->locations;
-              
-              foreach($locations as $location){
-                
-                if( Str::contains($location, 'Room')){
 
-                  $room_id_part = strtok($location, 'Room');
-                  $rooms[] = $room_id_part;
-                }
+              foreach($locations as $location) {
+
+                  if(Str::contains($location, 'Room')) {
+
+                      $room_id_part = strtok($location, 'Room');
+                      $rooms[] = $room_id_part;
+                  }
               }
 
-              if(sizeof($rooms) == 0){
-                $residents = [];
-              }else{
-              $residents = $this->getMaintenanceResidentInfo($rooms); 
+              if(sizeof($rooms) == 0) {
+                  $residents = [];
+              } else {
+                  $residents = $this->getMaintenanceResidentInfo($rooms);
               }
 
               return response()->json(
-                [
+                  [
                     'code' => ActionStatusConstants::SUCCESS,
                     'residents'=>$residents,
                     'message' => trans('maintenance::maintenance.get_resident_was_successful'),
                 ]
-
               );
 
-            } catch (\Exception $e) {
+          } catch (\Exception $e) {
               Log::error("in TemplatesController- listTemplates function list templates " . " by user "
                   . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
@@ -565,127 +583,129 @@ class MaintenanceController extends Controller
       }
 
 
-      public function showMaintenanceDetailPage($maintenanceId){
+      public function showMaintenanceDetailPage($maintenanceId)
+      {
 
-        $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-            Log::info(" in MaintenanceController- showMaintenanceDetailPage function " . " try to go to maintenance detail page  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info(" in MaintenanceController- showMaintenanceDetailPage function " . " try to go to maintenance detail page  ------- by user " . $user->first_name . " " . $user->last_name);
 
-            try {
-        
-             $maintenance = MaintenanceJob::findOrFail($maintenanceId); 
+          try {
+
+              $maintenance = MaintenanceJob::findOrFail($maintenanceId);
 
 
               //get all businesses
-            $saas_client_businesses = SaasClientBusiness::all();
+              $saas_client_businesses = SaasClientBusiness::all();
 
 
-             //get all maintenance category
-             $maintenance_category = MaintenanceJobCategoryRef::all();
+              //get all maintenance category
+              $maintenance_category = MaintenanceJobCategoryRef::all();
 
-             //get all maintenance status
-             $maintenance_status = MaintenanceJobStatusRef::all();
+              //get all maintenance status
+              $maintenance_status = MaintenanceJobStatusRef::all();
 
-             $maintenance_job_detail = MaintenanceJobDetail::where('id_maintenance_job','=',$maintenanceId)->first();
-
-          
-             //get all the conductors
-            $contactors = Contractor::all();
-
-            //get all users as reporters
-            $reporters = User::all();
-
-            $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenanceId); 
-
-            // dd( $maintenance_timelines);
-
-            foreach($maintenance_timelines as $maintenance_timeline){
-
-              $maintenance_log_model = new MaintenanceLog();
-              $maintenance_timeline->log_date_time = $maintenance_log_model->getLogDateTimeAttribute($maintenance_timeline->log_date_time);
-
-          }
-
-          $maintainables = Maintainable::where('id_maintenance_job','=',$maintenanceId)->where('maintainable_active',1)->get();
+              $maintenance_job_detail = MaintenanceJobDetail::where('id_maintenance_job', '=', $maintenanceId)->first();
 
 
+              //get all the conductors
+              $contactors = Contractor::all();
 
+              //get all users as reporters
+              $reporters = User::all();
 
-          foreach($maintainables as $maintainable){
+              $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenanceId);
 
-            switch ($maintainable) {
-              case  Str::contains($maintainable->maintenable_type, 'Room'):
+              // dd( $maintenance_timelines);
 
-                $maintainable->id_location = 'Room'.$maintainable->maintenable_id;
+              foreach($maintenance_timelines as $maintenance_timeline) {
 
-                break;
+                  $maintenance_log_model = new MaintenanceLog();
+                  $maintenance_timeline->log_date_time = $maintenance_log_model->getLogDateTimeAttribute($maintenance_timeline->log_date_time);
 
-              case Str::contains($maintainable->maintenable_type, 'Property'):
-              
-                 $maintainable->id_location = 'Property'.$maintainable->maintenable_id;
+              }
 
-                break;
-              case Str::contains($maintainable->maintenable_type, 'Site'):
-
-                $maintainable->id_location = 'Site'.$maintainable->maintenable_id;
-                
-                break;
-                            
-            } 
-
-        
-          }
+              $maintainables = Maintainable::where('id_maintenance_job', '=', $maintenanceId)->where('maintainable_active', 1)->get();
 
 
 
-             $locations = [];
 
-            $rooms = Room::all();
+              foreach($maintainables as $maintainable) {
 
-            foreach($rooms as $room){
-              $room->id = 'Room'.$room->id_room;
-              $room->name = 'Room'.' '.$room->room_number_full;
+                  switch ($maintainable) {
+                      case  Str::contains($maintainable->maintenable_type, 'Room'):
 
-            }
+                          $maintainable->id_location = 'Room'.$maintainable->maintenable_id;
 
-            foreach($rooms as $room){
-              $locations[] = $room;
-            }
+                          break;
 
-            $properties = Property::all();
-            
-            foreach($properties as $property){
-              $property->id = 'Property'.$property->id_property;
-              $property->name = 'Property'.' '.$property->property_name;
+                      case Str::contains($maintainable->maintenable_type, 'Property'):
 
-            }
+                          $maintainable->id_location = 'Property'.$maintainable->maintenable_id;
 
-            foreach($properties as $property){
-              $locations[] = $property;
-            }
+                          break;
+                      case Str::contains($maintainable->maintenable_type, 'Site'):
+
+                          $maintainable->id_location = 'Site'.$maintainable->maintenable_id;
+
+                          break;
+
+                  }
 
 
-            $sites = Site::all();
+              }
 
 
-            foreach($sites as $site){
-              $site->id = 'Site'.$site->id_site;
-              $site->name = 'Site'.' '.$site->site_full_name;
 
-            }
-            foreach($sites as $site){
-              $locations[] = $site;
-            }
+              $locations = [];
 
-             //get all maintenance priorities
-             $priorities = MaintenanceJobPriorityRef::all();
+              $rooms = Room::all();
 
-             $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job',$maintenanceId)->get();
+              foreach($rooms as $room) {
+                  $room->id = 'Room'.$room->id_room;
+                  $room->name = 'Room'.' '.$room->room_number_full;
 
-             session(['active_tab' => 'maintenanceDetail']);
+              }
 
-              return view('maintenance::maintenance_detail',
-              [
+              foreach($rooms as $room) {
+                  $locations[] = $room;
+              }
+
+              $properties = Property::all();
+
+              foreach($properties as $property) {
+                  $property->id = 'Property'.$property->id_property;
+                  $property->name = 'Property'.' '.$property->property_name;
+
+              }
+
+              foreach($properties as $property) {
+                  $locations[] = $property;
+              }
+
+
+              $sites = Site::all();
+
+
+              foreach($sites as $site) {
+                  $site->id = 'Site'.$site->id_site;
+                  $site->name = 'Site'.' '.$site->site_full_name;
+
+              }
+              foreach($sites as $site) {
+                  $locations[] = $site;
+              }
+
+              //get all maintenance priorities
+              $priorities = MaintenanceJobPriorityRef::all();
+
+              $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job', $maintenanceId)->get();
+
+              session(['active_tab' => 'maintenanceDetail']);
+
+              return view(
+                  'maintenance::maintenance_detail',
+                  [
                 'maintenance' => $maintenance,
                 'saas_client_businesses' => $saas_client_businesses,
                 'maintenance_categories' => $maintenance_category,
@@ -698,29 +718,30 @@ class MaintenanceController extends Controller
                 'maintainables'=>$maintainables,
                 'maintenance_documents'=>$maintenance_documents,
 
-                
+
               ]
-          )->with(['active_tab' => 'maintenanceDetail']);
+              )->with(['active_tab' => 'maintenanceDetail']);
 
-            } catch (\Exception $e) {
-                Log::error("in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
-                . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
+          } catch (\Exception $e) {
+              Log::error("in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
+              . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-            return view('maintenance::maintenance_detail')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
+              return view('maintenance::maintenance_detail')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
 
-            }
+          }
       }
 
-      public function editMaintenanceDetail(Request $request){
+      public function editMaintenanceDetail(Request $request)
+      {
 
-              $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-              Log::info(" in MaintenanceController- saveMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info(" in MaintenanceController- saveMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
           //  dd($request->all());
-              try {
-                DB::beginTransaction();
-      
+          try {
+              DB::beginTransaction();
+
               $note = "";
 
 
@@ -733,87 +754,102 @@ class MaintenanceController extends Controller
               $maintenance_old_data = MaintenanceJob::findOrFail($id_maintenance);
 
               //get all maintenance detail before edit
-              $maintenance_detail_old_data = MaintenanceJobDetail::where('id_maintenance_job',$id_maintenance)->first();
+              $maintenance_detail_old_data = MaintenanceJobDetail::where('id_maintenance_job', $id_maintenance)->first();
 
-              $maintenance_detail_old_data->update([
-                'job_detail_note' => $request->coment
-            ]);
+            //   $maintenance_detail_old_data->update([
+            //     'job_detail_note' => $request->coment
+            // ]);
+if($request->coment != null) {
+    $maintenance_log = new MaintenanceLog();
+    $maintenance_log->id_maintenance_job =  $id_maintenance;
+    $maintenance_log->id_staff =  $user->id;
+    $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
+    //   $maintenance_log->id_maintenance_job_priority = $request->priority;
+    $maintenance_log->log_note = $request->coment;
 
-                  //check if maintenance status has been changed
-                  if($maintenance_old_data->id_maintenance_job_status != $request->maintenance_status)
-                  {
-                          // edit status of maintenance job 
-                          $maintenance_old_data->update([
-                            'id_maintenance_job_status' => $request->maintenance_status
-                        ]);
-                         
-                        //get data of maintenance status history
-                      $previous_maintenance_job_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job','=',$id_maintenance)->where('maintenance_status_end_date',null)->first();
-                      
-                       //update data of maintenance status history
-                          $previous_maintenance_job_status_history->update([
-                            'maintenance_status_end_date' => $now->format(SystemDateFormats::getDateTimeFormat())
-                        ]);
-                       
-                        //make a new history for maintenance status history
-                        $maintenance_job_status_history = new MaintenanceJobStatusHistory();
-                        $maintenance_job_status_history->id_maintenance_job =  $id_maintenance;
-                        $maintenance_job_status_history->id_maintenance_staff =  $user->id;
-                        $maintenance_job_status_history->id_maintenance_job_status = $request->maintenance_status;
-                        $maintenance_job_status_history->maintenance_status_start_date = $now->format(SystemDateFormats::getDateTimeFormat());
-                        $maintenance_job_status_history->maintenance_status_end_date = null;
-                        $maintenance_job_status_history->maintenance_job_status_history_active = 1;
+    $maintenance_log->save();
+}
 
-                        $maintenance_job_status_history->save();
-                      
-                      
-                        $status_ref = MaintenanceJobStatusRef::findOrFail($request->maintenance_status);
-
-                        $note = $note.$user->first_name . " " . $user->last_name."Changed Maintenance Status to ".$status_ref->job_status_name."\r\n";
-
-
-                  }
-
-                  //check if maintenance reporter has been changed
-                  if($maintenance_old_data->id_saas_staff_reporter != $request->maintenance_reporter)
-                  {
-
-                           // edit reporter of maintenance job 
-                          $maintenance_old_data->update([
-                            'id_saas_staff_reporter' => $request->maintenance_reporter
+              //check if maintenance status has been changed
+              if($maintenance_old_data->id_maintenance_job_status != $request->maintenance_status) {
+                  // edit status of maintenance job
+                  $maintenance_old_data->update([
+                    'id_maintenance_job_status' => $request->maintenance_status
                         ]);
 
-                        $staff_reporter = User::findOrFail( $request->maintenance_reporter);
+                  //get data of maintenance status history
+                  $previous_maintenance_job_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job', '=', $id_maintenance)->where('maintenance_status_end_date', null)->first();
 
-                        $note = $note.$user->first_name . " " . $user->last_name." Changed Maintenance Reporter to ".$staff_reporter->first_name." ".$staff_reporter->last_name;
-
-                  }
-
-                  //check if maintenance staff has been changed
-                  if($request->maintenance_assignee != null){
-
-                    if($maintenance_detail_old_data->id_staff != $request->maintenance_assignee)
-                    {
-
-                        // edit staff of maintenance job detail
-
-                          $maintenance_detail_old_data->update([
-                            'id_staff' => $request->maintenance_assignee
+                  //update data of maintenance status history
+                  $previous_maintenance_job_status_history->update([
+                    'maintenance_status_end_date' => $now->format(SystemDateFormats::getDateTimeFormat())
                         ]);
-                          
-                        //get data of maintenance staff history
-                        $previous_maintenance_job_staff_history = MaintenanceJobStaffHistory::where('id_maintenance_job','=',$id_maintenance)->where('staff_end_date_time',null)->get();
-                          
-                        //update data of maintenance status history
-                        if($previous_maintenance_job_staff_history->isNotEmpty()){
 
-                          $previous_maintenance_job_staff_history[0]->update([
+                  //make a new history for maintenance status history
+                  $maintenance_job_status_history = new MaintenanceJobStatusHistory();
+                  $maintenance_job_status_history->id_maintenance_job =  $id_maintenance;
+                  $maintenance_job_status_history->id_maintenance_staff =  $user->id;
+                  $maintenance_job_status_history->id_maintenance_job_status = $request->maintenance_status;
+                  $maintenance_job_status_history->maintenance_status_start_date = $now->format(SystemDateFormats::getDateTimeFormat());
+                  $maintenance_job_status_history->maintenance_status_end_date = null;
+                  $maintenance_job_status_history->maintenance_job_status_history_active = 1;
+
+                  $maintenance_job_status_history->save();
+
+
+                  $status_ref = MaintenanceJobStatusRef::findOrFail($request->maintenance_status);
+
+                  $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance status to ".$status_ref->job_status_name."\r\n";
+
+
+              }
+
+              //check if maintenance reporter has been changed
+              if($maintenance_old_data->id_saas_staff_reporter != $request->maintenance_reporter) {
+
+                  // edit reporter of maintenance job
+                  $maintenance_old_data->update([
+                    'id_saas_staff_reporter' => $request->maintenance_reporter
+                        ]);
+
+                  $staff_reporter = User::findOrFail($request->maintenance_reporter);
+
+                  $note = $note. " " . $user->first_name . " " . $user->last_name." changed maintenance reporter to ".$staff_reporter->first_name." ".$staff_reporter->last_name;
+
+              }
+
+              //check if maintenance staff has been changed
+              if($request->maintenance_assignee != null) {
+
+                Log::info("going to save new assignee");
+
+                  if($maintenance_detail_old_data->id_staff != $request->maintenance_assignee) {
+
+
+                    Log::info("1");
+                      // edit staff of maintenance job detail
+
+                      $maintenance_detail_old_data->update([
+                        'id_staff' => $request->maintenance_assignee
+                        ]);
+
+                        Log::info("old data updated");
+                      //get data of maintenance staff history
+                      $previous_maintenance_job_staff_history = MaintenanceJobStaffHistory::where('id_maintenance_job', '=', $id_maintenance)
+                      ->where('staff_end_date_time', null)->get();
+
+                      //update data of maintenance status history
+                      if(sizeof($previous_maintenance_job_staff_history) > 0 ) {
+                            $previous_maintenance_job_staff_history = $previous_maintenance_job_staff_history[0];
+                          $previous_maintenance_job_staff_history->update([
                                 'staff_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
                             ]);
 
-                        }
-                      
-                        //make a new history for maintenance staff history
+                        Log::info("prev job staff history updated");
+
+                      }
+
+                      //make a new history for maintenance staff history
                       $maintenance_job_staff_history = new MaintenanceJobStaffHistory();
                       $maintenance_job_staff_history->id_maintenance_job =  $id_maintenance;
                       $maintenance_job_staff_history->id_maintenance_staff =  $user->id;
@@ -824,312 +860,312 @@ class MaintenanceController extends Controller
                       $maintenance_job_staff_history->maintenance_job_staff_history_active = 1;
 
                       $maintenance_job_staff_history->save();
-                    
-                      $new_staff = Contractor::findOrFail( $request->maintenance_assignee);
-                    
-                      $note = $note.$user->first_name . " " . $user->last_name." Changed Maintenance staff to ".$new_staff->name;
+
+                    Log::info("job staff hist saved");
+
+                      $new_staff = Contractor::findOrFail($request->maintenance_assignee);
 
 
-                    }
+                    Log::info("after find or fail");
+                      $note = $note. " " .$user->first_name . " " . $user->last_name." changed maintenance staff to ".$new_staff->name;
+
+
                   }
-                   //check if maintenance priority has been changed
-                if($maintenance_old_data->id_maintenance_job_priority != $request->priority){
+              }
+              //check if maintenance priority has been changed
+              if($maintenance_old_data->id_maintenance_job_priority != $request->priority) {
 
-                       // edit priority of maintenance job 
-                      $maintenance_old_data->update([
-                        'id_maintenance_job_priority' => $request->priority
+                  // edit priority of maintenance job
+                  $maintenance_old_data->update([
+                    'id_maintenance_job_priority' => $request->priority
                     ]);
-                   
-                    //get data of maintenance priority history
-                  $previous_maintenance_job_priority_history = MaintenanceJobPriorityHistory::where('id_maintenance_job','=',$id_maintenance)->where('priority_end_date_time',null)->first();
 
-                    //update data of maintenance priority history
-                    $previous_maintenance_job_priority_history->update([
-                      'priority_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
+                  //get data of maintenance priority history
+                  $previous_maintenance_job_priority_history = MaintenanceJobPriorityHistory::where('id_maintenance_job', '=', $id_maintenance)->where('priority_end_date_time', null)->first();
+
+                  //update data of maintenance priority history
+                  $previous_maintenance_job_priority_history->update([
+                    'priority_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
                   ]);
 
-                    //make a new history for maintenance priority history
-                    $maintenance_job_priority_history = new MaintenanceJobPriorityHistory();
-                    $maintenance_job_priority_history->id_maintenance_job =  $id_maintenance;
-                    $maintenance_job_priority_history->id_maintenance_job_priority_ref =  $request->priority;
-                    $maintenance_job_priority_history->priority_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                    $maintenance_job_priority_history->priority_end_date_time =null;
-                    $maintenance_job_priority_history->maintenance_job_priority_history_active = 1;
+                  //make a new history for maintenance priority history
+                  $maintenance_job_priority_history = new MaintenanceJobPriorityHistory();
+                  $maintenance_job_priority_history->id_maintenance_job =  $id_maintenance;
+                  $maintenance_job_priority_history->id_maintenance_job_priority_ref =  $request->priority;
+                  $maintenance_job_priority_history->priority_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+                  $maintenance_job_priority_history->priority_end_date_time =null;
+                  $maintenance_job_priority_history->maintenance_job_priority_history_active = 1;
 
-                    $maintenance_job_priority_history->save();
-                  
+                  $maintenance_job_priority_history->save();
+
                   $priority_ref = MaintenanceJobPriorityRef::findOrFail($request->priority);
-                  
-                    $note = $note.$user->first_name . " " . $user->last_name." Changed Maintenance Priority to ".$priority_ref->priority_name;
+
+                  $note = $note.$user->first_name . " " . $user->last_name." changed maintenance priority to ".$priority_ref->priority_name;
 
 
-               }
+              }
 
-                //check if maintenance category has been changed
-                if($maintenance_old_data->id_maintenance_job_category != $request->maintenance_category)
-                {
-                      
-                  // edit category of maintenance job 
-                      $maintenance_old_data->update([
-                        'id_maintenance_job_category' => $request->maintenance_category
+              //check if maintenance category has been changed
+              if($maintenance_old_data->id_maintenance_job_category != $request->maintenance_category) {
+
+                  // edit category of maintenance job
+                  $maintenance_old_data->update([
+                    'id_maintenance_job_category' => $request->maintenance_category
                     ]);
 
 
-                      
-                      $category_ref = MaintenanceJobCategoryRef::findOrFail($request->maintenance_category);
-                      
-                        $note = $note.$user->first_name . " " . $user->last_name." Changed Maintenance Category to ".$category_ref->job_category_name;
+
+                  $category_ref = MaintenanceJobCategoryRef::findOrFail($request->maintenance_category);
+
+                  $note = $note.$user->first_name . " " . $user->last_name." changed maintenance category to ".$category_ref->job_category_name;
 
 
-                }
+              }
 
-                $maintainable_location_id = [];
+              $maintainable_location_id = [];
 
-                //get locations of maintenance job
-                $maintainables = Maintainable::where('id_maintenance_job', $id_maintenance)->where('maintainable_active',1)->get();
-               
-                //add a new attribute for all maintenance locations
-                foreach($maintainables as $maintainable)
-                {
-                
+              //get locations of maintenance job
+              $maintainables = Maintainable::where('id_maintenance_job', $id_maintenance)->where('maintainable_active', 1)->get();
+
+              //add a new attribute for all maintenance locations
+              foreach($maintainables as $maintainable) {
+
                   switch ($maintainable) {
-                    case  Str::contains($maintainable->maintenable_type, 'Room'):
-      
-                      $maintainable->id_location = 'Room'.$maintainable->maintenable_id;
-      
-                      break;
-      
-                    case Str::contains($maintainable->maintenable_type, 'Property'):
-                    
-                       $maintainable->id_location = 'Property'.$maintainable->maintenable_id;
-      
-                      break;
-                    case Str::contains($maintainable->maintenable_type, 'Site'):
-      
-                      $maintainable->id_location = 'Site'.$maintainable->maintenable_id;
-                      
-                      break;                     
-                  } 
+                      case  Str::contains($maintainable->maintenable_type, 'Room'):
+
+                          $maintainable->id_location = 'Room'.$maintainable->maintenable_id;
+
+                          break;
+
+                      case Str::contains($maintainable->maintenable_type, 'Property'):
+
+                          $maintainable->id_location = 'Property'.$maintainable->maintenable_id;
+
+                          break;
+                      case Str::contains($maintainable->maintenable_type, 'Site'):
+
+                          $maintainable->id_location = 'Site'.$maintainable->maintenable_id;
+
+                          break;
+                  }
                   $maintainable_location_id [] = $maintainable->id_location;
 
-                }
+              }
 
-                 //check if maintenance locations has been changed
-                if($maintainable_location_id != $request->locations){
+              //check if maintenance locations has been changed
+              if($maintainable_location_id != $request->locations) {
 
-                  $maintainables = Maintainable::where('id_maintenance_job', $id_maintenance)->where('maintainable_active',1)->get();
+                  $maintainables = Maintainable::where('id_maintenance_job', $id_maintenance)->where('maintainable_active', 1)->get();
 
-                 // soft delete previous locations of maintenance job 
+                  // soft delete previous locations of maintenance job
 
-                 foreach($maintainables as $maintainable){
-                 $maintainable->update([
-                      'maintainable_active' => 0
-                  ]);
-                 }
-                 $locations = $request->locations;
+                  foreach($maintainables as $maintainable) {
+                      $maintainable->update([
+                           'maintainable_active' => 0
+                       ]);
+                  }
+                  $locations = $request->locations;
 
-                 //add selected locations to database
-                 foreach($locations as $location){
-     
-                   switch ($location) {
-                     case  Str::contains($location, 'Room'):
-     
-                       $maintainable_id =  strtok($location, 'Room');
-     
-                       $maintainable = new Maintainable();
-                       $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
-                       $maintainable->maintenable_id =  $maintainable_id;
-                       $maintainable->maintenable_type = 'App\Models\Rooms';
-                     
-                       $maintainable->save();
-                       break;
-     
-                     case Str::contains($location, 'Property'):
-                     
-                       $maintainable_id =  strtok($location, 'Property');
-                      
-                       $maintainable = new Maintainable();
-                       $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
-                       $maintainable->maintenable_id =  $maintainable_id;
-                       $maintainable->maintenable_type = 'App\Models\Property';
-                     
-                       $maintainable->save();
-     
-                       break;
-                     case Str::contains($location, 'Site'):
-     
-                       $maintainable_id =  strtok($location, 'Site');
-     
-                       $maintainable = new Maintainable();
-                       $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
-                       $maintainable->maintenable_id =  $maintainable_id;
-                       $maintainable->maintenable_type = 'App\Models\Site';
-                     
-                       $maintainable->save();
-                       
-                       break;
-                    
-                       
-                   } 
-     
-               
-                 }
+                  //add selected locations to database
+                  foreach($locations as $location) {
 
-                                    
-                    $note = $note.$user->first_name . " " . $user->last_name." Changed Maintenance Locations ";
+                      switch ($location) {
+                          case  Str::contains($location, 'Room'):
+
+                              $maintainable_id =  strtok($location, 'Room');
+
+                              $maintainable = new Maintainable();
+                              $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
+                              $maintainable->maintenable_id =  $maintainable_id;
+                              $maintainable->maintenable_type = 'App\Models\Rooms';
+
+                              $maintainable->save();
+                              break;
+
+                          case Str::contains($location, 'Property'):
+
+                              $maintainable_id =  strtok($location, 'Property');
+
+                              $maintainable = new Maintainable();
+                              $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
+                              $maintainable->maintenable_id =  $maintainable_id;
+                              $maintainable->maintenable_type = 'App\Models\Property';
+
+                              $maintainable->save();
+
+                              break;
+                          case Str::contains($location, 'Site'):
+
+                              $maintainable_id =  strtok($location, 'Site');
+
+                              $maintainable = new Maintainable();
+                              $maintainable->id_maintenance_job =  $maintenance_old_data->id_maintenance_job;
+                              $maintainable->maintenable_id =  $maintainable_id;
+                              $maintainable->maintenable_type = 'App\Models\Site';
+
+                              $maintainable->save();
+
+                              break;
 
 
-                }
+                      }
+
+
+                  }
+
+
+                  $note = $note.$user->first_name . " " . $user->last_name." changed maintenance locations ";
+                  //TODO
+
+
+              }
 
 
 
-                if($note != null){
-                //add a new log for all maintenance changes
-                $maintenance_log = new MaintenanceLog();
-                $maintenance_log->id_maintenance_job =  $id_maintenance;
-                $maintenance_log->id_staff =  $user->id;
-                $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
-                $maintenance_log->id_maintenance_job_priority = $request->priority;
-                $maintenance_log->log_note = $note;
+              if($note != null) {
+                  //add a new log for all maintenance changes
+                  $maintenance_log = new MaintenanceLog();
+                  $maintenance_log->id_maintenance_job =  $id_maintenance;
+                  $maintenance_log->id_staff =  $user->id;
+                  $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
+                //   $maintenance_log->id_maintenance_job_priority = $request->priority;
+                  $maintenance_log->log_note = $note;
 
-                $maintenance_log->save();
-                }
+                  $maintenance_log->save();
+              }
 
-                DB::commit();
-
-
-                return redirect()->back()
-                ->with([
-                  ActionStatusConstants::SUCCESS => trans('maintenance::maintenance.maintenance_edited_successfully')
-                ]);
-
-              } catch (\Exception $e) {
+              DB::commit();
 
 
-                Log::error(" in MaintenanceController - editMaintenanceDetail function " . " edita maintenance " . $maintenance_old_data->maintenance_job_title . " was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-                Log::error($e->getMessage());
-    
-                DB::rollBack();
-    
-                return redirect()->back([
-                    'code' => ActionStatusConstants::FAILURE,
-                    'message' => trans('maintenance::maintenance.maintenance_not_edited'),
-                ]);
-    
-            }
-    
+              return redirect()->back()
+              ->with([
+                ActionStatusConstants::SUCCESS => trans('maintenance::maintenance.maintenance_edited_successfully')
+              ]);
+
+          } catch (\Exception $e) {
+
+
+              Log::error(" in MaintenanceController - editMaintenanceDetail function " . " edita maintenance " . $maintenance_old_data->maintenance_job_title . " was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+              Log::error($e->getMessage());
+
+              DB::rollBack();
+
+              return redirect()->back()->with([
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => trans('maintenance::maintenance.maintenance_not_edited'),
+              ]);
+
+          }
+
       }
 
       public function ajaxGetMaintenanceDocuments(Request $request)
       {
 
-            $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-            Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
-
-
-            //get all documents of a maintenance job
-            $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job',$request->maintenance_id)->get();
+          Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
-            return response()->json(
+          //get all documents of a maintenance job
+          $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job', $request->maintenance_id)->get();
+
+
+          return response()->json(
               [
-                  'code' => ActionStatusConstants::SUCCESS,
-                  'report'=>$maintenance_documents,
-                  'message' => trans('maintenance::maintenance.get_maintenance_document_was_successful'),
+                'code' => ActionStatusConstants::SUCCESS,
+                'report'=>$maintenance_documents,
+                'message' => trans('maintenance::maintenance.get_maintenance_document_was_successful'),
               ]
-
-            );
+          );
       }
 
       public function ajaxGetMaintenanceTimeline(Request $request)
       {
 
-            $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-            Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
-            $maintenance_id = $request->maintenance_id;
+          $maintenance_id = $request->maintenance_id;
 
-            //get maintenance logs for timeline
-            $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenance_id); 
+          //get maintenance logs for timeline
+          $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenance_id);
 
 
-            return response()->json(
+          return response()->json(
               [
-                  'code' => ActionStatusConstants::SUCCESS,
-                  'report'=>$maintenance_timelines,
-                  'message' => trans('maintenance::maintenance.get_maintenance_timeline_was_successful'),
+                'code' => ActionStatusConstants::SUCCESS,
+                'report'=>$maintenance_timelines,
+                'message' => trans('maintenance::maintenance.get_maintenance_timeline_was_successful'),
               ]
-
-            );
+          );
       }
       public function ajaxDeleteMaintenanceDocument(Request $request)
       {
 
-                $user = Sentinel::getUser();
+          $user = Sentinel::getUser();
 
-                $now = Carbon::create('now');
-
-
-                Log::info(" in MaintenanceController- ajaxDeleteMaintenanceDocument function " . " try to delete  maintenance document  ------- by user " . $user->first_name . " " . $user->last_name);
+          $now = Carbon::create('now');
 
 
-                try {
-                  DB::beginTransaction();
+          Log::info(" in MaintenanceController- ajaxDeleteMaintenanceDocument function " . " try to delete  maintenance document  ------- by user " . $user->first_name . " " . $user->last_name);
 
-                $id_maintenance_document = $request->id_maintenance_job_document;
-                
-                $maintenance_id = $request->maintenance_id;
 
-                $maintenance_job = MaintenanceJob::findOrFail($maintenance_id);
+          try {
+              DB::beginTransaction();
 
-                $maintenance_job_document = MaintenanceJobDocument::findOrFail($id_maintenance_document);
+              $id_maintenance_document = $request->id_maintenance_job_document;
 
-                $file = $maintenance_job_document->document_address.$maintenance_job_document->document_name;
-                unlink($file);
+              $maintenance_id = $request->maintenance_id;
 
-                //delete maintenance document
-                MaintenanceJobDocument::where('id_maintenance_job_document',$id_maintenance_document )->delete();
-              
-             
+              $maintenance_job = MaintenanceJob::findOrFail($maintenance_id);
 
-                $note = $user->first_name . " " . $user->last_name." Delete a Maintenance Document.";
+              $maintenance_job_document = MaintenanceJobDocument::findOrFail($id_maintenance_document);
 
-                //make a maintenance log for deleting the document
-                $maintenance_log = new MaintenanceLog();
-                $maintenance_log->id_maintenance_job = $maintenance_id;
-                $maintenance_log->id_staff =  $user->id;
-                $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
-                $maintenance_log->id_maintenance_job_priority = $maintenance_job->id_maintenance_job_priority;
-                $maintenance_log->log_note = $note;
+              $file = $maintenance_job_document->document_address.$maintenance_job_document->document_name;
+              unlink($file);
 
-                $maintenance_log->save();
+              //delete maintenance document
+              MaintenanceJobDocument::where('id_maintenance_job_document', $id_maintenance_document)->delete();
 
-                DB::commit();
 
-                return response()->json(
+
+              $note = $user->first_name . " " . $user->last_name." Delete a Maintenance Document.";
+
+              //make a maintenance log for deleting the document
+              $maintenance_log = new MaintenanceLog();
+              $maintenance_log->id_maintenance_job = $maintenance_id;
+              $maintenance_log->id_staff =  $user->id;
+              $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
+            //   $maintenance_log->id_maintenance_job_priority = $maintenance_job->id_maintenance_job_priority;
+              $maintenance_log->log_note = $note;
+
+              $maintenance_log->save();
+
+              DB::commit();
+
+              return response()->json(
                   [
-                      'code' => ActionStatusConstants::SUCCESS,
+                    'code' => ActionStatusConstants::SUCCESS,
 
-                      'message' => trans('maintenance::maintenance.maintenance_document_deleted_succssfully'),
+                    'message' => trans('maintenance::maintenance.maintenance_document_deleted_succssfully'),
                   ]
+              );
+          } catch (\Exception $e) {
 
-                );
-              } catch (\Exception $e) {
 
+              Log::error(" in MaintenanceController - ajaxDeleteMaintenanceDocument function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+              Log::error($e->getMessage());
 
-                Log::error(" in MaintenanceController - ajaxDeleteMaintenanceDocument function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-                Log::error($e->getMessage());
+              DB::rollBack();
 
-                DB::rollBack();
+              return response()->json([
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => trans('maintenance::maintenance.maintenance_document_did_not_deleted'),
+              ]);
 
-                return response()->json([
-                    'code' => ActionStatusConstants::FAILURE,
-                    'message' => trans('maintenance::maintenance.maintenance_document_did_not_deleted'),
-                ]);
-
-            }
+          }
 
       }
 }

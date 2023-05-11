@@ -266,6 +266,9 @@
                                     <div class="row">
                                         <button style="min-width:150px;margin-top:1px;" type="button" onclick="resetSearchbox()" class="btn btn-primary">{{__('booking.reset')}}</button>
                                     </div>
+                                    <div class="row">
+                                        <a style="min-width:150px;margin-top:1px;" href="/maintenance/create/page" class="btn btn-primary">{{trans('maintenance::dashboard.create')}}</a>
+                                    </div>
 
                                 </div>
 

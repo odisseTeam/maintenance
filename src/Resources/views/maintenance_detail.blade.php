@@ -52,7 +52,7 @@
 
     <!-- Content Header (Page header) -->
     <section class="content-header">
-       
+
     </section>
 
     <!-- Main content -->
@@ -85,7 +85,7 @@
                                     <h3>
                                         {{trans('maintenance::maintenance.maintenance_detail')}}
                                     </h3>
-                        
+
                             </div>
 
 
@@ -99,7 +99,7 @@
                                                 <div class="col-sm-9 col-md-9 col-lg-9">
                                                     <h3>{{$maintenance->maintenance_job_title}}</h3>
                                                 </div>
-                                            
+
                                                 <!-- maintenance status-->
                                                 <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
                                                         <div  class="form-group row ">
@@ -146,11 +146,11 @@
                                                                             <option value="">{{trans('maintenance::maintenance.select_assignee')}}</option>
                                                                                 @foreach ($contactors as $contractor)
                                                                                 <option value="{{ $contractor->id_contractor }}"
-                                                                                
+
 
                                                                                     @if(($contractor->id_contractor == $maintenance_job_detail->id_staff )) {{ 'selected' }} @endif >
-                                                                                   
-                                                                            
+
+
 
                                                                                     {{ $contractor->name }}
                                                                                 </option>
@@ -195,7 +195,7 @@
                                                                     </option>
                                                                     @endforeach
                                                                     @else
-                                                                        
+
                                                                     @endif
 
 
@@ -203,7 +203,7 @@
 
                                                         </div>
                                                 </div>
-                                                
+
 
                                             <!-- category-->
                                                 <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -220,7 +220,7 @@
                                                                     </option>
                                                                     @endforeach
                                                                     @else
-                                                                        
+
                                                                     @endif
 
 
@@ -244,7 +244,7 @@
                                                                     <option value="{{ $location->id }}"
                                                                     @if(isset($maintainables))
                                                                     @foreach ($maintainables as $maintainable)
-                                                                                    @if(($location->id == $maintainable->id_location )||(old('locations') == $maintainable->id_location)) {{ 'selected' }} @endif 
+                                                                                    @if(($location->id == $maintainable->id_location )||(old('locations') == $maintainable->id_location)) {{ 'selected' }} @endif
                                                                                     @endforeach
                                                                                     @endif
                                                                                       >
@@ -252,7 +252,7 @@
                                                                     </option>
                                                                     @endforeach
                                                                     @else
-                                                                        
+
                                                                     @endif
 
 
@@ -279,7 +279,7 @@
                                                                     </option>
                                                                     @endforeach
                                                                     @else
-                                                                        
+
                                                                     @endif
 
 
@@ -316,7 +316,7 @@
                                 <h3>
                                     {{trans('maintenance::maintenance.maintenance_timeline')}}
                                 </h3>
-                        
+
                             </div>
 
                             <div class="box-body">
@@ -325,19 +325,19 @@
 
                                     </div>
 
-                               
-                                         
+
+
                             </div>
                  </div>
                 </div>
-            
+
              <div class="{{ (null == session('active_tab') or session('active_tab') == 'maintenance_documents') ? 'active' : '' }} tab-pane" id="maintenance_documents">
                 <div class="box box-primary">
                             <div class="box box-header">
                                 <h3>
                                     {{trans('maintenance::maintenance.maintenance_documents')}}
                                 </h3>
-                        
+
                             </div>
 
                             <div class="box-body">
@@ -356,7 +356,7 @@
 
 
                                             <tbody id="maintenance_documents_body_tbl">
-                                               
+
 
                                             </tbody>
                                             <tfoot>
@@ -366,14 +366,14 @@
                                                 <th>{{__('maintenance::maintenance.document_extention')}}</th>
                                                 <th>{{__('maintenance::maintenance.description')}}</th>
                                                 <th>{{__('maintenance::maintenance.operation')}}</th>
-                                             
+
 
                                             </tr>
                                             </tfoot>
                                         </table>
 
 
-                                         
+
                             </div>
                  </div>
                 </div>
@@ -441,7 +441,7 @@
     <script src="{{ asset('js/maintenance.js') }}"></script>
 
     <script>
-                    
+
       $('.select2').select2();
 
       $(document).ready(function () {
@@ -516,40 +516,40 @@
         ////////////////////////////////////////////////
 
         function handleMaintenanceTimelineBody(){
-             
+
              let code = return_value.code;
              let message = return_value.message;
               let maintenance_timeline = return_value.report;
- 
+
               console.log(maintenance_timeline);
               if(code == "failure"){
- 
+
               }
               else if(maintenance_timeline != null && maintenance_timeline !="undefined" ) {
-             
+
                  let htmlValue = "";
                  Object.keys(maintenance_timeline).forEach(function (k) {
- 
+
                          var log_date_time = maintenance_timeline[k]["log_date_time"];
                          var header = maintenance_timeline[k]["header"];
                          var log_note = maintenance_timeline[k]["log_note"];
- 
-                         htmlValue += '<ul class="timeline"><li class="time-label"><span class="bg-blue">' + log_date_time + '</span></li><li><i class="fa fa-user bg-blue"></i><div class="timeline-item"><h3 class="timeline-header">' + header
+
+                         htmlValue += '<ul class="timeline"><li class="time-label"><span class="">' + log_date_time + '</span></li><li><i class="fa fa-user"></i><div class="timeline-item"><h3 class="timeline-header">' + header
                          + '</h3><div class="timeline-body">' + log_note+ '</div><div class="timeline-footer"></div></div></li></ul>';
-                     
+
                  });
- 
+
                  $('#timeline_box_body').html('');
                  $('#timeline_box_body').append(htmlValue);
-             
+
              }
- 
+
         }
        /////////////////////////////////////////////////////
         function prepareMaintenanceDocumentsTable(){
 
             let maintenance_id = $( '#id_maintenance' ).val();
-            
+
 
             send( '/maintenance/documents/get',  {
                 maintenance_id: maintenance_id,
@@ -588,23 +588,23 @@
                 var document_name = maintenance_documents_list[k]["document_name"];
                 var document_extention = maintenance_documents_list[k]["document_extention"];
                 var description = maintenance_documents_list[k]["description"];
-            
-          
+
+
                 var operation ='<a data-toggle="tooltip" title="Delete Maintenance Document"  data-original-title="Delete Maintenance Document" onclick="deleteMaintenanceDocument('+id_maintenance_job_document+')" >' +
             '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" style="margin-right:20 px;"   >'+
             '<i class="fa-solid fa-trash" ></i>'+
             '</button></a>';
 
-         
+
             htmlValue += "<tr><td>" + counter + "</td><td>" + document_name + "</td><td>" + document_extention
                 + "</td><td>" + description+ "</td><td>" + operation+ "</td></tr>";
         });
-   
+
 
         $('#maintenance_documents_table').DataTable().clear().destroy();
         $('#maintenance_documents_table #maintenance_documents_body_tbl').html('');
         $('#maintenance_documents_table #maintenance_documents_body_tbl').append(htmlValue);
-      
+
 
         var table = $('#maintenance_documents_table').DataTable({
             'paging'      : true,
@@ -626,7 +626,7 @@
       }
       //////////////////////////////////////////////////////
       function deleteMaintenanceDocument(id_maintenance_job_document) {
-        
+
                 $("#delete_maintenance_document_ajx_err_msg").html('');
             $("#delete_maintenance_document_err_msg_box").css('display', 'none');
 
@@ -641,7 +641,7 @@
       }
       ///////////////////////////////////////////////////
       function submitDeleteMaintenanceDocument(id_maintenance_job_document){
-        
+
         let maintenance_id = $( '#id_maintenance' ).val();
 
         send( '/maintenance/maintenance_document/delete',  {
@@ -706,20 +706,20 @@
 }
        /////////////////////////////////////////////////////////////
 function handleLoadResidentReporter(){
-    
+
     console.log('tt');
 
     let res = return_value.code;
     let message = return_value.message;
     let residents = return_value.residents;
-   
+
     console.log(return_value.residents);
     console.log(return_value.code);
 
     if(res == "failure") {
 
     }
-    
+
     else if(residents != null && residents !="undefined"){
 
 
@@ -760,7 +760,7 @@ function handleLoadResidentReporter(){
         $('#attach_file_form').submit(function(e) {
 
 
-            
+
             e.preventDefault();
 
             console.log('are');
@@ -837,10 +837,10 @@ function handleLoadResidentReporter(){
 
                             $("#attachFileModal").modal('hide');
 
-                           
+
                             // $('#contaner').append(
                             //     $('<input/>').attr('type', 'file').attr('value', response.uploaded_file));
-                           
+
                             // let a = document.getElementById("file");
                             // e.preventDefault();
                           //    $('#show_attached_file').val(response.uploaded_file);
@@ -872,9 +872,9 @@ function handleLoadResidentReporter(){
 
         let id_maintenance_job = $('#parent_job_modal').val();
 
-        send( '/maintenance/find/maintenance_title',  {id_maintenance_job: id_maintenance_job}, 
+        send( '/maintenance/find/maintenance_title',  {id_maintenance_job: id_maintenance_job},
         'handleShowMaintenanceJobTitle', []);
-    
+
 
 })
 //////////////////////////////////////////////////////
@@ -922,7 +922,7 @@ function showAddParentModal() {
 
 
 /////////////////////////////////////////////////////////
-       
+
     </script>
 
 @endsection

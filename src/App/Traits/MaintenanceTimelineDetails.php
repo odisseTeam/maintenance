@@ -20,7 +20,7 @@ trait MaintenanceTimelineDetails{
 
     private function getMaintenanceTimelineInfo($maintenanceId ){
 
-       
+
 
         $query = DB::table('maintenance_log')
         ->join('maintenance_job', 'maintenance_log.id_maintenance_job', '=', 'maintenance_job.id_maintenance_job')
@@ -39,17 +39,17 @@ trait MaintenanceTimelineDetails{
 
         foreach($query as $qry){
             if ($contains = Str::contains($qry->log_note, 'Created')){
-                $header = $qry->staff.' Created a New Maintenance';
+                $header = '<b>' . $qry->staff.' </b> created a new maintenance';
                 $qry->header = $header;
 
             }else{
-                $header = $qry->staff.' Changed the Maintenance';
+                $header = '<b>'.$qry->staff.'</b> make change on maintenance';
                 $qry->header = $header;
             }
 
 
         }
-         
+
 
         return $query;
 

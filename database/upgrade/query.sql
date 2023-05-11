@@ -40,4 +40,5 @@ INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_p
 VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1,1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
 VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1,1);
-
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1,1);
