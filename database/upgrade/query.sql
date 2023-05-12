@@ -44,7 +44,12 @@ INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method
 VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1,1);
 
 INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.gattachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','post',null,null,1,1);
+
+
 
 
 -- Add base data to initialize package

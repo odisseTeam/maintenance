@@ -42,6 +42,7 @@ Route::middleware(['ProxyCAS'])->group(
             Route::post('/upload/file', [MaintenanceController::class,'ajaxUploadMaintenanceFile'])->name('file_upload');
 
             Route::get('/attachment/{id_attachment}/download', [MaintenanceAttachmentController::class,'downloadAttachment']);
+            Route::post('/attachment/upload', [MaintenanceAttachmentController::class,'uploadAttachment']);
 
            Route::post('/find/maintenance_title', [MaintenanceController::class,'ajaxFindMaintenanceTitle'])->name('find_maintenance_title');
 
