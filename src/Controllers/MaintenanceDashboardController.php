@@ -52,8 +52,8 @@ class MaintenanceDashboardController extends Controller
         $priorities = MaintenanceJobPriorityRef::where('maintenance_job_priority_ref_active' , 1)->get();
         $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
 
-        $maintenance_users = User::where('users_active' , 1)->
-        join('role_users','role_users.user_id','users.id')->
+        $maintenance_users = User::where('users_active' , 1)->where('is_deleted' , 0)->
+        join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
         join('roles','roles.id','role_users.role_id')->where('roles.name','maintenance')->get();
 
         $contractor_agents = [];
@@ -191,8 +191,8 @@ class MaintenanceDashboardController extends Controller
             if($business_contractor && $business_contractor[0] == "B"){
 
                 //return business maintenance users
-                $users = User::where('users_active' , 1)->
-                join('role_users','role_users.user_id','users.id')->
+                $users = User::where('users_active' , 1)->where('is_deleted' , 0)->
+                join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
                 $result = $users;
             }
