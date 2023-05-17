@@ -134,7 +134,7 @@
 
                                     <div class="form-group col-xs-9 col-sm-9 col-md-9 col-lg-9">
                                         <label class="col-xs-6 col-sm-6 col-md-6 control-label text-left">
-                                            <h4>{{ trans('maintenance::maintenance.add_comment') }}:</h>
+                                            <h4>{{ trans('maintenance::maintenance.add_comment') }}:</h4>
                                         </label>
                                         <div class="col-xs-10 col-sm-10 col-md-10">
                                             <div class="input-group col-xs-11 col-sm-11 col-md-11 col-lg-11">
@@ -335,7 +335,9 @@
                             </form>
 
                             <form action="/maintenance/attachment/upload" method="post" enctype="multipart/form-data">
-                                <div class="box-body">
+                              @csrf
+
+                               <div class="box-body">
 
                                     <input type="hidden" id="id_maintenance" name="id_maintenance"
                                         value="{{ $maintenance->id_maintenance_job }}">

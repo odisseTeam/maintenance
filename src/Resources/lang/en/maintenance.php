@@ -71,7 +71,7 @@ return [
     'select_assignee'=>'Select Assignee',
     'cancel'=>'Cancel ',
     'save'=>'Save ',
-
+    'file_description'=>'File Description',
 
 
     'maintenance_detail'=>'View Maintenance Detail',
@@ -101,4 +101,6 @@ return [
     'get_resident_reporter_was_not_successful'=>'Get Resident Was Not Successful',
 
     'maintenance_edited_successfully'=>'Maintenance Was Edited Succssfully',
+    'maintenance_document_did_not_deleted'=>'Maintenance Document Did Not Deleted',
+    'maintenance_not_created'=>'Maintenance  Did Not Created Successfully',
 ];

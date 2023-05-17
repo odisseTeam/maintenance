@@ -15,7 +15,7 @@ Route::group(['prefix' => 'maintenance'],function () {
     });
 });
 
-Route::middleware(['ProxyCAS'])->group(
+Route::middleware(['web','ProxyCAS'])->group(
     function () {
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware', 'settingsLoader']],function () {
 

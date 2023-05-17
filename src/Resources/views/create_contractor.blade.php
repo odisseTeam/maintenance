@@ -43,6 +43,31 @@
             </div>
         </div>
     @endif
+    @if ($errors->any())
+        <div class="box-body">
+
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                @foreach ($errors->all() as $error)
+                    <p><i class="icon fa-solid fa-ban"></i>{{ $error }}</p>
+                @endforeach
+            </div>
+        </div>
+
+    @endif
+
+    @if( $errors->any() )
+        <div class="box-body">
+
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                @foreach( $errors->all() as $error )
+                    <p><i class="icon fa-solid fa-ban"></i>{{$error}}</p>
+                @endforeach
+            </div>
+        </div>
+
+    @endif
 
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -112,7 +137,7 @@
 
                                             <div class="col-xs-10 col-sm-10 col-md-10 text-left">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10">
-                                                    <input type="password" class="form-control pull-right" autocomplete="off" id="password" name="password" value="@if (old('password')){{old('password')}} @endif ">
+                                                    <input type="password" class="form-control pull-right" autocomplete="off" id="password" name="password" value="@if (old('password')){{old('password')}} @endif">
                                                 </div>
 
                                             </div>

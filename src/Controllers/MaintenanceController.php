@@ -156,6 +156,7 @@ class MaintenanceController extends Controller
       public function ajaxUploadMaintenanceFile(Request $request)
       {
 
+
           $user = Sentinel::getUser();
 
           Log::info(" in MaintenanceController- ajaxUploadMaintenanceFile function " . " try  to upload an maintenance file  ------- by user " . $user->first_name . " " . $user->last_name);
@@ -275,8 +276,6 @@ class MaintenanceController extends Controller
 
 
 
-
-
           $validator = Validator::make($request->all(), [
               'maintenance_title' => 'required',
               'description'=>'required',
@@ -292,7 +291,6 @@ class MaintenanceController extends Controller
 
               Log::error("in MaintenanceController- saveNewMaintenence function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
-            //   dd($validator->errors());
 
               return redirect()->back()
               ->withErrors($validator)
@@ -322,7 +320,9 @@ class MaintenanceController extends Controller
 
               $maintenance_job->save();
 
-              $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d H:i:s') : null;
+
+              $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
+
 
               //save a new maintenance job detail
               $maintenance_job_detail = new MaintenanceJobDetail();
@@ -334,13 +334,14 @@ class MaintenanceController extends Controller
 
               $maintenance_job_detail->save();
 
+
               //save a new status history for maintenance job
               $maintenance_job_status_history = new MaintenanceJobStatusHistory();
               $maintenance_job_status_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
               $maintenance_job_status_history->id_maintenance_staff = $user->id;
               $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
-              $maintenance_job_status_history->maintenance_status_start_date = $date_time;
-              $maintenance_job_status_history->maintenance_status_end_date = null;
+              $maintenance_job_status_history->maintenance_status_start_date_time = $request->maintenance_date;
+              $maintenance_job_status_history->maintenance_status_end_date_time = null;
               $maintenance_job_status_history->maintenance_job_status_history_active = 1;
 
               $maintenance_job_status_history->save();
@@ -349,50 +350,55 @@ class MaintenanceController extends Controller
               $maintenance_job_priority_history = new MaintenanceJobPriorityHistory();
               $maintenance_job_priority_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
               $maintenance_job_priority_history->id_maintenance_job_priority_ref = $request->priority;
-              $maintenance_job_priority_history->priority_start_date_time = $date_time;
+              $maintenance_job_priority_history->priority_start_date_time = $request->maintenance_date;
               $maintenance_job_priority_history->priority_end_date_time = null;
               $maintenance_job_priority_history->maintenance_job_priority_history_active = 1;
 
               $maintenance_job_priority_history->save();
 
 
+
               $maintenance_file_path = config('maintenances.maintenance_file_path');
 
+              $path = $maintenance_file_path . 'uploaded_files' ;
+              if (!\File::exists($path)) {
+                  \File::makeDirectory($path, 0755, true);
+              }
 
-              $desc =strtok($request->nahayat, '/');
-
-              $doc_number = substr_count($request->nahayat, '/');
-
-              $doc_parts = explode("/", $request->nahayat, $doc_number);
-
-              foreach($doc_parts as $doc_part) {
-
-                  $description_part = strtok($doc_part, '+');
+              $files = $request->files;
 
 
-                  $name_part = substr($doc_part, strpos($doc_part, "+") + 1);
 
-                  $name_part = substr($name_part, 0, -1);
-                  ;
+            foreach($files as $upload_file) {
+                foreach($upload_file as $file) {
 
-                  $name_extension_part = substr($name_part, strpos($name_part, ".") + 1);
 
-                  $path = $maintenance_file_path . 'uploaded_files/' ;
+                $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
 
+                // File extension
+                $extension = $file->getClientOriginalExtension();
+
+
+                  $file_description = $request->file_description;
+
+                  $file->move($path, $fileName);
+
+
+               
 
                   //save documents of maintenance job
                   $maintenance_job_document = new MaintenanceJobDocument();
                   $maintenance_job_document->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                  $maintenance_job_document->document_name = $name_part;
+                  $maintenance_job_document->document_name = $fileName;
                   $maintenance_job_document->document_address = $path;
-                  $maintenance_job_document->document_extention = $name_extension_part;
-                  $maintenance_job_document->description = $description_part;
+                  $maintenance_job_document->document_extention = $extension;
+                  $maintenance_job_document->description = $file_description;
                   $maintenance_job_document->maintenance_job_document_active = 1;
 
 
                   $maintenance_job_document->save();
-
-              }
+            }
+            }
 
               $log_note = $user->first_name . " " . $user->last_name." created a new maintenance titled : ".$maintenance_job->maintenance_job_title ;
 
@@ -401,7 +407,6 @@ class MaintenanceController extends Controller
               $maintenance_log->id_maintenance_job =  $maintenance_job->id_maintenance_job;
               $maintenance_log->id_staff = $user->id;
               $maintenance_log->log_date_time = $request->maintenance_date;
-            //   $maintenance_log->id_maintenance_job_priority = $request->priority;
               $maintenance_log->log_note = $log_note;
 
               $maintenance_log->save();
@@ -424,7 +429,6 @@ class MaintenanceController extends Controller
 
                           $maintainable->save();
 
-                          //  dd($maintainable_id);
                           $active_booking = DB::table('booking_room')
                           ->join('booking', 'booking_room.id_booking', '=', 'booking.id_booking')
                           ->where('booking_room.id_room', $maintainable_id)
@@ -435,7 +439,6 @@ class MaintenanceController extends Controller
                           ->groupBy('booking.id_booking')
                            ->get();
 
-                          //  dd($active_booking);
 
                           if($active_booking->isNotEmpty()) {
                               $id_client = $active_booking[0]->id_client;
@@ -447,7 +450,6 @@ class MaintenanceController extends Controller
                           $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
                           ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
 
-                          //  dd($maintenance_sla_ref);
                           if($maintenance_sla_ref->isNotEmpty()) {
 
                               $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
@@ -505,7 +507,7 @@ class MaintenanceController extends Controller
 
 
               $status = ActionStatusConstants::SUCCESS;
-              $message = 'Role created successfully';
+              $message = 'Maintenance created successfully';
 
 
 
@@ -616,7 +618,6 @@ class MaintenanceController extends Controller
 
               $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenanceId);
 
-              // dd( $maintenance_timelines);
 
               foreach($maintenance_timelines as $maintenance_timeline) {
 
@@ -738,7 +739,6 @@ class MaintenanceController extends Controller
 
           Log::info(" in MaintenanceController- saveMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
-          //  dd($request->all());
           try {
               DB::beginTransaction();
 
@@ -756,19 +756,19 @@ class MaintenanceController extends Controller
               //get all maintenance detail before edit
               $maintenance_detail_old_data = MaintenanceJobDetail::where('id_maintenance_job', $id_maintenance)->first();
 
-            //   $maintenance_detail_old_data->update([
-            //     'job_detail_note' => $request->coment
-            // ]);
-if($request->coment != null) {
-    $maintenance_log = new MaintenanceLog();
-    $maintenance_log->id_maintenance_job =  $id_maintenance;
-    $maintenance_log->id_staff =  $user->id;
-    $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
-    //   $maintenance_log->id_maintenance_job_priority = $request->priority;
-    $maintenance_log->log_note = $request->coment;
+           
+                if($request->coment != null) {
 
-    $maintenance_log->save();
-}
+                    $coment_note = $user->first_name . " " . $user->last_name." Added a Comment : ".$request->coment;
+                    $maintenance_log = new MaintenanceLog();
+                    $maintenance_log->id_maintenance_job =  $id_maintenance;
+                    $maintenance_log->id_staff =  $user->id;
+                    $maintenance_log->log_date_time =  $now->format(SystemDateFormats::getDateTimeFormat());
+                    //   $maintenance_log->id_maintenance_job_priority = $request->priority;
+                    $maintenance_log->log_note = $coment_note;
+
+                    $maintenance_log->save();
+                }
 
               //check if maintenance status has been changed
               if($maintenance_old_data->id_maintenance_job_status != $request->maintenance_status) {
@@ -778,11 +778,11 @@ if($request->coment != null) {
                         ]);
 
                   //get data of maintenance status history
-                  $previous_maintenance_job_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job', '=', $id_maintenance)->where('maintenance_status_end_date', null)->first();
+                  $previous_maintenance_job_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job', '=', $id_maintenance)->where('maintenance_status_end_date_time', null)->first();
 
                   //update data of maintenance status history
                   $previous_maintenance_job_status_history->update([
-                    'maintenance_status_end_date' => $now->format(SystemDateFormats::getDateTimeFormat())
+                    'maintenance_status_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
                         ]);
 
                   //make a new history for maintenance status history
@@ -790,8 +790,8 @@ if($request->coment != null) {
                   $maintenance_job_status_history->id_maintenance_job =  $id_maintenance;
                   $maintenance_job_status_history->id_maintenance_staff =  $user->id;
                   $maintenance_job_status_history->id_maintenance_job_status = $request->maintenance_status;
-                  $maintenance_job_status_history->maintenance_status_start_date = $now->format(SystemDateFormats::getDateTimeFormat());
-                  $maintenance_job_status_history->maintenance_status_end_date = null;
+                  $maintenance_job_status_history->maintenance_status_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+                  $maintenance_job_status_history->maintenance_status_end_date_time = null;
                   $maintenance_job_status_history->maintenance_job_status_history_active = 1;
 
                   $maintenance_job_status_history->save();
@@ -1123,7 +1123,7 @@ if($request->coment != null) {
 
               $maintenance_job_document = MaintenanceJobDocument::findOrFail($id_maintenance_document);
 
-              $file = $maintenance_job_document->document_address.$maintenance_job_document->document_name;
+              $file = $maintenance_job_document->document_address."/".$maintenance_job_document->document_name;
               unlink($file);
 
               //delete maintenance document

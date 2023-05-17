@@ -9,6 +9,7 @@
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\SLP\Formatter\SystemDateFormats;
 
 /**
  * Class MaintenanceJobPriorityHistory
@@ -50,5 +51,37 @@ class MaintenanceJobPriorityHistory extends Model
 		'maintenance_job_priority_history_active',
 	];
 
+
+	public function getPriorityStartDateTimeAttribute($value)
+    {
+        if( $value == null )
+            return null;
+        else
+            return Carbon::parse($value)->format(SystemDateFormats::getDateTimeFormat());
+    }
+
+    public function setPriorityStartDateTimeAttribute($value)
+    {
+        if( $value == null )
+            $this->attributes['priority_start_date_time'] = null;
+        else
+            $this->attributes['priority_start_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
+    }
+
+	public function getPriorityEndDateTimeAttribute($value)
+    {
+        if( $value == null )
+            return null;
+        else
+            return Carbon::parse($value)->format(SystemDateFormats::getDateTimeFormat());
+    }
+
+    public function setPriorityEndDateTimeAttribute($value)
+    {
+        if( $value == null )
+            $this->attributes['priority_end_date_time'] = null;
+        else
+            $this->attributes['priority_end_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
+    }
 
 }

@@ -66,5 +66,7 @@ return [
     'contractor_agent_info_returned'=>'Contractor agent info returned.',
     'contractor_agent_info_was_not_returned'=>'Contractor agent info was not returned.',
     'contractor_login_setting_edited'=>'Contractor login setting edited.',
+    'update_email_is_not_possible'=>'Update email is not possible!',
+    'password_and_confirmation_is_not_equal'=>'Password and confirmation are not equal!',
 
 ];

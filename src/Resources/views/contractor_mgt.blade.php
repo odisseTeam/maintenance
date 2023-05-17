@@ -537,7 +537,6 @@
             let res = return_value.code;
             let message = return_value.message;
             if(res == "failure"){
-
                 x=message;
                 if(typeof message == "object"){
                     x="";
@@ -549,7 +548,8 @@
 
                 }
 
-                $("#ajx_err_msg_login_setting").html(message);
+
+                $("#ajx_err_msg_login_setting").html(x);
                 $("#err_msg_box_login_setting").css('display' , 'block');
 
             }
@@ -571,6 +571,7 @@
         /////////////////////////////////////////////////////////
         function changeContractorLoginSettings(){
             var spinHandle = loadingOverlay.activate();
+            $("#err_msg_box_login_setting").css('display' , 'none');
 
             let changed_contractor = $('#changed_contractor' ).val();
             let email = $('#email' ).val();
@@ -592,17 +593,28 @@
             let res = return_value.code;
             let message = return_value.message;
             if(res == "failure"){
-                $("#ajx_err_msg_login_setting").html(message);
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+                $("#ajx_err_msg_login_setting").html(x);
                 $("#err_msg_box_login_setting").css('display' , 'block');
             }
             else{
                 $("#ajx_suc_msg_login_setting").html(message);
                 $("#suc_msg_box_login_setting").css('display' , 'block');
+                setTimeout(function() {$('#showLoginSettingsModal').modal('hide');}, 3000);
+
             }
 
 
 
-            setTimeout(function() {$('#showLoginSettingsModal').modal('hide');}, 3000);
 
 
         }

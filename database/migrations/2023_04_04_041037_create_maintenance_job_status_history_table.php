@@ -18,8 +18,8 @@ class CreateMaintenanceJobStatusHistoryTable extends Migration
             $table->integer('id_maintenance_job')->index('fk_maintenance_job_status_history_maintanance_job1_idx');
             $table->integer('id_maintenance_staff')->index('fk_maintenance_job_status_history_user1_idx');
             $table->integer('id_maintenance_job_status')->index('fk_maintenance_job_status_history_maintenance_job_status_ref1_idx');
-            $table->dateTime('maintenance_status_start_date');
-            $table->dateTime('maintenance_status_end_date')->nullable();
+            $table->date('maintenance_status_start_date_time');
+            $table->date('maintenance_status_end_date_time')->nullable();
             $table->tinyInteger('maintenance_job_status_history_active');
             $table->charset = "utf8";
             $table->collation = "utf8_general_ci";

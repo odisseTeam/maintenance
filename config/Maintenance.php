@@ -13,9 +13,24 @@ return[
 
 
     'businesses_name'=>[
-        ["id_saas_client_business"=>1,'business_name'=>'Living' , 'maintenance_api_url'=>'https://living.odisse.local'],
-        ["id_saas_client_business"=>2,'business_name'=>'ASC', 'maintenance_api_url'=>'https://living.odisse.local'],
-        ["id_saas_client_business"=>3,'business_name'=>'ELC', 'maintenance_api_url'=>'https://living.odisse.local'],
+        [
+            "id_saas_client_business"=>1,
+            'business_name'=>'Living' ,
+            'maintenance_api_url'=> env('LIVING_MAINTENANCE_API','https://living.odisse.local')
+        ],
+
+        [
+            "id_saas_client_business"=>2,
+            'business_name'=>'ASC',
+            'maintenance_api_url'=> env('ASC_MAINTENANCE_API','https://living.odisse.local')
+        ],
+
+        [
+            "id_saas_client_business"=>3,
+            'business_name'=>'ELC',
+            'maintenance_api_url'=> env('ELC_MAINTENANCE_API','https://living.odisse.local')
+
+        ],
         // 'Living',
         // 'ASC',
         // 'ELC',

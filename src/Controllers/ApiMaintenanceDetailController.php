@@ -138,6 +138,126 @@ class ApiMaintenanceDetailController extends Controller
         );
     }
 
+
+    public function getMaintenancesListHistory(Request $request)
+    {
+
+        // return response()->json(
+        //     [
+        //         'status' => '200',
+        //         'message'   => 'ok',
+        //         'request'  => $request->all(),
+        //     ]
+        // );
+
+        try {
+
+        //$user =  JWTAuth::parseToken()->authenticate();
+
+
+        // if(! $user){
+
+        //     $status = APIStatusConstants::UNAUTHORIZED;
+        //     $message = trans('general.you_have_to_login_first');
+
+        //     return response()->json(
+        //         [
+        //             'status' => $status,
+        //             'message'   => $message,
+        //             'data'  => ''
+        //         ]
+        //     );
+        // }
+            Log::info("Call API :: ApiMaintenanceDetailController - getMaintenancesListHistory function");
+
+
+        $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->
+        join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
+        join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+        join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
+        join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
+        join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        join('maintainable' , 'maintainable.id_maintenance_job' , 'maintenance_job.id_maintenance_job');
+
+        if( $request->has('business') and $request->business != null )
+        $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
+
+
+        if( $request->has('maintenable_id') and $request->maintenable_id != null )
+        $maintenances = $maintenances->where('maintainable.maintenable_id','=', $request->maintenable_id);
+
+
+        if( $request->has('maintenable_type') and $request->maintenable_type != null )
+        $maintenances = $maintenances->where('maintainable.maintenable_type','=', $request->maintenable_type);
+
+
+        $maintenances = $maintenances->get();
+
+        $businesses = config('maintenances.businesses_name');
+
+
+        return response()->json(
+            [
+                'status' => '200',
+                'message'   => 'ok',
+                'maintenances'  => $maintenances,
+            ]
+        );
+
+
+        // foreach($maintenances as $maintenance){
+
+        //     $maintenance->id_business = $maintenance->id_saas_client_business;
+        //     foreach($businesses as $business){
+        //         if($maintenance->id_saas_client_business == $business['id_saas_client_business']){
+        //             $maintenance->business_name = $business['business_name'];
+
+        //         }
+        //     }
+
+
+        //     if($maintenance->expected_target_minutes){
+
+        //         $time = Carbon::createFromFormat('Y-m-d H:i:s', $maintenance->job_report_date_time )->addMinutes($maintenance->expected_target_minutes);
+        //         $maintenance->remain_time = $time->format('Y-m-d H:i:s');
+        //     }
+        //     else{
+        //         $maintenance->remain_time = '-';
+
+
+        //     }
+
+        // }
+
+
+
+
+
+
+            $status = APIStatusConstants::OK;
+            $message = trans('maintenance::maintenance_mgt.successful_getMaintenanceListHistory');
+
+
+        } catch (\Exception $e) {
+
+            Log::error($e->getMessage());
+            $message = trans('maintenance::maintenance_mgt.unsuccessful_getMaintenanceListHistory');
+            $status = APIStatusConstants::BAD_REQUEST;
+            $$maintenances=null;
+
+
+        }
+
+        return response()->json(
+            [
+                'status' => $status,
+                'message'   => $message,
+                'maintenances'  => $maintenances,
+            ]
+        );
+    }
+
     public function deleteMaintenance(Request $request)
     {
 

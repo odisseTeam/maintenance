@@ -344,7 +344,7 @@ class ContractorController extends Controller
 
             'contractor' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required|string|min:8',
 
         ]);
 
@@ -354,13 +354,13 @@ class ContractorController extends Controller
 
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::ERROR,
-                  'message' => $validator,
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => $validator->errors(),
                 ]);
         }
 
         try{
-            
+
             DB::beginTransaction();
             $contractor_agents = ContractorAgent::where('id_contractor' , $request->contractor)->where('contractor_agent_active' ,1 )->get();
 
@@ -382,7 +382,7 @@ class ContractorController extends Controller
 
                                 return response()->json(
                                     [
-                                    'code' => ActionStatusConstants::ERROR,
+                                    'code' => ActionStatusConstants::FAILURE,
                                     'message' => trans('maintenance::contractor.password_and_confirmation_is_not_equal'),
                                     ]);
                             }
@@ -415,7 +415,7 @@ class ContractorController extends Controller
                         DB::rollback();
                         return response()->json(
                             [
-                            'code' => ActionStatusConstants::ERROR,
+                            'code' => ActionStatusConstants::FAILURE,
                             'message' => trans('maintenance::contractor.update_email_is_not_possible'),
                             ]);
 
@@ -444,7 +444,7 @@ class ContractorController extends Controller
             DB::rollback();
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::ERROR,
+                  'code' => ActionStatusConstants::FAILURE,
                   'message' => trans('maintenance::contractor.contractor_login_setting_not_changed'),
                 ]);
 
