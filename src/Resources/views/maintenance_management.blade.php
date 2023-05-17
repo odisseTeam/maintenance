@@ -1,80 +1,65 @@
-@extends('adminlte.layouts.sdr')
-
-@section('page_title', session('saas_title').' '.__('maintenance::maintenance_mgt.maintenance_management'))
+@extends('layouts.main')
 
 
 @section('css')
+<!-- Data Table Css -->
+    <link rel="stylesheet" type="text/css" href="../files/bower_components/datatables.net-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="../files/assets/pages/data-table/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../files/bower_components/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css">
+    <!-- Style.css -->
 
-    <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        /* Create three unequal columns that floats next to each other */
-        .column {
-            float: left;
-            padding: 10px;
-            height: 300px; /* Should be removed. Only for demonstration */
-        }
-
-        .left, .middle {
-            width: 35%;
-        }
-
-        .right {
-            width: 20%;
-        }
-
-        /* Clear floats after the columns */
-        .row:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-    </style>
 @endsection
 
 @section('content')
 
-    @if(session('error'))
-        @component('components.alert')
 
-        @endcomponent
-    @endif
-    @if(session('success'))
-        <div class="box-body">
-            <div class="alert alert-success alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                <p><i class="icon fa-solid fa-check"></i>{{session('success')}}</p>
+
+
+    <!-- [ navigation menu ] end -->
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header card">
+            <div class="row align-items-end">
+                <div class="col-lg-8">
+                    <div class="page-header-title">
+                        <i class="feather icon-home bg-c-blue sdr-primary"></i>
+                        <div class="d-inline">
+                            <h5>{{__('maintenance::maintenance_mgt.maintenance_management')}}</h5>
+                            <span>{{__('maintenance::maintenance_mgt.maintenance_management')}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="page-header-breadcrumb">
+                        <ul class=" breadcrumb breadcrumb-title breadcrumb-padding">
+                            <li class="breadcrumb-item">
+                                <a href="index.html"><i class="feather icon-home"></i></a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#!">{{__('maintenance::maintenance_mgt.maintenance_management')}}</a> </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-    @endif
+        <!-- [ breadcrumb ] end -->
+        <div class="pcoded-inner-content">
+            <div class="main-body">
+                <div class="page-wrapper">
+                    <div class="page-body">
+                        <!-- [ page content ] start -->
+                        <div class="row">
 
-    @if( isset($errors) && $errors->any() )
-        <div class="box-body">
 
-            <div class="alert alert-danger alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                @foreach( $errors->all() as $error )
-                    <p><i class="icon fa-solid fa-ban"></i>{{$error}}</p>
-                @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-    @endif
-
-    <div class="box-body" id="msg_box" hidden>
-        <div class="alert alert-success alert-dismissible" id="msg_box_inner">
-            {{--                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>--}}
-            <div id="ajx_msg"></div>
         </div>
     </div>
 
 
 
-    {{--    <section class="content-header">--}}
+
     <section>
         <div class="box">
             <div class="box-header">
@@ -877,6 +862,20 @@
         }
 
 
+
+
+        <!-- data-table js -->
+    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+   
 
 
     </script>

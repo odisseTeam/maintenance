@@ -407,8 +407,8 @@ class ApiMaintenanceDetailController extends Controller
             if($business_contractor && $business_contractor[0] == "B"){
 
                 //return business maintenance users
-                $users = User::where('users_active' , 1)->where('is_deleted' , 0)->
-                join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
+                $users = User::where('users_active' , 1)->
+                join('role_users','role_users.user_id','users.id')->
                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
                 $result = $users;
             }
