@@ -127,7 +127,7 @@ class MaintenanceManagementController extends Controller
 
         return response()->json(
             [
-            'code' => ActionStatusConstants::SUCCESS,
+            'code' => 'success',
             'maintenances'=>$responseObj->maintenances,
 
             'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
@@ -176,17 +176,17 @@ class MaintenanceManagementController extends Controller
             //get maintenance of all businesses
         }
 
-        if($responseObj->status == APIStatusConstants::OK){
+        if($responseObj->status == 200){
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::SUCCESS,
+                  'code' => 'success',
                   'message' => $responseObj->message,
                 ]);
         }
         else{
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::FAILURE,
+                  'code' => 'failure',
                   'message' => $responseObj->message,
                 ]);
 
@@ -234,7 +234,7 @@ class MaintenanceManagementController extends Controller
             //get maintenance of all businesses
         }
 
-        if($responseObj->status == APIStatusConstants::OK){
+        if($responseObj->status == 200){
             return response()->json(
                 [
                   'code' => ActionStatusConstants::SUCCESS,
@@ -295,7 +295,7 @@ class MaintenanceManagementController extends Controller
             //get maintenance of all businesses
         }
 
-        if($responseObj->status == APIStatusConstants::OK){
+        if($responseObj->status == 200){
             return response()->json(
                 [
                   'code' => ActionStatusConstants::SUCCESS,
@@ -385,7 +385,7 @@ class MaintenanceManagementController extends Controller
 
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::FAILURE,
+                  'code' => 'failure',
                   'result'=>[],
                   'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
                 ]);
