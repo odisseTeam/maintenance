@@ -42,7 +42,8 @@ return [
     'maintenance_assigned_to_this_user_already'=>    'Maintenance assigned to staff already!',
 
 
-    'create' => 'Create Maintenance'
+    'create' => 'Create Maintenance',
+    'create_job' => 'Create New Job'
 
 
 ];

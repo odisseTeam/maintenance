@@ -266,9 +266,7 @@
                                     <div class="row">
                                         <button style="min-width:150px;margin-top:1px;" type="button" onclick="resetSearchbox()" class="btn btn-primary">{{__('booking.reset')}}</button>
                                     </div>
-                                    <div class="row">
-                                        <a style="min-width:150px;margin-top:1px;" href="/maintenance/create/page" class="btn btn-primary">{{trans('maintenance::dashboard.create')}}</a>
-                                    </div>
+
 
                                 </div>
 
@@ -288,49 +286,61 @@
                         <div class="box-header">
                             <h3>{{__('maintenance::dashboard.maintenances_list')}}</h3>
                         </div>
-                        <div class="box-body table-responsive no-padding">
-                            <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>{{__('maintenance::dashboard.category')}}</th>
-                                    <th>{{__('maintenance::dashboard.title')}}</th>
-                                    <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                    <th>{{__('maintenance::dashboard.priority')}}</th>
-                                    <th>{{__('maintenance::dashboard.status')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_report_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_start_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                    <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                    <th>{{__('maintenance::dashboard.operation')}}</th>
+
+                        <div class="box-body">
+                            <div class="row" style="float: right;">
+                                <a style="min-width:150px;margin-top:1px;" href="/maintenance/create/page" class="btn btn-primary">{{trans('maintenance::dashboard.create_job')}}</a>
+                                <br>
+                            </div>
+                        </div>
+                        <div class="box-body ">
 
 
-                                </tr>
-                                </thead>
+                            <div class="row table-responsive no-padding">
+
+                                <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{{__('maintenance::dashboard.category')}}</th>
+                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.status')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_start_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_end_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.operation')}}</th>
 
 
-                                <tbody id="maintenance_tbl_body"
-                                       class="table table-bordered table-hover dataTable text-center">
+                                    </tr>
+                                    </thead>
 
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th>#</th>
-                                    <th>{{__('maintenance::dashboard.category')}}</th>
-                                    <th>{{__('maintenance::dashboard.title')}}</th>
-                                    <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                    <th>{{__('maintenance::dashboard.priority')}}</th>
-                                    <th>{{__('maintenance::dashboard.status')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_report_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_start_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                    <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                    <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                    <th>{{__('maintenance::dashboard.operation')}}</th>
-                                </tr>
-                                </tfoot>
-                            </table>
+
+                                    <tbody id="maintenance_tbl_body"
+                                        class="table table-bordered table-hover dataTable text-center">
+
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{{__('maintenance::dashboard.category')}}</th>
+                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.status')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_start_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.task_end_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.operation')}}</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
 
                         </div>
                     </div>

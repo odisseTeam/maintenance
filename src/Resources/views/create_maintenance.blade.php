@@ -347,8 +347,8 @@
                                         <div class="box-footer text-right">
 
 
-                                            <button
-                                                class="btn btn-warning">{{ trans('maintenance::maintenance.cancel') }}</button>
+                                            <a href="/maintenance/dashboard"><button type="button"
+                                                class="btn btn-warning">{{ trans('maintenance::maintenance.cancel') }}</button></a>
 
 
 
