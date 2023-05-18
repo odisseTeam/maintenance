@@ -597,9 +597,8 @@ function callback(response , name, parameters ) {
                     var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
                     var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
 
-                    var operation = '<a href="' + m_url + '" target="_blank" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
-                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary"  >' +
-                        '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i></button>' +
+                    var operation = '<a href="' + m_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
+                        '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i>' +
                         '</a>' +
 
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn sdr-danger alert-confirm m-b-10" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_business +','+ id_maintenance_job+')">'+
