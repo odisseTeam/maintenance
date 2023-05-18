@@ -384,7 +384,7 @@ class MaintenanceController extends Controller
                   $file->move($path, $fileName);
 
 
-               
+
 
                   //save documents of maintenance job
                   $maintenance_job_document = new MaintenanceJobDocument();
@@ -594,7 +594,12 @@ class MaintenanceController extends Controller
 
           try {
 
-              $maintenance = MaintenanceJob::findOrFail($maintenanceId);
+              $maintenance = MaintenanceJob::where('maintenance_job_active', 1)->where('id_maintenance_job',$maintenanceId)->first();
+              if( !$maintenance )
+              {
+
+                return redirect('/maintenance/dashboard')->withErrors('Maintenance not exists');
+              }
 
 
               //get all businesses
@@ -727,7 +732,7 @@ class MaintenanceController extends Controller
               Log::error("in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
               . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-              return view('maintenance::maintenance_detail')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
+              return redirect('/maintenance/dashboard')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
 
           }
       }
@@ -756,7 +761,7 @@ class MaintenanceController extends Controller
               //get all maintenance detail before edit
               $maintenance_detail_old_data = MaintenanceJobDetail::where('id_maintenance_job', $id_maintenance)->first();
 
-           
+
                 if($request->coment != null) {
 
                     $coment_note = $user->first_name . " " . $user->last_name." Added a Comment : ".$request->coment;
