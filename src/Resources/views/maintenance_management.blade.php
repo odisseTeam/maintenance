@@ -584,6 +584,7 @@ function callback(response , name, parameters ) {
 
                     var id_maintenance_job = maintenance_list[k]["id_maintenance_job"];
                     var category = maintenance_list[k]["job_category_name"];
+                    var m_url = maintenance_list[k]["m_url"];
                     var id_business = maintenance_list[k]["id_business"];
                     var business_name = maintenance_list[k]["business_name"];
                     var title = maintenance_list[k]["maintenance_job_title"];
@@ -596,7 +597,7 @@ function callback(response , name, parameters ) {
                     var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
                     var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
 
-                    var operation = '<a href="/maintenance/detail/' + id_maintenance_job + '" target="_blank" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
+                    var operation = '<a href="' + m_url + '" target="_blank" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary"  >' +
                         '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i></button>' +
                         '</a>' +

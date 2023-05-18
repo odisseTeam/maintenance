@@ -95,8 +95,10 @@ class ApiMaintenanceDetailController extends Controller
 
                 }
             }
+            unset($maintenance->password);
+            unset($maintenance->permissions);
 
-
+            $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
             if($maintenance->expected_target_minutes){
 
                 $time = Carbon::createFromFormat('Y-m-d H:i:s', $maintenance->job_report_date_time )->addMinutes($maintenance->expected_target_minutes);
