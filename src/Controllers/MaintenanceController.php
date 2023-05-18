@@ -527,8 +527,7 @@ class MaintenanceController extends Controller
                   ->withInput();
 
           }
-        return redirect('/maintenance/create/page')
-                ->withInput()
+        return redirect('/maintenance/dashboard')
                 ->with(
                     [ $status  => $message ]
                 );
