@@ -85,48 +85,9 @@ class MaintenanceController extends Controller
             //get all maintenance priorities
             $priorities = MaintenanceJobPriorityRef::all();
 
-            $locations = [];
-
-            $rooms = Room::all();
-
-            foreach($rooms as $room) {
-                $room->id = 'Room'.$room->id_room;
-                $room->name = 'Room'.' '.$room->room_number_full;
-
-            }
-
-            foreach($rooms as $room) {
-                $locations[] = $room;
-            }
-
-            $properties = Property::all();
-
-            foreach($properties as $property) {
-                $property->id = 'Property'.$property->id_property;
-                $property->name = 'Property'.' '.$property->property_name;
-
-            }
-
-            foreach($properties as $property) {
-                $locations[] = $property;
-            }
-
-
-            $sites = Site::all();
-
-
-            foreach($sites as $site) {
-                $site->id = 'Site'.$site->id_site;
-                $site->name = 'Site'.' '.$site->site_full_name;
-
-            }
-            foreach($sites as $site) {
-                $locations[] = $site;
-            }
+            $locations = $this->getMaintainables();;
 
             $jobs = MaintenanceJob::all();
-
-
 
             return view(
                 'maintenance::create_maintenance',
@@ -190,7 +151,7 @@ class MaintenanceController extends Controller
               //make a new directory for uploaded documents
               $maintenance_file_path = config('maintenances.maintenance_file_path');
 
-              $path = $maintenance_file_path . 'uploaded_files' ;
+              $path = $maintenance_file_path . 'uploaded_files/' ;
               if (!\File::exists($path)) {
                   \File::makeDirectory($path, 0755, true);
               }
@@ -360,7 +321,7 @@ class MaintenanceController extends Controller
 
               $maintenance_file_path = config('maintenances.maintenance_file_path');
 
-              $path = $maintenance_file_path . 'uploaded_files' ;
+              $path = $maintenance_file_path . 'uploaded_files/' ;
               if (!\File::exists($path)) {
                   \File::makeDirectory($path, 0755, true);
               }
@@ -662,44 +623,9 @@ class MaintenanceController extends Controller
 
 
 
-              $locations = [];
-
-              $rooms = Room::all();
-
-              foreach($rooms as $room) {
-                  $room->id = 'Room'.$room->id_room;
-                  $room->name = 'Room'.' '.$room->room_number_full;
-
-              }
-
-              foreach($rooms as $room) {
-                  $locations[] = $room;
-              }
-
-              $properties = Property::all();
-
-              foreach($properties as $property) {
-                  $property->id = 'Property'.$property->id_property;
-                  $property->name = 'Property'.' '.$property->property_name;
-
-              }
-
-              foreach($properties as $property) {
-                  $locations[] = $property;
-              }
+              $locations = $this->getMaintainables();
 
 
-              $sites = Site::all();
-
-
-              foreach($sites as $site) {
-                  $site->id = 'Site'.$site->id_site;
-                  $site->name = 'Site'.' '.$site->site_full_name;
-
-              }
-              foreach($sites as $site) {
-                  $locations[] = $site;
-              }
 
               //get all maintenance priorities
               $priorities = MaintenanceJobPriorityRef::all();
@@ -1171,5 +1097,48 @@ class MaintenanceController extends Controller
 
           }
 
+      }
+
+
+      private function getMaintainables()
+      {
+            $locations = [];
+
+            $rooms = Room::all();
+
+            foreach($rooms as $room) {
+                $property = $room->property;
+                $room->id = 'Room'.$room->id_room;
+                $room->name = '[Room] '.$property->property_short_name .'/'.$room->room_number_full;
+
+            }
+
+            foreach($rooms as $room) {
+                $locations[] = $room;
+            }
+
+            $properties = Property::all();
+
+            foreach($properties as $property) {
+                $property->id = 'Property'.$property->id_property;
+                $property->name = '[Property] '.$property->property_name;
+
+            }
+
+            foreach($properties as $property) {
+                $locations[] = $property;
+            }
+
+
+            $sites = Site::all();
+
+
+            foreach($sites as $site) {
+                $site->id = 'Site'.$site->id_site;
+                $site->name = '[Site] '.$site->site_full_name;
+
+            }
+
+            return $locations;
       }
 }

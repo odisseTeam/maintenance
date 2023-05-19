@@ -554,7 +554,7 @@
             $('#maintenance_date').daterangepicker({
                 singleDatePicker: true,
                 timePicker: true,
-                timePickerSeconds: true,
+                timePickerSeconds: false,
                 //timePicker12Hour: false,
                 showDropdowns: true,
                 // minYear: 2000,
@@ -563,7 +563,7 @@
                 timePickerIncrement: 5,
                 locale: {
                     format: window._date_time_format,
-                    separator: " - ",
+                    separator: "/",
                     applyLabel: "Apply",
                     cancelLabel: "Cancel",
                     fromLabel: "From",

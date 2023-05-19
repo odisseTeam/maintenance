@@ -91,7 +91,8 @@ class MaintenanceDashboardController extends Controller
         join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
         join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
-        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1);
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);

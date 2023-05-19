@@ -596,7 +596,9 @@
                     var job_start_date_time = maintenance_list[k]["job_start_date_time"]?maintenance_list[k]["job_start_date_time"]:'-';
                     var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finished_date_time"]:'-';
                     var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
-                    var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
+                    // var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
+                    var resident_reporter = maintenance_list[k]["resident_first_name"] ?  maintenance_list[k]["resident_first_name"] + ' ' + maintenance_list[k]["resident_surname"] : "N/A";
+
 
                     var operation = '<a href="/maintenance/detail/' + id_maintenance_job + '" target="_blank" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn"  >' +

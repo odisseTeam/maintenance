@@ -392,10 +392,10 @@
                     var id_contractor = contractor_list[k]["id_contractor"];
                     var name = contractor_list[k]["name"];
                     var short_name = contractor_list[k]["short_name"];
-                    var vat_number = contractor_list[k]["vat_number"];
-                    var tel_number1 = contractor_list[k]["tel_number1"];
-                    var tel_number2 = contractor_list[k]["tel_number2"];
-                    var address_line1 = contractor_list[k]["address_line1"];
+                    var vat_number = contractor_list[k]["vat_number"]?contractor_list[k]["vat_number"]:'-';
+                    var tel_number1 = contractor_list[k]["tel_number1"]?contractor_list[k]["tel_number1"]:'-';
+                    var tel_number2 = contractor_list[k]["tel_number2"]?contractor_list[k]["tel_number2"]:'-';
+                    var address_line1 = contractor_list[k]["address_line1"]?contractor_list[k]["address_line1"]:'-';
 
                     var operation = '<a href="/maintenance/contractor/' + id_contractor + '" target="_blank" data-toggle="tooltip" title="Edit Contractor" data-original-title="EDit Contractor">' +
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" id="edit' + counter + '" >' +
