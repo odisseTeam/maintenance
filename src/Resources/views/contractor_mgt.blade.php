@@ -14,6 +14,11 @@
           href="{{ asset('resources/bootstrap-daterangepicker/daterangepicker.css') }}"/>
     <link rel="stylesheet" type="text/css"
           href="{{ asset('resources/bootstrap-timepicker/css/timepicker.less') }}"/>
+
+
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('resources/bootstrap-multiselect/css/bootstrap-multiselect.css') }}"/>
+
     <link rel="stylesheet" href="{{ asset('resources/iCheck/all.css')}}" />
 
     <style>
@@ -312,6 +317,133 @@
 
 
 
+    <!-- Modal -->
+    <div class="modal fade" id="skillModal" tabindex="-1" role="dialog" aria-labelledby="skillModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="skillModalLabel">{{trans('maintenance::contractor.contractor_skills')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_skill" style="display: none">
+                            <div id="ajx_err_msg_skill"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_skill" style="display: none">
+                            <div id="ajx_suc_msg_skill"></div>
+                        </div>
+
+                        <div class="box">
+                            <div class="box-body">
+                                <input type="hidden" id="change_skill_contractor" value="">
+
+
+                                <!-- skill-->
+                                <div class="form-group row">
+                                    <label
+                                        class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::contractor.skill') }}:</label>
+                                    <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                        <select name="skill[]" id="skill" multiple="multiple" class="form-control select ">
+                                                @if (isset($skills))
+                                                    @foreach ($skills as $skill)
+                                                        <option value="{{ $skill->id_contractor_skill_ref }}">{{$skill->skill_name}}</option>
+                                                    @endforeach
+                                                @endif
+                                        </select>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning"
+                        data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
+                    <button type="button" class="btn btn-primary"
+                         onclick="changeContractorSkill()">{{trans('maintenance::contractor.save')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="locationModal" tabindex="-1" role="dialog" aria-labelledby="locationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="locationModalLabel">{{trans('maintenance::contractor.contractor_locations')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_location" style="display: none">
+                            <div id="ajx_err_msg_location"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_location" style="display: none">
+                            <div id="ajx_suc_msg_location"></div>
+                        </div>
+
+                        <div class="box">
+                            <div class="box-body">
+                                <input type="hidden" id="change_location_contractor" value="">
+
+
+                                <!-- location-->
+                                <div class="form-group row">
+                                    <label
+                                        class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::contractor.location') }}:</label>
+                                    <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                        <select name="location[]" id="location" multiple="multiple" class="form-control select ">
+                                                @if (isset($locations))
+                                                    @foreach ($locations as $location)
+                                                        <option value="{{ $location->id_contractor_location_ref }}">{{$location->location}}</option>
+                                                    @endforeach
+                                                @endif
+                                        </select>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning"
+                        data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
+                    <button type="button" class="btn btn-primary"
+                         onclick="changeContractorLocation()">{{trans('maintenance::contractor.save')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
 @endsection
 
 
@@ -332,6 +464,9 @@
     <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
 
+    <script src="{{ asset('resources/bootstrap-multiselect/js/bootstrap-multiselect.js') }}"></script>
+
+
     <script src="{{ asset('resources/iCheck/icheck.min.js') }}"></script>
 
     <script>
@@ -348,7 +483,7 @@
 
         });
 
-
+        ///////////////////////////////////////////////////////
         function loadAllContractors(){
 
             var spinHandle = loadingOverlay.activate();
@@ -403,6 +538,14 @@
                         '</a>' +
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Login Settings" onclick="showLoginSettingsModal('+id_contractor+')">'+
                         '<i class="fa-solid fa-cogs"></i>'+
+                        '</button>'+
+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Set Skills" onclick="showSkillModal('+id_contractor+')">'+
+                        '<i class="fa-solid fa-award"></i>'+
+                        '</button>'+
+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Set Location" onclick="showLocationModal('+id_contractor+')">'+
+                        '<i class="fa fa-solid fa-location-dot"></i>'+
                         '</button>'+
 
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Contractor" onclick="showDeleteContractorModal('+id_contractor+')">'+
@@ -618,6 +761,357 @@
 
 
         }
+        /////////////////////////////////////////////////////////
+        function showSkillModal(id_contractor){
+
+
+
+            var spinHandle = loadingOverlay.activate();
+
+            $('#skill').multiselect({
+                enableFiltering: false,
+                includeSelectAllOption: true,
+                maxHeight: 400,
+                buttonWidth: '100%',
+                dropLeft: true,
+                selectAllText: 'Select All',
+                selectAllValue: 0,
+                enableFullValueFiltering: false,
+                onDeselectAll: function() {
+                    // prepareClientRates();
+                    // buttonText: function(options, select) {
+                    //     if (options.length === 0) {
+                    //         return 'No option selected ...';
+                    //     }
+                    // }
+                },
+                onSelectAll: function() {
+                    // prepareClientRates();
+                    // buttonText: function(options, select) {
+                    //     if (options.length === 0) {
+                    //         return 'No option selected ...';
+                    //     }
+                    // }
+                },
+                onChange: function() {
+                    // prepareClientRates();
+                },
+                //nonSelectedText: 'Check an option!',
+                //dropUp: true
+
+                buttonText: function (options, select) {
+                    if (options.length === 0) {
+                        return 'Not selected';
+                    }
+                    else if (options.length > 9) {
+                        return 'More than 3 options selected!';
+                    }
+                    else {
+                        var labels = [];
+                        options.each(function () {
+                            if ($(this).attr('label') !== undefined) {
+                                labels.push($(this).attr('label'));
+                            }
+                            else {
+                                labels.push($(this).html());
+                            }
+                        });
+                        return labels.join(', ') + '';
+                    }
+                }
+            });
+
+            $('#skill').multiselect("clearSelection");
+
+
+
+            send( '/maintenance/contractor/skill/'+id_contractor,  {
+            }, 'handleShowSkillModal', [id_contractor]);
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function handleShowSkillModal(id_contractor){
+
+            let contractor_skills = return_value.contractor_skills;
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+
+
+                $("#ajx_err_msg_skill").html(x);
+                $("#err_msg_box_skill").css('display' , 'block');
+
+            }
+            else if(contractor_skills != null && contractor_skills !="undefined"){
+                var arr = [];
+
+                var htmlValue = "";
+                Object.keys(contractor_skills).forEach(function(k){
+
+                    var counter = 1+parseInt(k);
+
+                    var skill_name = contractor_skills[k]["skill_name"];
+                    var id_contractor_skill_ref = contractor_skills[k]["id_contractor_skill_ref"];
+
+                    arr.push(id_contractor_skill_ref);
+                    //$("#skill option[value="+id_contractor_skill_ref+"]").attr('selected', 'selected');
+
+
+
+                });
+
+                $('#skill').multiselect('select', arr);
+                $('#skill').multiselect('refresh');
+
+
+
+            }
+
+            $("#change_skill_contractor").val(id_contractor);
+
+            $("#err_msg_box_skill").css('display' , 'none');
+            $("#suc_msg_box_skill").css('display' , 'none');
+
+
+
+            $('#skillModal').modal('show');
+            loadingOverlay.cancelAll();
+
+        }
+        /////////////////////////////////////////////////////////
+        function changeContractorSkill(){
+            var spinHandle = loadingOverlay.activate();
+            $("#err_msg_box_skill").css('display' , 'none');
+
+            let change_skill_contractor = $('#change_skill_contractor' ).val();
+            let skills = $('select#skill').val();
+
+
+
+            send( '/maintenance/contractor/skills/change',  {
+                contractor:change_skill_contractor,
+                skills:skills,
+            }, 'handleChangeContractorSkill', []);
+        }
+        ///////////////////////////////////////////////////////////
+        function handleChangeContractorSkill(){
+            loadingOverlay.cancelAll();
+
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+                $("#ajx_err_msg_skill").html(x);
+                $("#err_msg_box_skill").css('display' , 'block');
+            }
+            else{
+                $("#ajx_suc_msg_skill").html(message);
+                $("#suc_msg_box_skill").css('display' , 'block');
+                setTimeout(function() {$('#skillModal').modal('hide');}, 3000);
+
+            }
+
+
+
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function showLocationModal(id_contractor){
+
+
+
+            var spinHandle = loadingOverlay.activate();
+
+            $('#location').multiselect({
+                enableFiltering: false,
+                includeSelectAllOption: true,
+                maxHeight: 400,
+                buttonWidth: '100%',
+                dropLeft: true,
+                selectAllText: 'Select All',
+                selectAllValue: 0,
+                enableFullValueFiltering: false,
+                onDeselectAll: function() {
+                    // prepareClientRates();
+                    // buttonText: function(options, select) {
+                    //     if (options.length === 0) {
+                    //         return 'No option selected ...';
+                    //     }
+                    // }
+                },
+                onSelectAll: function() {
+                    // prepareClientRates();
+                    // buttonText: function(options, select) {
+                    //     if (options.length === 0) {
+                    //         return 'No option selected ...';
+                    //     }
+                    // }
+                },
+                onChange: function() {
+                    // prepareClientRates();
+                },
+                //nonSelectedText: 'Check an option!',
+                //dropUp: true
+
+                buttonText: function (options, select) {
+                    if (options.length === 0) {
+                        return 'Not selected';
+                    }
+                    else if (options.length > 9) {
+                        return 'More than 3 options selected!';
+                    }
+                    else {
+                        var labels = [];
+                        options.each(function () {
+                            if ($(this).attr('label') !== undefined) {
+                                labels.push($(this).attr('label'));
+                            }
+                            else {
+                                labels.push($(this).html());
+                            }
+                        });
+                        return labels.join(', ') + '';
+                    }
+                }
+            });
+
+            $('#location').multiselect("clearSelection");
+
+
+
+
+            send( '/maintenance/contractor/location/'+id_contractor,  {
+            }, 'handleShowLocationModal', [id_contractor]);
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function handleShowLocationModal(id_contractor){
+
+            let contractor_locations = return_value.contractor_locations;
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+
+
+                $("#ajx_err_msg_location").html(x);
+                $("#err_msg_box_location").css('display' , 'block');
+
+            }
+            else if(contractor_locations != null && contractor_locations !="undefined"){
+                var arr = [];
+
+                var htmlValue = "";
+                Object.keys(contractor_locations).forEach(function(k){
+
+                    var counter = 1+parseInt(k);
+
+                    var id_contractor_location_ref = contractor_locations[k]["id_contractor_location_ref"];
+
+                    arr.push(id_contractor_location_ref);
+
+                });
+
+                $('#location').multiselect('select', arr);
+                $('#location').multiselect('refresh');
+
+
+
+            }
+
+            $("#change_location_contractor").val(id_contractor);
+
+            $("#err_msg_box_location").css('display' , 'none');
+            $("#suc_msg_box_location").css('display' , 'none');
+
+
+
+            $('#locationModal').modal('show');
+            loadingOverlay.cancelAll();
+
+        }
+        /////////////////////////////////////////////////////////
+        function changeContractorLocation(){
+            var spinHandle = loadingOverlay.activate();
+            $("#err_msg_box_location").css('display' , 'none');
+
+            let change_location_contractor = $('#change_location_contractor' ).val();
+            let locations = $('select#location').val();
+
+
+
+            send( '/maintenance/contractor/locations/change',  {
+                contractor:change_location_contractor,
+                locations:locations,
+            }, 'handleChangeContractorLocation', []);
+        }
+        ///////////////////////////////////////////////////////////
+        function handleChangeContractorLocation(){
+            loadingOverlay.cancelAll();
+
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+                $("#ajx_err_msg_location").html(x);
+                $("#err_msg_box_location").css('display' , 'block');
+            }
+            else{
+                $("#ajx_suc_msg_location").html(message);
+                $("#suc_msg_box_location").css('display' , 'block');
+                setTimeout(function() {$('#locationModal').modal('hide');}, 3000);
+
+            }
+
+
+
+
+
+        }
+
+
+
+
 
     </script>
 

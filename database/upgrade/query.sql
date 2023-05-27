@@ -51,6 +51,43 @@ VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','p
 
 
 
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'contractor.skills.get','/maintenance/contractor/skill/{id_contractor}','post',null,null,1,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'contractor.skills.change','/maintenance/contractor/skills/change','post',null,null,1,1);
+
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'contractor.locations.get','/maintenance/contractor/location/{id_contractor}','post',null,null,1,1);
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'contractor.locations.change','/maintenance/contractor/locations/change','post',null,null,1,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'mgt.maintenance.create','/maintenance/mgt/create','get',null,null,1,1);
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'maintenance.start','/maintenance/start/{id_maintenance}','post',null,null,1,1);
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+VALUES (null,'maintenance.end','/maintenance/end/{id_maintenance}','post',null,null,1,1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.maintenance.start','/maintenance/mgt/start/{id_maintenance}','post',1,1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('mgt.maintenance.end','/maintenance/mgt/end/{id_maintenance}','post',1,1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
+VALUES ('maintenance.status.chart','/maintenance/statuses/charts','post',1,1);
+
+
+
 
 -- Add base data to initialize package
 INSERT INTO public.maintenance_job_category_ref
@@ -82,7 +119,6 @@ VALUES('OPUN', 'Open Unassigned', '-', 1),
 INSERT INTO public.maintenance_job_sla_ref
 (id_saas_client_business, id_maintenance_job_priority_ref, id_client, maximum_expected_seen_minutes, expected_target_minutes, maintenance_job_sla_ref_active)VALUES
 (1, 1, 1, '30', '3000', 1),
-(1, 1, 1, '30', '3000', 1),
 (1, 1, 2, '30', '3000', 1),
 (1, 1, 3, '30', '3000', 1),
 (1, 1, 4, '30', '3000', 1),
@@ -112,7 +148,6 @@ INSERT INTO public.maintenance_job_sla_ref
 
 
 (1, 2, 1, '30', '3000', 1),
-(1, 2, 1, '30', '3000', 1),
 (1, 2, 2, '30', '3000', 1),
 (1, 2, 3, '30', '3000', 1),
 (1, 2, 4, '30', '3000', 1),
@@ -141,7 +176,6 @@ INSERT INTO public.maintenance_job_sla_ref
 (1, 2, null, '30', '3000', 1),
 
 
-(1, 3, 1, '30', '3000', 1),
 (1, 3, 1, '30', '3000', 1),
 (1, 3, 2, '30', '3000', 1),
 (1, 3, 3, '30', '3000', 1),
@@ -201,3 +235,32 @@ INSERT INTO public.maintenance_job_sla_ref
 (1, 4, null, '30', '3000', 1);
 
 
+
+INSERT INTO public.contractor_skill_ref
+(skill_name, contractor_skill_ref_active)VALUES
+('Handyman Services', 1),
+('Plumbing Services', 1),
+('Rescue Services', 1),
+('Electrical Services', 1),
+('Security Services', 1),
+('Cleaning Services', 1),
+('Garden Services', 1),
+('Fire Protection Services', 1),
+('Domestics Services', 1),
+('Repairs Services', 1),
+('Synergy Services', 1),
+('Furniture Restoration Services', 1),
+('Lift Maintenance Services', 1),
+('Doors & Windows Services', 1),
+('Appliance Repair Services', 1),
+('Carpet Cleaning Services', 1),
+('Drainage Services', 1);
+
+INSERT INTO public.contractor_location_ref
+(location, contractor_location_ref_active)VALUES
+('Hampshire', 1),
+('St Leonards On Sea', 1),
+('Eastbourne', 1),
+('Sussex', 1),
+('Shoreham', 1),
+('Worthing', 1);

@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Odisse\Maintenance\Models\Contractor;
 use Odisse\Maintenance\Models\ContractorAgent;
+use Odisse\Maintenance\Models\ContractorLocation;
+use Odisse\Maintenance\Models\ContractorLocationRef;
+use Odisse\Maintenance\Models\ContractorSkill;
+use Odisse\Maintenance\Models\ContractorSkillRef;
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
@@ -92,11 +96,15 @@ class ContractorController extends Controller
 
         //$contractors = Contractor::where('contractor_active' , 1)->get();
 
+        $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
+        $locations = ContractorLocationRef::where('contractor_location_ref_active' , 1)->get();
+
 
 
         return view('maintenance::contractor_mgt',
                     [
-                        //'contractors' => $contractors,
+                        'skills' => $skills,
+                        'locations' => $locations,
                     ]
                 );
 
@@ -454,6 +462,263 @@ class ContractorController extends Controller
 
 
     }
+
+
+
+    public function ajaxGetContractorSkills(Request $request , $id_contractor){
+
+        $skills = Contractor::where('contractor.id_contractor' , $id_contractor)->
+        join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->
+        join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->where('contractor_skill_ref.contractor_skill_ref_active' , 1)->get();
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::contractor.contractor_agent_info_returned'),
+            'contractor_skills' =>$skills,
+            ]);
+
+
+    }
+
+
+
+
+    public function ajaxChangeContractorSkills(Request $request)
+    {
+
+        $user = Sentinel::getUser();
+
+        $validator = Validator::make($request->all(), [
+
+            'contractor' => 'required|numeric',
+            'skills' => 'nullable|array',
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("in Maintenance Package inside ContractorController- ajaxChangeContractorSkills function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => $validator->errors(),
+                ]);
+        }
+
+        try{
+
+            DB::beginTransaction();
+            $contractor_skills = ContractorSkill::where('id_contractor' , $request->contractor)->where('contractor_skill_active' ,1 )->get();
+
+            if(count($contractor_skills)>0){
+                //update password
+                foreach($contractor_skills as $contractor_skill){
+                    if(!in_array($contractor_skill->id_contractor_skill_ref , $request->skills)){
+                        //we have to delete old skills are not in skills array
+                        $contractor_skill->update([
+                            'contractor_skill_active'=>0
+                        ]);
+
+                    }
+
+                }
+
+                foreach($request->skills as $skill){
+                    $contractor_skill = ContractorSkill::where('id_contractor' , $request->contractor)->where('id_contractor_skill_ref' ,$skill )->first();
+                    if($contractor_skill){
+                        $contractor_skill->update([
+                            'contractor_skill_active'=>1,
+                        ]);
+                    }
+                    else{
+                        $contractor_skill = new ContractorSkill([
+                            'id_contractor_skill_ref'=>$skill,
+                            'id_contractor'=>$request->contractor,
+                            'contractor_skill_active'=>1,
+                        ]);
+                        $contractor_skill->save();
+                    }
+
+
+                }
+
+
+            }
+            else{
+                //insert new skills for first time
+                if($request->skills){
+                    foreach($request->skills as $skill){
+                        $new_skill = new ContractorSkill([
+                            'id_contractor_skill_ref'=>$skill,
+                            'id_contractor'=>$request->contractor,
+                            'contractor_skill_active'=>1,
+                        ]);
+
+                        $new_skill->save();
+                    }
+                }
+            }
+
+
+            Log::info(trans('maintenance::contractor.contractor_skills_updated'));
+
+            DB::commit();
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::SUCCESS,
+                  'message' => trans('maintenance::contractor.contractor_skills_updated'),
+                ]);
+
+        }
+        catch(\Exception $e){
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => trans('maintenance::contractor.contractor_skills_not_changed'),
+                ]);
+
+        }
+
+
+
+
+    }
+
+
+
+    public function ajaxGetContractorLocations(Request $request , $id_contractor){
+
+        $locations = Contractor::where('contractor.id_contractor' , $id_contractor)->
+        join('contractor_location' , 'contractor_location.id_contractor','contractor.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+        join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref' )->where('contractor_location_ref.contractor_location_ref_active' , 1)->get();
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::contractor.contractor_agent_info_returned'),
+            'contractor_locations' =>$locations,
+            ]);
+
+
+    }
+
+
+
+
+    public function ajaxChangeContractorLocations(Request $request)
+    {
+
+        $user = Sentinel::getUser();
+
+        $validator = Validator::make($request->all(), [
+
+            'contractor' => 'required|numeric',
+            'locations' => 'nullable|array',
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("in Maintenance Package inside ContractorController- ajaxChangeContractorLocations function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => $validator->errors(),
+                ]);
+        }
+
+        try{
+
+            DB::beginTransaction();
+            $contractor_locations = ContractorLocation::where('id_contractor' , $request->contractor)->where('contractor_location_active' ,1 )->get();
+
+            if(count($contractor_locations)>0){
+                //update password
+                foreach($contractor_locations as $contractor_location){
+                    if(!in_array($contractor_location->id_contractor_location_ref , $request->locations)){
+                        //we have to delete old skills are not in skills array
+                        $contractor_location->update([
+                            'contractor_location_active'=>0
+                        ]);
+
+                    }
+
+                }
+
+                foreach($request->locations as $location){
+                    $contractor_location = ContractorLocation::where('id_contractor' , $request->contractor)->where('id_contractor_location_ref' ,$location )->first();
+                    if($contractor_location){
+                        $contractor_location->update([
+                            'contractor_location_active'=>1,
+                        ]);
+                    }
+                    else{
+                        $contractor_location = new ContractorLocation([
+                            'id_contractor_location_ref'=>$location,
+                            'id_contractor'=>$request->contractor,
+                            'contractor_location_active'=>1,
+                        ]);
+                        $contractor_location->save();
+                    }
+
+
+                }
+
+
+            }
+            else{
+                //insert new locations for first time
+                if($request->locations){
+                    foreach($request->locations as $location){
+                        $new_location = new ContractorLocation([
+                            'id_contractor_location_ref'=>$location,
+                            'id_contractor'=>$request->contractor,
+                            'contractor_location_active'=>1,
+                        ]);
+
+                        $new_location->save();
+                    }
+                }
+            }
+
+
+            Log::info(trans('maintenance::contractor.contractor_locations_updated'));
+
+            DB::commit();
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::SUCCESS,
+                  'message' => trans('maintenance::contractor.contractor_locations_updated'),
+                ]);
+
+        }
+        catch(\Exception $e){
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => trans('maintenance::contractor.contractor_locations_not_changed'),
+                ]);
+
+        }
+
+
+
+
+    }
+
 
 
 

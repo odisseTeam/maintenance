@@ -26,6 +26,12 @@ return [
     'address_line1'=>'Address Line1',
     'address_line2'=>'Address Line2',
     'address_line3'=>'Address Line3',
+    'contractor_skills'=>'Contractor Skills',
+    'contractor_locations'=>'Contractor Locations',
+    'skill'=>'Skill',
+    'select_skill'=>'Select Skill',
+    'location'=>'Location',
+    'select_location'=>'Select Location',
 
 
 
@@ -68,5 +74,9 @@ return [
     'contractor_login_setting_edited'=>'Contractor login setting edited.',
     'update_email_is_not_possible'=>'Update email is not possible!',
     'password_and_confirmation_is_not_equal'=>'Password and confirmation are not equal!',
+    'contractor_skills_updated'=>'Contractor skills updated',
+    'contractor_skills_not_updated'=>'Contractor skills not updated',
+    'contractor_locations_updated'=>'Contractor locations updated',
+    'contractor_locations_not_changed'=>'Contractor locations not updated',
 
 ];

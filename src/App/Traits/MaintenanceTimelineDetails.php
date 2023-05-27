@@ -43,7 +43,7 @@ trait MaintenanceTimelineDetails{
                 $qry->header = $header;
 
             }else{
-                $header = '<b>'.$qry->staff.'</b> make change on maintenance';
+                $header = '<b>'.$qry->staff.'</b> made change on maintenance';
                 $qry->header = $header;
             }
 

@@ -236,7 +236,6 @@ class MaintenanceController extends Controller
           $user = Sentinel::getUser();
 
 
-
           $validator = Validator::make($request->all(), [
               'maintenance_title' => 'required',
               'description'=>'required',
@@ -273,7 +272,7 @@ class MaintenanceController extends Controller
               $maintenance_job->job_report_date_time = $request->maintenance_date;
               $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
               $maintenance_job->id_maintenance_job_priority = $request->priority;
-              $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
+              $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPNU;
               $maintenance_job->maintenance_job_title = $request->maintenance_title;
               $maintenance_job->maintenance_job_description = $request->description;
               $maintenance_job->id_resident_reporter = $request->resident_reporter;
@@ -300,7 +299,7 @@ class MaintenanceController extends Controller
               $maintenance_job_status_history = new MaintenanceJobStatusHistory();
               $maintenance_job_status_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
               $maintenance_job_status_history->id_maintenance_staff = $user->id;
-              $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::Open_Unassigned;
+              $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::OPNU;
               $maintenance_job_status_history->maintenance_status_start_date_time = $request->maintenance_date;
               $maintenance_job_status_history->maintenance_status_end_date_time = null;
               $maintenance_job_status_history->maintenance_job_status_history_active = 1;
@@ -358,7 +357,7 @@ class MaintenanceController extends Controller
 
 
                   $maintenance_job_document->save();
-            }
+               }
             }
 
               $log_note = $user->first_name . " " . $user->last_name." created a new maintenance titled : ".$maintenance_job->maintenance_job_title ;
@@ -443,6 +442,31 @@ class MaintenanceController extends Controller
 
                           $maintainable->save();
 
+                          $id_client = null;
+
+                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
+
+
+                          if($maintenance_sla_ref->isNotEmpty()) {
+
+                            $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
+
+                            if($existence_of_maintenance_job_sla->isEmpty()) {
+
+                                $maintenance_job_sla = new MaintenanceJobSla();
+                                $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
+                                $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                                $maintenance_job_sla->maintenance_job_sla_active = 1;
+
+                                $maintenance_job_sla->save();
+
+
+                              }
+
+                           }
+
+
                           break;
                       case Str::contains($location, 'Site'):
 
@@ -454,6 +478,31 @@ class MaintenanceController extends Controller
                           $maintainable->maintenable_type = 'App\Models\Site';
 
                           $maintainable->save();
+
+
+                          $id_client = null;
+
+                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
+
+
+                          if($maintenance_sla_ref->isNotEmpty()) {
+
+                            $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
+
+                            if($existence_of_maintenance_job_sla->isEmpty()) {
+
+                                $maintenance_job_sla = new MaintenanceJobSla();
+                                $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
+                                $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                                $maintenance_job_sla->maintenance_job_sla_active = 1;
+
+                                $maintenance_job_sla->save();
+
+
+                              }
+
+                           }
 
                           break;
 
@@ -558,8 +607,8 @@ class MaintenanceController extends Controller
               if( !$maintenance )
               {
 
-                return redirect('/maintenance/dashboard')->withErrors('Maintenance not exists');
-              }
+              return redirect('/maintenance/dashboard')->withErrors('Maintenance not exists');
+            }
 
 
               //get all businesses
@@ -581,15 +630,6 @@ class MaintenanceController extends Controller
               //get all users as reporters
               $reporters = User::all();
 
-              $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenanceId);
-
-
-              foreach($maintenance_timelines as $maintenance_timeline) {
-
-                  $maintenance_log_model = new MaintenanceLog();
-                  $maintenance_timeline->log_date_time = $maintenance_log_model->getLogDateTimeAttribute($maintenance_timeline->log_date_time);
-
-              }
 
               $maintainables = Maintainable::where('id_maintenance_job', '=', $maintenanceId)->where('maintainable_active', 1)->get();
 
@@ -667,7 +707,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- saveMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
           try {
               DB::beginTransaction();
@@ -700,8 +740,27 @@ class MaintenanceController extends Controller
                     $maintenance_log->save();
                 }
 
+               //check if maintenance title has been changed
+               if($maintenance_old_data->maintenance_job_title != $request->maintenance_title) {
+
+                // edit title of maintenance job
+                $maintenance_old_data->update([
+                    'maintenance_job_title' => $request->maintenance_title
+                        ]);
+
+               $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance title to ".$request->maintenance_title."\r\n";
+
+
+               }
+
+
               //check if maintenance status has been changed
               if($maintenance_old_data->id_maintenance_job_status != $request->maintenance_status) {
+
+
+                $this->setJobStartAndFinishDateTime($user,$id_maintenance,$request->maintenance_status);
+
+
                   // edit status of maintenance job
                   $maintenance_old_data->update([
                     'id_maintenance_job_status' => $request->maintenance_status
@@ -1023,6 +1082,13 @@ class MaintenanceController extends Controller
           $maintenance_timelines = $this->getMaintenanceTimelineInfo($maintenance_id);
 
 
+          foreach($maintenance_timelines as $maintenance_timeline) {
+
+            $maintenance_log_model = new MaintenanceLog();
+            $maintenance_timeline->log_date_time = $maintenance_log_model->getLogDateTimeAttribute($maintenance_timeline->log_date_time);
+
+        }
+
           return response()->json(
               [
                 'code' => ActionStatusConstants::SUCCESS,
@@ -1137,6 +1203,10 @@ class MaintenanceController extends Controller
                 $site->id = 'Site'.$site->id_site;
                 $site->name = '[Site] '.$site->site_full_name;
 
+            }
+
+            foreach($sites as $site) {
+                $locations[] = $site;
             }
 
             return $locations;

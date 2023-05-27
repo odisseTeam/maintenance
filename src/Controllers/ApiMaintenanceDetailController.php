@@ -20,9 +20,12 @@ use JWTAuth;
 use Odisse\Maintenance\Models\Contractor;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 
 class ApiMaintenanceDetailController extends Controller
 {
+
+    use MaintenanceOperation;
 
 
 
@@ -58,7 +61,11 @@ class ApiMaintenanceDetailController extends Controller
         join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
         join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
-        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1);
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident')->
+        leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+        leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
+        leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
@@ -79,7 +86,19 @@ class ApiMaintenanceDetailController extends Controller
         $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', $request->start_date);
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finished_date_time','=', $request->end_date);
+        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', $request->end_date);
+
+        if( $request->has('assignee') and $request->assignee != null ){
+            $maintenances = $maintenances->where('contractor.name','like', "%".$request->assignee."%");
+        }
+        else{
+            $maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+        }
+
+        $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
+
+
+
 
         $maintenances = $maintenances->get();
 
@@ -314,6 +333,7 @@ class ApiMaintenanceDetailController extends Controller
     }
 
 
+
     public function getBusinessContractors(Request $request)
     {
 
@@ -456,114 +476,224 @@ class ApiMaintenanceDetailController extends Controller
     }
 
 
-    // public function assignMaintenanceToUser(Request $request)
-    // {
+    public function assignMaintenanceToUser(Request $request)
+    {
 
 
-    //     try {
-
-
-    //         Log::info("Call API :: ApiMaintenanceDetailController - assignMaintenanceToUser function");
-
-    //         DB::beginTransaction();
+        try {
 
 
 
-    //         $now = Carbon::createFromDate('now');
 
-    //         $maintenance = MaintenanceJob::find($request->maintenance);
+            Log::info("Call API :: ApiMaintenanceDetailController - assignMaintenanceToUser function");
 
-    //         //check this task assigned to this user already
-    //         $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-    //                                             where('id_maintenance_staff' , $request->user)->
-    //                                             whereNull('staff_end_date_time')->
-    //                                             where('maintenance_job_staff_history_active' , 1)->get();
-    //         if(count($check)==0 ){
-
-    //             //check if this task is assigned to another person
-    //             $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-    //             whereNull('staff_end_date_time')->
-    //             where('maintenance_job_staff_history_active' , 1)->get();
-
-    //             if(count($check2)>0){
-    //                 foreach($check2  as $assign_staf_obj){
-    //                     $assign_staf_obj->update([
-    //                         'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-    //                     ]);
-    //                 }
-
-    //             }
-
-
-    //             //insert into maintenance_job_staff table
-    //             $maintenance_staff = new MaintenanceJobStaffHistory([
-    //                 'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-    //                 'id_maintenance_staff'    =>  $request->user,
-    //                 'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-    //                 'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-    //                 'maintenance_job_staff_history_active'  =>  1,
-
-    //             ]);
-    //             $maintenance_staff->save();
+            DB::beginTransaction();
 
 
 
-    //             //insert into maintenance_job_staff table
-    //             $maintenance_log = new MaintenanceLog([
-    //                 'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-    //                 'id_staff'    =>  $user->id,
-    //                 'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-    //                 'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
+            $now = Carbon::createFromDate('now');
 
-    //             ]);
-    //             $maintenance_log->save();
+            $maintenance = MaintenanceJob::find($request->maintenance);
 
+            //check this task assigned to this user already
+            $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
+                                                where('id_maintenance_staff' , $request->user)->
+                                                whereNull('staff_end_date_time')->
+                                                where('maintenance_job_staff_history_active' , 1)->get();
+            if(count($check)==0 ){
 
+                //check if this task is assigned to another person
+                $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
+                whereNull('staff_end_date_time')->
+                where('maintenance_job_staff_history_active' , 1)->get();
 
-    //             DB::commit();
+                if(count($check2)>0){
+                    foreach($check2  as $assign_staf_obj){
+                        $assign_staf_obj->update([
+                            'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        ]);
+                    }
 
-    //             return response()->json(
-    //                 [
-    //                 'status' => APIStatusConstants::OK,
-    //                 'code' => ActionStatusConstants::SUCCESS,
-    //                 'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_successful'),
-    //                 ]);
+                }
 
-    //         }else{
-
-    //             DB::rollback();
-
-    //             return response()->json(
-    //                 [
-    //                 'status' => APIStatusConstants::BAD_REQUEST,
-    //                 'code' => ActionStatusConstants::FAILURE,
-    //                 'message' => trans('maintenance::dashboard.maintenance_assigned_to_this_user_already'),
-    //                 ]);
-
-
-    //         }
+                // return response()->json(
+                // [
+                // 'status' => APIStatusConstants::OK,
+                // 'code' => ActionStatusConstants::SUCCESS,
+                // 'message' => 'yah yah yah',
+                // 'req' => $request->all(),
+                // ]);
 
 
-    //     } catch (\Exception $e) {
+                //insert into maintenance_job_staff table
+                $maintenance_staff = new MaintenanceJobStaffHistory([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_maintenance_staff'    =>  $request->user,
+                    'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'maintenance_job_staff_history_active'  =>  1,
+
+                ]);
+                $maintenance_staff->save();
 
 
-    //         Log::error($e->getMessage());
-    //         DB::rollback();
+
+                //insert into maintenance_job_staff table
+                $maintenance_log = new MaintenanceLog([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_staff'    =>  $request->staff_user,
+                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
+
+                ]);
+                $maintenance_log->save();
 
 
-    //         return response()->json(
-    //             [
-    //               'status' => $status,
-    //               'code' => ActionStatusConstants::FAILURE,
-    //               'result'=>[],
-    //               'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
-    //             ]);
+
+                DB::commit();
+
+                return response()->json(
+                    [
+                    'status' => APIStatusConstants::OK,
+                    'code' => ActionStatusConstants::SUCCESS,
+                    'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_successful'),
+                    ]);
+
+            }else{
+
+                DB::rollback();
+
+                return response()->json(
+                    [
+                    'status' => 400,
+                    'code' => ActionStatusConstants::FAILURE,
+                    'message' => trans('maintenance::dashboard.maintenance_assigned_to_this_user_already'),
+                    ]);
 
 
-    //     }
+            }
 
 
-    // }
+        } catch (\Exception $e) {
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+
+
+            return response()->json(
+                [
+                  'status' => 400,
+                  'code' => 'failure',
+                  'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
+                ]);
+
+
+        }
+
+
+    }
+
+
+    public function startMaintenanceApi(Request $request)
+    {
+
+
+        // return response()->json(
+        //     [
+        //         'request'=>$request->all(),
+        //         'message' => 'Hahaha',
+        //     ]);
+
+
+        //$user =  JWTAuth::parseToken()->authenticate();
+
+
+        // if(! $user){
+
+        //     $status = APIStatusConstants::UNAUTHORIZED;
+        //     $message = trans('general.you_have_to_login_first');
+
+        //     return response()->json(
+        //         [
+        //             'status' => $status,
+        //             'message'   => $message,
+        //             'data'  => ''
+        //         ]
+        //     );
+        // }
+            Log::info("Call API :: ApiMaintenanceDetailController - deleteMaintenance function");
+
+
+            $result = $this->startMaintenance($request->staff_user ,$request->maintenance ,$request->start_date_time);
+
+
+            return response()->json(
+                [
+                  'code' => $result['code'],
+                  'message' => $result['message'],
+                ]);
+
+
+
+
+
+
+    }
+
+
+    public function endMaintenanceApi(Request $request)
+    {
+
+        try {
+
+        //$user =  JWTAuth::parseToken()->authenticate();
+
+
+        // if(! $user){
+
+        //     $status = APIStatusConstants::UNAUTHORIZED;
+        //     $message = trans('general.you_have_to_login_first');
+
+        //     return response()->json(
+        //         [
+        //             'status' => $status,
+        //             'message'   => $message,
+        //             'data'  => ''
+        //         ]
+        //     );
+        // }
+            Log::info("Call API :: ApiMaintenanceDetailController - deleteMaintenance function");
+
+
+            $result = $this->endMaintenance($request->staff_user ,$request->maintenance ,$request->end_date_time);
+
+
+            return response()->json(
+                [
+                  'code' => $result['code'],
+                  'message' => $result['message'],
+                ]);
+
+
+
+        } catch (\Exception $e) {
+
+            Log::error($e->getMessage());
+            $message = trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
+            $status = APIStatusConstants::BAD_REQUEST;
+            $$maintenances=null;
+
+
+        }
+
+        return response()->json(
+            [
+                'status' => $status,
+                'message'   => $message,
+            ]
+        );
+    }
 
 
 }

@@ -6,6 +6,8 @@
 @section('css')
 
     <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
+    <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+
     <style>
 
         * {
@@ -88,13 +90,36 @@
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12">
                         <div class="box box-primary">
-                            <div class="box-header">
-                                <h3>{{__('maintenance::dashboard.widget_place')}}</h3>
 
-                                <div>
-                                    <div class="box-body" id="div_priority_pieChart">
-                                        <canvas id="priorityPieChart" style="height:50px"></canvas>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <div class="">
+                                    <div class="box-header">
+                                        <h3>{{__('maintenance::dashboard.maintenance_per_status')}}</h3>
+
                                     </div>
+                                    <div>
+                                        <div class="box-body" id="div_barChart">
+                                            <canvas id="barChart" style="height:250px"></canvas>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <div class="">
+                                    <div class="box-header">
+                                        <h3>{{__('maintenance::dashboard.expired_maintenance_count')}}</h3>
+
+                                    </div>
+                                    <div>
+                                        <div class="box-body" id="div_barChart2">
+                                            <canvas id="barChart2" style="height:250px"></canvas>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                             </div>
 
@@ -248,6 +273,22 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+
+
+
+                                        <!-- assignee -->
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+
+                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                    <input name="search_assignee" placeholder="{{__('maintenance::dashboard.assignee_contractor')}}" type="text" class="form-control active" id="search_assignee" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
 
                                                 </div>
 
@@ -507,6 +548,119 @@
 
 
 
+
+    <!-- Modal -->
+    <div class="modal fade" id="startMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="startMaintenanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="startMaintenanceModalLabel">{{trans('maintenance::dashboard.start_maintenance')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_start" style="display: none">
+                            <div id="ajx_err_msg_start"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_start" style="display: none">
+                            <div id="ajx_suc_msg_start"></div>
+                        </div>
+
+                        <input type="hidden" id="started_maintenance">
+
+                        <div class="form-group row">
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_start_date_of_job') }}:</label>
+                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                <div class="form-group">
+                                    <div class="input-group date" id="start_datetimepicker">
+                                        <input type="text" class="form-control">
+                                        <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning"
+                        data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                    <button type="button" class="btn btn-danger"
+                         onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="endMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="endMaintenanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="endMaintenanceModalLabel">{{trans('maintenance::dashboard.end_maintenance')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_end" style="display: none">
+                            <div id="ajx_err_msg_end"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_end" style="display: none">
+                            <div id="ajx_suc_msg_end"></div>
+                        </div>
+
+                        <input type="hidden" id="ended_maintenance">
+
+                        <div class="form-group row">
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_end_date_of_job') }}:</label>
+                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                <div class="form-group">
+                                    <div class="input-group date" id="end_datetimepicker">
+                                        <input type="text" class="form-control">
+                                        <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning"
+                        data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                    <button type="button" class="btn btn-danger"
+                         onclick="endMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
     </section>
 
 
@@ -522,14 +676,108 @@
 
     <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+
 
     <script>
 
+        $(function () {
+             $('#start_datetimepicker').datetimepicker({
+                 format: 'DD-MM-YYYY HH:mm',
+                 useCurrent: true
+             });
+             $('#end_datetimepicker').datetimepicker({
+                 format: 'DD-MM-YYYY HH:mm',
+                 useCurrent: true
+             });
+         });
+
+
         $(document).ready(function () {
 
+            prepareMaintenanceStatusChartData();
             loadMaintenances();
 
         });
+        ///////////////////////////////////////////////////////////////////////////
+        let prepareMaintenanceStatusChartData = function () {
+            let spinHandle = loadingOverlay.activate();
+
+            send( '/maintenance/statuses/charts',  {}, 'handleMaintenanceStatusChart', []);
+
+        };
+
+        function handleMaintenanceStatusChart(){
+
+            let res = return_value.code;
+            if(res == "failure"){
+
+            }
+            else{
+                let status_report = return_value.result;
+                generateChart2( status_report, "div_barChart");
+
+            }
+
+
+        }
+        //////////////////////////////////////////////////////////////////////
+        let generateChart2 = function(status_report, status_chart_id){
+
+            document.getElementById(status_chart_id).innerHTML='<canvas id="barChart" style="height:250px"></canvas>';
+
+
+            //end of edit to fix bug in charts - by ahmadian
+
+
+            var labels4 = [];
+            var dataset4 = [];
+            var colours4 = [];
+
+            var ref_colors = ['#1A5276' , '#F7DC6F' , '#A9DFBF' , '#BB8FCE' , '#196F3D' , '#994C40' , '#BD1525' , '#24BD15' , '#2215BD' , '#FA033F'];
+
+            var counter = 0;
+            Object.keys(status_report).forEach(function(k){
+                labels4.push(k);
+                dataset4.push(status_report[k]);
+                colours4.push(ref_colors[counter++]);
+            });
+
+
+
+            var data4 = {
+                labels: labels4,
+                datasets: [{
+                    data: dataset4,
+                    backgroundColor: colours4,
+                    hoverBackgroundColor: colours4,
+                    borderWidth: 1
+                }]
+            };
+
+
+            var bar_options = {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        stacked: true
+                    }],
+                    yAxes: [{
+                        stacked: true,
+                    }]
+                },
+            };
+
+            var bar_ctx4 = $('#barChart');
+            var bar_Chart4 = new Chart(bar_ctx4, {
+                type: 'bar',
+                data: data4,
+                options: bar_options
+            });
+
+        }
 
         ///////////////////////////////////////////////////////
         function loadMaintenances(){
@@ -542,6 +790,7 @@
             title = $('#search_title').val();
             start_date = $('#search_start_date').val();
             end_date = $('#search_end_date').val();
+            assignee = $('#search_assignee').val();
 
             send( '/maintenance/maintenances_list',  {
                 business :business,
@@ -551,6 +800,7 @@
                 title :title,
                 start_date :start_date,
                 end_date :end_date,
+                assignee :assignee,
             }, 'handleMaintenanceTableBody', []);
 
         }
@@ -594,7 +844,7 @@
                     var status = maintenance_list[k]["job_status_name"];
                     var job_report_date_time = maintenance_list[k]["job_report_date_time"];
                     var job_start_date_time = maintenance_list[k]["job_start_date_time"]?maintenance_list[k]["job_start_date_time"]:'-';
-                    var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finished_date_time"]:'-';
+                    var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finish_date_time"]:'-';
                     var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
                     // var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
                     var resident_reporter = maintenance_list[k]["resident_first_name"] ?  maintenance_list[k]["resident_first_name"] + ' ' + maintenance_list[k]["resident_surname"] : "N/A";
@@ -606,6 +856,12 @@
                         '</a>' +
                         '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-user"></i>'+
+                        '</button></a>'+
+                        '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa-solid fa-play"></i>'+
+                        '</button></a>'+
+                        '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>'+
 
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_maintenance_job+')">'+
@@ -782,6 +1038,7 @@
 
 
             }
+            $('#assignMaintenanceModal').modal('show');
 
 
             loadingOverlay.cancelAll();
@@ -829,6 +1086,102 @@
 
 
         }
+        ///////////////////////////////////////////////////////
+
+        function showStartMaintenanceModal(id_maintenance){
+
+            $('#started_maintenance').val(id_maintenance);
+            $('#err_msg_box_start').css('display' , 'none');
+            $('#suc_msg_box_start').css('display' , 'none');
+            $('#startMaintenanceModal').modal('show');
+
+        }
+        ///////////////////////////////////////////////////////
+        function startMaintenance(){
+            var spinHandle = loadingOverlay.activate();
+
+            let started_maintenance = $( '#started_maintenance' ).val();
+            let start_date_time = $( '#start_datetimepicker input' ).val();
+
+            send( '/maintenance/start/'+started_maintenance,  {
+                start_date_time:start_date_time,
+            }, 'handleStartMaintenance', []);
+        }
+        ////////////////////////////////////////////////////////
+        function handleStartMaintenance()
+        {
+            let message = return_value.message;
+            let res = return_value.code;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_start").html(textmessage);
+                $("#err_msg_box_start").css('display' , 'block');
+
+            }
+
+            else{
+                $("#ajx_suc_msg_start").html(message);
+                $("#suc_msg_box_start").css('display' , 'block');
+
+                setTimeout(function() {$('#startMaintenanceModal').modal('hide');}, 3000);
+
+            }
+
+
+            loadingOverlay.cancelAll();
+
+        }
+        ///////////////////////////////////////////////////////
+
+        function showEndMaintenanceModal(id_maintenance){
+
+            $('#ended_maintenance').val(id_maintenance);
+            $('#err_msg_box_end').css('display' , 'none');
+            $('#suc_msg_box_end').css('display' , 'none');
+            $('#endMaintenanceModal').modal('show');
+
+        }
+        ///////////////////////////////////////////////////////
+        function endMaintenance(){
+            var spinHandle = loadingOverlay.activate();
+
+            let ended_maintenance = $( '#ended_maintenance' ).val();
+            let end_date_time = $( '#end_datetimepicker input' ).val();
+
+            send( '/maintenance/end/'+ended_maintenance,  {
+                end_date_time:end_date_time,
+            }, 'handleEndMaintenance', []);
+        }
+        ////////////////////////////////////////////////////////
+        function handleEndMaintenance()
+        {
+            let message = return_value.message;
+            let res = return_value.code;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_end").html(textmessage);
+                $("#err_msg_box_end").css('display' , 'block');
+
+            }
+
+            else{
+                $("#ajx_suc_msg_end").html(message);
+                $("#suc_msg_box_end").css('display' , 'block');
+
+                setTimeout(function() {$('#endMaintenanceModal').modal('hide');}, 3000);
+
+            }
+
+
+            loadingOverlay.cancelAll();
+
+        }
+
+
 
 
 

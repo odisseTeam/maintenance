@@ -1,4 +1,5 @@
-@extends('layouts.blank_js')
+{{-- @extends('layouts.blank_js') --}}
+@extends('adminlte.layouts.sdr')
 
 
 @section('css')
@@ -230,6 +231,23 @@
                                                                     </div>
                                                                 </div>
 
+
+                                                                <!-- assignee -->
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group">
+
+                                                                        <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                                            <input name="search_assignee" placeholder="{{__('maintenance::dashboard.assignee_contractor')}}" type="text" class="form-control active" id="search_assignee" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+
+
+
+
                                                             </div>
 
                                                         </div>
@@ -260,6 +278,13 @@
                                             <div class="box col-lg-12 col-md-12 col-sm-12 col-xs-12 card">
                                                 <div class="box-header card-header">
                                                     <h3>{{__('maintenance::dashboard.maintenances_list')}}</h3>
+                                                </div>
+
+                                                <div class="box-body card-block">
+                                                    <div class="row" style="float: right;">
+                                                        <a style="min-width:150px;margin-top:1px;" href="/maintenance/mgt/create" class="btn btn-primary">{{trans('maintenance::dashboard.create_job')}}</a>
+                                                        <br>
+                                                    </div>
                                                 </div>
                                                 <div class="box-body table-responsive no-padding card-block">
                                                     <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
@@ -457,6 +482,124 @@
 
 
 
+
+
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="startMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="startMaintenanceModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" style="max-width: 60%;">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+
+                                                <button type="button" class="close" data-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                <h4 class="modal-title" id="startMaintenanceModalLabel">{{trans('maintenance::dashboard.start_maintenance')}}</h4>
+                                            </div>
+
+
+                                            <div class="modal-body">
+                                                    <div class="alert alert-danger alert-dismissible" id="err_msg_box_start" style="display: none">
+                                                        <div id="ajx_err_msg_start"></div>
+                                                    </div>
+                                                    <div class="alert alert-success alert-dismissible" id="suc_msg_box_start" style="display: none">
+                                                        <div id="ajx_suc_msg_start"></div>
+                                                    </div>
+                                                    <input type="hidden" id="started_business">
+                                                    <input type="hidden" id="started_maintenance">
+
+                                                    <div class="form-group row">
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_start_date_of_job') }}:</label>
+                                                        <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                                            <div class="form-group">
+                                                                <div class="input-group date" id="start_datetimepicker">
+                                                                    <input type="text" class="form-control">
+                                                                    <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                            </div>
+
+
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-warning"
+                                                    data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger"
+                                                    onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="endMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="endMaintenanceModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" style="max-width: 60%;">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+
+                                                <button type="button" class="close" data-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                <h4 class="modal-title" id="endMaintenanceModalLabel">{{trans('maintenance::dashboard.end_maintenance')}}</h4>
+                                            </div>
+
+
+                                            <div class="modal-body">
+                                                    <div class="alert alert-danger alert-dismissible" id="err_msg_box_end" style="display: none">
+                                                        <div id="ajx_err_msg_end"></div>
+                                                    </div>
+                                                    <div class="alert alert-success alert-dismissible" id="suc_msg_box_end" style="display: none">
+                                                        <div id="ajx_suc_msg_end"></div>
+                                                    </div>
+
+                                                    <input type="hidden" id="ended_maintenance">
+                                                    <input type="hidden" id="ended_business">
+
+                                                    <div class="form-group row">
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_end_date_of_job') }}:</label>
+                                                        <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                                            <div class="form-group">
+                                                                <div class="input-group date" id="end_datetimepicker">
+                                                                    <input type="text" class="form-control">
+                                                                    <span class="input-group-addon">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                            </div>
+
+
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-warning"
+                                                    data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger"
+                                                    onclick="endMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+
                             </section>
 
                         </div>
@@ -538,6 +681,8 @@ function callback(response , name, parameters ) {
             title = $('#search_title').val();
             start_date = $('#search_start_date').val();
             end_date = $('#search_end_date').val();
+            assignee = $('#search_assignee').val();
+
 
             send( '/maintenance/mgt_maintenances_list',  {
                 business :business,
@@ -547,6 +692,7 @@ function callback(response , name, parameters ) {
                 title :title,
                 start_date :start_date,
                 end_date :end_date,
+                assignee :assignee,
             }, 'handleMaintenanceTableBody', []);
 
         }
@@ -600,6 +746,19 @@ function callback(response , name, parameters ) {
                     var operation = '<a href="' + m_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i>' +
                         '</a>' +
+
+                        '<a href="#" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_business+','+id_maintenance_job+')">'+
+                        '<i class="fa-solid fa-user"></i>'+
+                        '</a>'+
+
+                        '<a href="#" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                        '<i class="fa-solid fa-play"></i>'+
+                        '</a>'+
+                        '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business + ',' + id_maintenance_job+')"> '+
+                        '<i class="fa-solid fa-stop"></i>'+
+                        '</a>'+
+
+
 
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn sdr-danger alert-confirm m-b-10" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_business +','+ id_maintenance_job+')">'+
                         '<i class="fa fa-solid fa-trash"></i>'+
@@ -852,7 +1011,6 @@ function callback(response , name, parameters ) {
         {
             let message = return_value.message;
             let res = return_value.code;
-            let user_list = return_value.result;
             loadingOverlay.cancelAll();
 
 
@@ -877,8 +1035,57 @@ function callback(response , name, parameters ) {
 
 
         }
+        ///////////////////////////////////////////////////////
+
+        function showStartMaintenanceModal(id_business , id_maintenance){
+
+            $('#started_maintenance').val(id_maintenance);
+            $('#started_business').val(id_business);
+
+            $('#err_msg_box_start').css('display' , 'none');
+            $('#suc_msg_box_start').css('display' , 'none');
+            $('#startMaintenanceModal').modal('show');
+
+        <!-- data-table js -->
+    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
 
 
+
+
+        <!-- data-table js -->
+    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+
+
+        <!-- data-table js -->
+    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
+    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
 
 
 

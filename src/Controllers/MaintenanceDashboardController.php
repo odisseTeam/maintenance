@@ -7,7 +7,6 @@ use App\SLP\Enum\ActionStatusConstants;
 
 
 use App\Http\Controllers\Controller;
-use App\Models\MaintenanceLog;
 use App\Models\SaasClientBusiness;
 use App\Models\User;
 use App\SLP\Formatter\SystemDateFormats;
@@ -22,15 +21,18 @@ use Odisse\Maintenance\Models\MaintenanceJobCategoryRef;
 use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
-use Odisse\Maintenance\Models\MaintenanceLog as ModelsMaintenanceLog;
+use Odisse\Maintenance\Models\MaintenanceLog;
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
 use Spatie\LaravelRay\Commands\PublishConfigCommand;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Validator;
 
 class MaintenanceDashboardController extends Controller
 {
+
+    use MaintenanceOperation;
 
 
 
@@ -92,7 +94,10 @@ class MaintenanceDashboardController extends Controller
         join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
-        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident')->
+        leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+        leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
+        leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
@@ -110,10 +115,21 @@ class MaintenanceDashboardController extends Controller
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', $request->start_date);
+        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $request->start_date)->format('Y-m-d H:i:s'));
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finished_date_time','=', $request->end_date);
+        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+
+        if( $request->has('assignee') and $request->assignee != null ){
+            $maintenances = $maintenances->where('contractor.name','like', "%".$request->assignee."%");
+        }
+        else{
+            $maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+        }
+
+        $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
+
+
 
         $maintenances = $maintenances->get();
 
@@ -154,8 +170,12 @@ class MaintenanceDashboardController extends Controller
     public Function ajaxDeleteMaintenance(Request $request , $id_maintenance){
 
 
+        try {
 
         $user = Sentinel::getUser();
+
+        DB::beginTransaction();
+
 
         Log::info("In maintenance package, MaintenanceDashboardController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
@@ -165,12 +185,45 @@ class MaintenanceDashboardController extends Controller
         ]);
 
 
+        $now = Carbon::createFromDate('now');
+
+
+        //insert into maintenance_job_staff table
+        $maintenance_log = new MaintenanceLog([
+            'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+            'id_staff'    =>  $user->id,
+            'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+            'log_note'  =>  trans('maintenance::dashboard.delete_maintenance_by_user'),
+
+        ]);
+
+        DB::commit();
 
         return response()->json(
             [
               'code' => ActionStatusConstants::SUCCESS,
-              'message' => trans('maintenance::contractor.your_selected_maintenance_deleted'),
+              'message' => trans('maintenance::dashboard.your_selected_maintenance_deleted'),
             ]);
+
+
+        } catch (\Exception $e) {
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'message' => trans('maintenance::dashboard.delete_maintenance_was_not_successful'),
+                ]);
+
+
+        }
+
+
+
 
 
     }
@@ -310,7 +363,7 @@ class MaintenanceDashboardController extends Controller
 
 
                 //insert into maintenance_job_staff table
-                $maintenance_log = new ModelsMaintenanceLog([
+                $maintenance_log = new MaintenanceLog([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
                     'id_staff'    =>  $user->id,
                     'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
@@ -365,6 +418,129 @@ class MaintenanceDashboardController extends Controller
 
 
     }
+    ///////////////////////////////////////////////////////////////////////////
+    public Function ajaxStartMaintenance(Request $request , $id_maintenance){
+
+        //dd($request->all());
+
+
+        $user = Sentinel::getUser();
+
+        $validator = Validator::make($request->all(), [
+
+            'start_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("In maintenance package, MaintenanceDashboardController- ajaxStartMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => $validator,
+                ]);
+
+        }
+
+
+        Log::info("In maintenance package, MaintenanceDashboardController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+        $result = $this->startMaintenance($user->id ,$id_maintenance ,$request->start_date_time);
+
+
+        return response()->json(
+            [
+              'code' => $result['code'],
+              'message' => $result['message'],
+            ]);
+
+
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    public Function ajaxEndMaintenance(Request $request , $id_maintenance){
+
+        //dd($request->all());
+
+
+        $user = Sentinel::getUser();
+
+        $validator = Validator::make($request->all(), [
+
+            'end_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => $validator,
+                ]);
+
+        }
+
+
+        Log::info("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+        $now = Carbon::createFromDate('now');
+
+
+        $result = $this->endMaintenance($user->id ,$id_maintenance ,$request->end_date_time);
+
+
+        return response()->json(
+            [
+              'code' => $result['code'],
+              'message' => $result['message'],
+            ]);
+
+
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    public function ajaxPrepareStatusChartData(Request $request){
+
+
+        $user = Sentinel::getUser();
+        Log::info("In maintenance package, MaintenanceDashboardController- ajaxPrepareStatusChartData function " . " try to prepare data for widgets  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
+        $result = [];
+        foreach($statuses as $status){
+            $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('id_maintenance_job_status' , $status->id_maintenance_job_status_ref)->get();
+            $maintenance_count = count($maintenances);
+            $result[$status->job_status_code]= $maintenance_count;
+        }
+
+
+
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::dashboard.chart_data_prepared'),
+            'result' => $result,
+            ]);
+
+
+
+    }
+
 
 
 

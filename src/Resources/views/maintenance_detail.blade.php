@@ -102,15 +102,38 @@
                                         value="{{ $maintenance->id_maintenance_job }}">
                                     <!-- maintenance title-->
 
-                                    <div class="col-sm-9 col-md-9 col-lg-9">
-                                        <h3>{{ $maintenance->maintenance_job_title }}</h3>
-                                    </div>
+                                    <div class="form-group row col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                                               <label
+                                                     class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.maintenance_title') }}:</label>
 
+                                                    <div class="col-xs-9 col-sm-9 col-md-9">
+                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+                                                            <input class="form-control" name="maintenance_title"
+                                                                id="maintenance_title"
+                                                                value="{{ $maintenance->maintenance_job_title }}" />
+
+
+                                                        </div>
+
+
+                                                    </div>
+
+
+
+                                        </div>
+
+
+
+
+                                        <div class="col-xs-0 col-md-1 col-sm-1 col-lg-1">
+
+                                        </div>
                                     <!-- maintenance status-->
-                                    <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
+                                    <div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
                                         <div class="form-group row ">
                                             <label
-                                                class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.status') }}:</label>
+                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.status') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
                                                 <select name="maintenance_status" id="maintenance_status"
                                                     class="form-control select ">
@@ -132,29 +155,37 @@
 
                                     <!-- comment-->
 
-                                    <div class="form-group col-xs-9 col-sm-9 col-md-9 col-lg-9">
-                                        <label class="col-xs-6 col-sm-6 col-md-6 control-label text-left">
-                                            <h4>{{ trans('maintenance::maintenance.add_comment') }}:</h4>
-                                        </label>
-                                        <div class="col-xs-10 col-sm-10 col-md-10">
-                                            <div class="input-group col-xs-11 col-sm-11 col-md-11 col-lg-11">
 
-                                                <textarea class="form-control" rows="4" name="coment" id="coment" column="40"></textarea>
+                                    <div class="form-group row col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                                            <label
+                                                class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.add_comment') }}:</label>
+                                            <div class="col-xs-9 col-sm-9 col-md-9">
+                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+                                                    <textarea class="form-control" rows="4" name="coment" id="coment" column="40">
+                                                    {{ old('coment') }}
+                                                    </textarea>
+                                                </div>
+
                                             </div>
-
                                         </div>
+
+
+
+
+                                    <div class="col-xs-0 col-md-1 col-sm-1 col-lg-1">
+
                                     </div>
 
-
                                     <!-- people-->
-                                    <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
+                                    <div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
                                         <!-- assignee-->
 
                                         <div class="form-group row ">
                                             <h4><strong>{{ trans('maintenance::maintenance.people') }}</strong></h4>
 
                                             <label
-                                                class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.assignee') }}:</label>
+                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.assignee') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
                                                 <select name="maintenance_assignee" id="maintenance_assignee"
                                                     class="form-control select ">
@@ -178,7 +209,7 @@
                                         <div class="form-group row ">
 
                                             <label
-                                                class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.reporter') }}:</label>
+                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.reporter') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
                                                 <select name="maintenance_reporter" id="maintenance_reporter"
                                                     class="form-control select ">
@@ -205,7 +236,7 @@
                                         <label
                                             class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.saas_client_business') }}:</label>
 
-                                        <div class="col-md-5 col-sm-5 col-lg-5 col-xs-5">
+                                        <div class="col-md-5 col-sm-5 col-lg-5 col-xs-10">
                                             <select name="saas_client_business" id="saas_client_business"
                                                 class="form-control select" disabled="disabled">
                                                 @if (isset($saas_client_businesses))
@@ -232,7 +263,7 @@
                                     <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                         <label
                                             class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
-                                        <div class="col-sm-5 col-md-5 col-lg-5">
+                                        <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                             <select name="maintenance_category" id="maintenance_category"
@@ -262,7 +293,7 @@
                                     <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                         <label
                                             class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.locations') }}:</label>
-                                        <div class="col-sm-5 col-md-5 col-lg-5">
+                                        <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                             <select name="locations[]" id="locations" class="form-control select2"
@@ -296,7 +327,7 @@
                                     <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                         <label
                                             class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
-                                        <div class="col-sm-5 col-md-5 col-lg-5">
+                                        <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                             <select name="priority" id="priority" class="form-control select ">
@@ -325,10 +356,10 @@
 
                                 </div>
                                 <div class="box-footer">
-                                    <div class="" style="text-align: right; margin:20px;">
+                                    <div class="" style="text-align: right;">
 
-                                        <button type="button" class="btn btn-warning">{{ __('general.close') }}</button>
-                                        <button type="submit" class="btn btn-primary">{{ __('general.save') }}</button>
+                                        <button type="button" class="btn btn-warning"  style="min-width: 60px;">{{ __('general.close') }}</button>
+                                        <button type="submit" class="btn btn-primary" style="margin-left:1px;min-width: 60px;">{{ __('general.save') }}</button>
                                     </div>
                                 </div>
 
@@ -341,31 +372,56 @@
 
                                     <input type="hidden" id="id_maintenance" name="id_maintenance"
                                         value="{{ $maintenance->id_maintenance_job }}">
-                                    <!-- maintenance title-->
 
-                                    <div class="col-sm-12 col-md-4 col-lg-4">
-                                        <h4>Add file</h4>
-                                        <div class="form-group">
-                                            <label class=" col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                                <h5>Attach new file</h5>
-                                            </label>
-                                            <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
-                                                <input type="file" multiple name="attachments[]" />
+                                                <div class="box box-header">
+                                                    <h4 style="font-weight: bold;" >{{ trans('maintenance::maintenance.add_file') }}</h4>
+                                                </div>
 
-                                            </div>
-                                            <div class="box-footer">
-                                                <div class="" style="text-align: right;">
-                                                    <button type="submit" class="btn btn-success">Upload</button>
+                                            <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                <label   style="margin-top:10px;"
+                                                    class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.attach_new_file') }}:</label>
+                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                                    <!-- <div class=" input-group" id="contaner"> -->
+
+
+                                                    <div class="col-sm-5 col-md-5 col-lg-5">
+                                                        <!-- <label class="control-label col-sm-3 col-md-3 col-lg-3 col-md-offset-1">{{ trans('maintenance::maintenance.file') }}:</label> -->
+                                                        <div>
+                                                            <input type="file" type="file" multiple name="attachments[]"
+                                                                style="margin-top:10px;">
+
+                                                        </div>
+
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                        </div>
-                                    </div>
+                                            <div class="form-group row col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                <label
+                                                    class="col-xs-4 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.file_description') }}:</label>
+                                                        <div class="col-xs-8 col-sm-6 col-md-6 ">
+
+                                                                    <div class="input-group col-xs-12 col-sm-10 col-md-10 col-lg-10">
+
+                                                                        <textarea class="form-control" rows="4" name="file_description" id="file_description" >
+                                                                        {{ old('file_description') }}
+                                                                        </textarea>
+                                                                    </div>
+
+                                                        </div>
+                                            </div>
+                                                            </div>
+
+                                            <div class="box-footer">
+                                                <div class="" style="text-align: right;">
+                                                    <button type="submit" class="btn btn-primary">{{ trans('maintenance::maintenance.upload') }}</button>
+                                                </div>
+                                            </div>
 
 
 
-                                </div>
+                                <!-- </div> -->
                             </form>
 
 
@@ -665,7 +721,8 @@
                         id_maintenance_job_document + ')" >' +
                         '<i class="fa-solid fa-trash" ></i> </a>';
                     operation += '<a href="/maintenance/attachment/' + id_maintenance_job_document +
-                        '/download" class="btn btn-info allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
+                        '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
+                        '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
 
 
                     htmlValue += "<tr><td>" + counter + "</td><td>" + document_name + "</td><td>" +

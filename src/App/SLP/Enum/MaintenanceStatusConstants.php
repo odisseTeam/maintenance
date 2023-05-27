@@ -8,11 +8,11 @@ namespace Odisse\Maintenance\App\SLP\Enum;
  */
 class MaintenanceStatusConstants
 {
-    public const Open_Unassigned = 1;
-    public const Open_Assigned = 2;
-    public const On_Hold = 3;
-    public const In_Progress = 4;
-    public const Closed = 5;
+    public const OPNU = 1;
+    public const OPNA = 2;
+    public const HOLD = 3;
+    public const PROG = 4;
+    public const CLSD = 5;
 
 
 }

@@ -18,6 +18,10 @@ use Odisse\Maintenance\Models\MaintenanceJob;
 use Odisse\Maintenance\Models\MaintenanceJobDocument;
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
+use Illuminate\Support\Carbon;
+use Odisse\Maintenance\Models\MaintenanceLog;
+use App\SLP\Formatter\SystemDateFormats;
+
 use Sentinel;
 use Validator;
 
@@ -68,12 +72,33 @@ class MaintenanceAttachmentController extends Controller
     public function uploadAttachment(Request $request)
     {
 
+
+        // dd($request->all());
         // $request->validate([
         //     'attachments' => 'required',
         //     'attachments.*' => 'required|max:2048',
         // ]);
+        $user = Sentinel::getUser();
+
+
+        $validator = Validator::make($request->all(), [
+            'attachments'        => 'array|required',
+            'attachments.*' => 'required|mimes:doc,docx,jpg,odt,jpeg,pdf,PNG,png,zip,rar|max:2048',
+          ]);
+
+          if ($validator->fails()) {
+
+            Log::error("in MaintenanceAttachmentController- uploadAttachment function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+            return redirect('/maintenance/detail/'.$request->id_maintenance)
+            ->with('error',trans('maintenance::maintenance.maintenance_file_is_empty'));
+        }
+      
+
 
         $maintenance_job = MaintenanceJob::findOrFail($request->id_maintenance);
+
 
 
         $files = [];
@@ -81,6 +106,9 @@ class MaintenanceAttachmentController extends Controller
             foreach($request->file('attachments') as $file)
             {
                 try {
+
+                    $now = Carbon::create('now');
+
                     $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
 
                     Log::info("store file ". $fileName);
@@ -106,11 +134,23 @@ class MaintenanceAttachmentController extends Controller
                     $maintenance_job_document->document_name = $fileName;
                     $maintenance_job_document->document_address = $path;
                     $maintenance_job_document->document_extention = $extension;
-                    $maintenance_job_document->description = "";
+                    $maintenance_job_document->description = $request->file_description;
                     $maintenance_job_document->maintenance_job_document_active = 1;
 
 
                     $maintenance_job_document->save();
+
+                   
+                    $log_note = $user->first_name . " " . $user->last_name." upload a new maintenance document titled : ".$fileName ;
+
+                    //add a log for uploading a new maintenance document
+                    $maintenance_log = new MaintenanceLog();
+                    $maintenance_log->id_maintenance_job =  $request->id_maintenance;
+                    $maintenance_log->id_staff = $user->id;
+                    $maintenance_log->log_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+                    $maintenance_log->log_note = $log_note;
+
+                    $maintenance_log->save();
 
                 }
                 catch(Exception $e){
@@ -120,9 +160,8 @@ class MaintenanceAttachmentController extends Controller
             }
         }
 
-
         return redirect('/maintenance/detail/'.$request->id_maintenance)
-                ->with('success','You have successfully upload file.');
+                ->with('success',trans('maintenance::maintenance.maintenance_file_uploaded_successfully'));
 
     }
 }

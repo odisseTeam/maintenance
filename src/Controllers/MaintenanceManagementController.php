@@ -219,8 +219,16 @@ class MaintenanceManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/business_contractor';
 
+                   // dd($request->all());
 
-                    $response = Http::post($url,$request->all());
+                    $params =[
+                        'business'=>$request->business,
+                        'staff_user'=>$user->id
+                    ];
+
+
+
+                    $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
 
@@ -363,10 +371,25 @@ class MaintenanceManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/assign_user';
 
+                    $params =[
+                        'business'=>$request->business,
+                        'maintenance'=>$request->maintenance,
+                        'user'=>$request->user,
+                        'staff_user'=>$user->id
+                    ];
 
-                    $response = Http::post($url,$request->all());
+
+                    $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
+
+                    //dd($responseObj);
+
+                    return response()->json(
+                        [
+                          'code' => $responseObj->code,
+                          'message' => $responseObj->message,
+                        ]);
 
                 }
             }
@@ -387,7 +410,7 @@ class MaintenanceManagementController extends Controller
                 [
                   'code' => 'failure',
                   'result'=>[],
-                  'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
+                  'message' => $e->getMessage(),//trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
                 ]);
 
 
@@ -396,6 +419,166 @@ class MaintenanceManagementController extends Controller
 
     }
 
+
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public function showCreateMaintenancePage()
+    {
+
+
+
+        $user = Sentinel::getUser();
+
+        Log::info(" in MaintenanceManagementController- showCreateMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        try {
+
+            //get all maintenance category
+            $maintenance_category = MaintenanceJobCategoryRef::all();
+
+
+            //get all businesses
+            $saas_client_businesses = SaasClientBusiness::all();
+
+            //get all maintenance priorities
+            $priorities = MaintenanceJobPriorityRef::all();
+
+            $locations = $this->getMaintainables();;
+
+            $jobs = MaintenanceJob::all();
+
+            return view(
+                'maintenance::mgt_create_maintenance',
+                [
+                          'maintenance_categories' => $maintenance_category,
+                          'saas_client_businesses' => $saas_client_businesses,
+                          'priorities' => $priorities,
+                          'locations' => $locations,
+                          'jobs' => $jobs,
+
+
+                        ]
+            );
+
+        } catch (\Exception $e) {
+            Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
+            . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
+
+            return view('maintenance::create_maintenance')->with([ActionStatusConstants::ERROR=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
+
+        }
+
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    public Function ajaxMgtStartMaintenance(Request $request , $id_maintenance){
+
+
+
+            $user = Sentinel::getUser();
+
+            Log::info("In maintenance package, MaintenanceManagementController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+            if( $request->has('business') and $request->business != null ){
+
+
+                //get maintenances of specific business
+
+                $businesses = config('maintenances.businesses_name');
+                foreach($businesses as $business){
+                    if($business['id_saas_client_business'] == $request->business){
+
+                        $url =$business['maintenance_api_url'].'/api/maintenance/start';
+                        $params =[
+                            'maintenance'=>$id_maintenance,
+                            'staff_user'=>$user->id,
+                            'start_date_time'=>$request->start_date_time
+                        ];
+
+
+                        $response = Http::post($url,$params);
+
+                        $responseObj = json_decode($response->body());
+
+                    }
+                }
+
+
+
+            }
+            else{
+                //get maintenance of all businesses
+            }
+
+            return response()->json(
+                [
+                    'code' => $responseObj->code,
+                    'message' => $responseObj->message,
+                ]);
+
+
+
+
+
+
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    public Function ajaxMgtEndMaintenance(Request $request , $id_maintenance){
+
+
+
+            $user = Sentinel::getUser();
+
+            Log::info("In maintenance package, MaintenanceManagementController- ajaxEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+            if( $request->has('business') and $request->business != null ){
+
+
+                //get maintenances of specific business
+
+                $businesses = config('maintenances.businesses_name');
+                foreach($businesses as $business){
+                    if($business['id_saas_client_business'] == $request->business){
+
+                        $url =$business['maintenance_api_url'].'/api/maintenance/end';
+                        $params =[
+                            'maintenance'=>$id_maintenance,
+                            'staff_user'=>$user->id,
+                            'end_date_time'=>$request->end_date_time
+                        ];
+
+
+                        $response = Http::post($url,$params);
+
+                        $responseObj = json_decode($response->body());
+
+                    }
+                }
+
+
+
+            }
+            else{
+                //get maintenance of all businesses
+            }
+
+            return response()->json(
+                [
+                    'code' => $responseObj->code,
+                    'message' => $responseObj->message,
+                ]);
+
+
+
+
+
+    }
 
 
 

@@ -84,7 +84,7 @@
                 <div class="box box-primary">
                     <div class="box-header">
 
-                        <form action="/maintenance/new/save" method="post" enctype="multipart/form-data">
+                        <form action="/maintenance/mgt/new/save" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="box-body">
 
@@ -104,11 +104,15 @@
                                                     <div class="col-xs-10 col-sm-10 col-md-10">
                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
+                                                            <input class="form-control" name="maintenance_title"
+                                                                id="maintenance_title"
+                                                                value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif" />
 
-                                                    <input class="form-control" name="maintenance_title"
-                                                        id="maintenance_title"
-                                                        value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif" />
-                                                </div>
+
+                                                        </div>
+
+
+                                                    </div>
 
 
 
@@ -198,21 +202,16 @@
                                             <div class="col-sm-5 col-md-5 col-lg-5">
 
 
-                                                <select name="maintenance_category" id="maintenance_category"
-                                                    class="form-control select ">
-                                                    <option value="">
-                                                        {{ trans('maintenance::maintenance.select_category') }}</option>
-                                                    @if (isset($maintenance_categories))
-                                                        @foreach ($maintenance_categories as $maintenance_category)
-                                                            <option
-                                                                value="{{ $maintenance_category->id_maintenance_job_category_ref }}"
-                                                                @if (
-                                                                    $maintenance_category->id_maintenance_job_category_ref == $maintenance_category->id_credit_note_category ||
-                                                                        old('maintenance_category') == $maintenance_category->id_maintenance_job_category_ref) {{ 'selected' }} @endif>
-                                                                {{ $maintenance_category->job_category_name }}
-                                                            </option>
-                                                        @endforeach
 
+                                                <select name="maintenance_category" id="maintenance_category" class="form-control select ">
+                                                    <option value="" >{{trans('maintenance::maintenance.select_category')}}</option>
+                                                    @if(isset($maintenance_categories))
+                                                    @foreach ($maintenance_categories as $maintenance_category)
+                                                     <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}"
+                                                        @if(($maintenance_category->id_maintenance_job_category_ref == $maintenance_category->id_credit_note_category )||(old('maintenance_category') == $maintenance_category->id_maintenance_job_category_ref)) {{ 'selected' }} @endif>
+                                                        {{ $maintenance_category->job_category_name }}
+                                                     </option>
+                                                    @endforeach
                                                     @else
                                                     @endif
 
@@ -256,8 +255,6 @@
 
                                         <!-- locations-->
                                         <div class="form-group row">
-
-
 
                                             <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
                                             <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
@@ -568,11 +565,7 @@
             document.getElementById("previous_resident_value").value = OldValue;
 
 
-            console.log(OldValue);
-
-            // if(jQuery("#resident_reporter").data('oldid')!='' && typeof(jQuery("#resident_reporter").data('oldid'))!="undefined"){
-            // jQuery("#resident_reporter").change();
-            //  }
+            //console.log(OldValue);
 
             loadResidentReporters();
 

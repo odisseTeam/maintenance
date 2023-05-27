@@ -43,18 +43,6 @@
             </div>
         </div>
     @endif
-    @if ($errors->any())
-        <div class="box-body">
-
-            <div class="alert alert-danger alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                @foreach ($errors->all() as $error)
-                    <p><i class="icon fa-solid fa-ban"></i>{{ $error }}</p>
-                @endforeach
-            </div>
-        </div>
-
-    @endif
 
     @if( $errors->any() )
         <div class="box-body">
