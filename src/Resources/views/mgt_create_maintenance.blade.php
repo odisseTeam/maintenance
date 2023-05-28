@@ -1,4 +1,4 @@
-@extends('adminlte.layouts.sdr')
+@extends('layouts.blank_js')
 
 @section('page_title', session('saas_title') . ' ' . __('maintenance::maintenance.maintenance'))
 
