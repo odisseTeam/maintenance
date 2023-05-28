@@ -15,7 +15,7 @@ return[
     'businesses_name'=>[
         [
             "id_saas_client_business" => 1,
-            'business_name'=>'Living' ,
+            'business_name'=>'SDR Living' ,
             'maintenance_api_url' => env('LIVING_MAINTENANCE_API', 'https://living.odisse.local'),
         ],
 

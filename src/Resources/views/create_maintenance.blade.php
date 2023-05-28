@@ -9,9 +9,12 @@
 
 
     <link rel="stylesheet" type="text/css" href="{{ asset('resources/bootstrap-daterangepicker/daterangepicker.css') }}" />
+    <!-- <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script> -->
+
     <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('resources/iCheck/all.css') }}" />
     <link rel="stylesheet" href="{{ asset('resources/select2/select2.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}" />
 
     <style>
         .select2-selection--multiple {
@@ -112,8 +115,8 @@
 
 
 
+                                             </div>
                                         </div>
-                                        <!-- </div> -->
 
 
                                         <!-- description-->
@@ -173,20 +176,23 @@
                                         <!-- datetime -->
                                         <div class="form-group row">
                                             <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
-                                            <div class="col-xs-5 col-sm-5 col-md-5">
-                                                <div class="input-group">
-                                                    <span class="input-group-addon"><i class="fa-solid fa-calendar"
-                                                            onclick="setNow('maintenance_date')"></i>
-                                                    </span>
+                                                class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
+                                            <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
-                                                    <input type="text" class="form-control"
-                                                        onkeydown="event.preventDefault()"
-                                                        placeholder="{{ trans('maintenance::maintenance.date_time') }}"
-                                                        autocomplete="off"
+                                               <div class="">
+                                                    <div class="form-group">
+                                                        <div class="input-group date" id="datetimepicker1" >
+                                                        <input type="text" class="form-control" 
                                                         value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"
-                                                        id="maintenance_date" name="maintenance_date">
+                                                        placeholder="{{ trans('maintenance::maintenance.date_time') }}"
+                                                        id="maintenance_date" name="maintenance_date"   >
+                                                        <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                               
                                             </div>
                                         </div>
 
@@ -195,7 +201,7 @@
                                         <div class="form-group row">
                                             <label
                                                 class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
+                                            <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                                 <select name="maintenance_category" id="maintenance_category"
@@ -228,7 +234,7 @@
                                         <div class="form-group row">
                                             <label
                                                 class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.saas_client_business') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
+                                            <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                                 <select name="saas_client_business" id="saas_client_business"
@@ -260,7 +266,7 @@
 
 
                                             <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
+                                            <div class="col-sm-5 col-md-5 col-lg-5 col-xs-10">
 
 
                                                 <select name="locations[]" id="locations" class="form-control select2"
@@ -290,8 +296,8 @@
 
                                         <div class="form-group row">
                                             <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
+                                                class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
+                                            <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                                 <select name="priority" id="priority" class="form-control select ">
@@ -321,7 +327,7 @@
                                         <div class="form-group row">
                                             <label
                                                 class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.resident_reporter') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
+                                            <div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
 
 
                                                 <select name="resident_reporter" id="resident_reporter"
@@ -542,8 +548,8 @@
 
 
 @section('script')
-    <script src="{{ asset('resources/bootstrap-timepicker/js/moment.min.js') }}"></script>
-    <script src="{{ asset('resources/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <!-- <script src="{{ asset('resources/bootstrap-timepicker/js/moment.min.js') }}"></script> -->
+    <!-- <script src="{{ asset('resources/bootstrap-daterangepicker/daterangepicker.js') }}"></script> -->
 
     <!-- Laravel Javascript Validation -->
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
@@ -555,8 +561,12 @@
     <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('resources/select2/select2.full.min.js') }}"></script>
+    <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('resources/moment/min/moment-with-locales.min.js') }}"></script>
 
-    <script src="{{ asset('js/maintenance.js') }}"></script>
+    <script src="{{ asset('resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+
+    <!-- <script src="{{ asset('js/maintenance.js') }}"></script> -->
 
     <script>
         $('.select2').select2();
@@ -570,62 +580,25 @@
 
             console.log(OldValue);
 
-            // if(jQuery("#resident_reporter").data('oldid')!='' && typeof(jQuery("#resident_reporter").data('oldid'))!="undefined"){
-            // jQuery("#resident_reporter").change();
-            //  }
+          
 
             loadResidentReporters();
 
-            //Date picker
-            $('#maintenance_date').daterangepicker({
-                timePicker: true,
-                timePickerIncrement: 30,
-                singleDatePicker: true,
-                timePickerSeconds: false,
-                timePicker24Hour:true,
-                showDropdowns: true,
-                // minYear: 2000,
-                format: window._date_time_format,
+        
+             $('#datetimepicker1').datetimepicker({
+                 format: window._date_time_format,
+                 useCurrent: true
+             });
 
-                timePickerIncrement: 5,
-                locale: {
-                    format: window._date_time_format,
-                    separator: "/",
-                    applyLabel: "Apply",
-                    cancelLabel: "Cancel",
-                    fromLabel: "From",
-                    toLabel: "To",
-                    customRangeLabel: "Custom",
-                    weekLabel: "W",
-                    daysOfWeek: [
-                        "Su",
-                        "Mo",
-                        "Tu",
-                        "We",
-                        "Th",
-                        "Fr",
-                        "Sa"
-                    ],
-                    monthNames: [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December"
-                    ],
-                    firstDay: 1
-
-                }
-            });
+             $('#maintenance_date').datetimepicker({
+                 format: window._date_time_format,
+                 useCurrent: true
+             });
+             
+         
 
         });
+    
         ///////////////////////////////////////////////////
 
         $("select[name=resident_reporter]").change(function() {
@@ -727,9 +700,7 @@
                 });
                 $('#resident_reporter').html(htmlValue);
 
-                // if(jQuery("#resident_reporter").data('oldid')!='' && typeof(jQuery("#resident_reporter").data('oldid'))!="undefined"){
-                //     jQuery('#resident_reporter').val(jQuery("#resident_reporter").data('oldid')); //select the old doctor id here
-                // }
+              
 
             }
         }

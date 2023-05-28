@@ -1,5 +1,5 @@
-{{-- @extends('layouts.blank_js') --}}
-@extends('adminlte.layouts.sdr')
+@extends('layouts.blank_js')
+{{-- @extends('adminlte.layouts.sdr') --}}
 
 
 @section('css')
@@ -63,15 +63,57 @@
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12">
                                                 <div class="box box-primary card">
-                                                    <div class="box-header card-header">
-                                                        <h3>{{__('maintenance::dashboard.widget_place')}}</h3>
+                                                    <div class="row">
 
-                                                        <div>
-                                                            <div class="box-body card-block" id="div_priority_pieChart">
-                                                                <canvas id="priorityPieChart" style="height:50px"></canvas>
+                                                    <div class="col-lg-5 col-md-5 col-sm-5">
+                                                        <div class="">
+                                                            <div class="box-header card-header">
+                                                                <h3>{{__('maintenance::dashboard.maintenance_per_status')}}</h3>
+
                                                             </div>
+                                                            <div>
+                                                                <div class="box-body card-block" id="div_barChart">
+                                                                    <canvas id="barChart" style="height:250px"></canvas>
+                                                                </div>
+                                                                <div class="box-body card-block">
+                                                                    <div class="row">
+                                                                        @foreach($businesses as $business)
+                                                                            <div class="border-checkbox-group border-checkbox-group-danger col-md-2">
+                                                                                <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" checked>
+
+                                                                                <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
+                                                                            </div>
+
+                                                                        @endforeach
+                                                                    </div>
+                                                                    <div class="card-block">
+                                                                        <button type="button" onclick="prepareMaintenanceStatusChartData()" class="btn waves-effect waves-light hor-grd btn-grd-primary sdr-primary">Update</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
                                                         </div>
                                                     </div>
+
+                                                    <div class="col-lg-5 col-md-5 col-sm-5">
+                                                        <div class="">
+                                                            <div class="box-header card-header">
+                                                                <h3>{{__('maintenance::dashboard.expired_maintenance_count')}}</h3>
+
+                                                            </div>
+                                                            <div>
+                                                                <div class="box-body card-block" id="div_barChart2">
+                                                                    <canvas id="barChart2" style="height:250px"></canvas>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                    </div>
+
+
 
                                                 </div>
                                             </div>
@@ -95,6 +137,17 @@
                                                             <div class="row">
                                                                 <!-- Start Date -->
                                                                 <div class="col-md-3">
+
+                                                                    <div class="input-group date" id="id_0">
+                                                                        <input type="text" value="" class="form-control" required="">
+                                                                        <div class="input-group-addon input-group-append">
+                                                                            <div class="input-group-text">
+                                                                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+
                                                                     <div class="form-group" style="">
                                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
                                                                             <div class="input-group-addon">
@@ -631,44 +684,106 @@
 
         $(document).ready(function () {
 
+            // $('#start_datetimepicker').datetimepicker({
+            //      format: 'DD-MM-YYYY HH:mm',
+            //      useCurrent: true
+            //  });
+            //  $('#end_datetimepicker').datetimepicker({
+            //      format: 'DD-MM-YYYY HH:mm',
+            //      useCurrent: true
+            //  });
+
 
             loadMaintenances();
+            //prepareMaintenanceStatusChartData();
 
         });
         ///////////////////////////////////////////////////////
-        function send( url , data , name, parameters ) {
-    return_value = null;
-    $.ajax({
-        'type': "POST",
-        'global': false,
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content')
-        },
-        'dataType': 'json',
-        'url': url,
-        'data': data,
-        'success': function (data) {
-            callback(data , name , parameters );
-        },
-        'error': function(xhr, ajaxOptions, thrownError, ) {
+        let prepareMaintenanceStatusChartData = function () {
+            // let spinHandle = loadingOverlay.activate();
+            var businesses = $('.selected_business:checkbox:checked').map(function() {
+                return this.value;
+            }).get();
 
-            alert(xhr.responseJSON.message);
-            //todo hanle error
-            callback(data , name , parameters );
+            send( '/maintenance/mgt/statuses/charts',  {
+                businesses:businesses,
+            }, 'handleMaintenanceStatusChart', []);
+
+        };
+        ///////////////////////////////////////////////////////
+        function handleMaintenanceStatusChart(){
+
+            let res = return_value.code;
+            if(res == "failure"){
+
+            }
+            else{
+                let widget_data = return_value.widget_data;
+                ShowChart( widget_data);
+
+            }
+
+
         }
-    });
-}
-function callback(response , name, parameters ) {
-    return_value = response;
+        ///////////////////////////////////////////////////////
+        function ShowChart(widget_data){
 
-    var fn = window[name];
-    if(typeof fn !== 'function')
-        return;
 
-    fn.apply(window, parameters);
+            //widget_data=JSON.parse(widget_data);
+            // var z = widget_data.datasets;
+            // widget_data.datasets= Object.keys(z)
+            //     .map(function(key) {
+            //         return z[key];
+            //     });
 
-    //use return_first variable here
-}
+
+            var place = document.getElementById("div_barChart").innerHTML = '<canvas id="barChart" width="400" height="200"></canvas>';
+            var bar = document.getElementById("barChart").getContext('2d');
+            var myBarChart = new Chart(bar, {
+            type: 'bar',
+            data: widget_data,
+            options: {
+                barValueSpacing: 20
+            }
+            });
+
+        }
+        ///////////////////////////////////////////////////////
+        function send( url , data , name, parameters ) {
+            return_value = null;
+            $.ajax({
+                'type': "POST",
+                'global': false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content')
+                },
+                'dataType': 'json',
+                'url': url,
+                'data': data,
+                'success': function (data) {
+                    callback(data , name , parameters );
+                },
+                'error': function(xhr, ajaxOptions, thrownError, ) {
+
+                    alert(xhr.responseJSON.message);
+                    //todo hanle error
+                    callback(data , name , parameters );
+                }
+            });
+        }
+        /////////////////////////////////////////////////////////
+
+        function callback(response , name, parameters ) {
+            return_value = response;
+
+            var fn = window[name];
+            if(typeof fn !== 'function')
+                return;
+
+            fn.apply(window, parameters);
+
+            //use return_first variable here
+        }
 
         ///////////////////////////////////////////////////////
         function loadMaintenances(){
@@ -903,7 +1018,7 @@ function callback(response , name, parameters ) {
             $('#user_agent').find('option').not(':first').remove();
 
 
-            var spinHandle = loadingOverlay.activate();
+            // var spinHandle = loadingOverlay.activate();
 
             send( '/maintenance/mgt/business_contractors',  {
                 business :id_business,
@@ -952,7 +1067,7 @@ function callback(response , name, parameters ) {
         ///////////////////////////////////////////////////////
         function loadUserAgents(){
 
-            var spinHandle = loadingOverlay.activate();
+            // var spinHandle = loadingOverlay.activate();
             business = $('#assigned_business').val();
             business_contractor = $('#business_contractor').val();
 
@@ -989,12 +1104,12 @@ function callback(response , name, parameters ) {
             }
 
 
-            loadingOverlay.cancelAll();
+            // loadingOverlay.cancelAll();
 
         }
         ///////////////////////////////////////////////////////
         function assignMaintenance(){
-            var spinHandle = loadingOverlay.activate();
+            // var spinHandle = loadingOverlay.activate();
             business = $('#assigned_business').val();
             maintenance = $('#assigned_maintenance').val();
             user = $('#user_agent').val();
@@ -1011,7 +1126,7 @@ function callback(response , name, parameters ) {
         {
             let message = return_value.message;
             let res = return_value.code;
-            loadingOverlay.cancelAll();
+            // loadingOverlay.cancelAll();
 
 
             if(res == "failure"){
@@ -1046,46 +1161,98 @@ function callback(response , name, parameters ) {
             $('#suc_msg_box_start').css('display' , 'none');
             $('#startMaintenanceModal').modal('show');
 
-        <!-- data-table js -->
-    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+        }
+        ///////////////////////////////////////////////////////
+        function startMaintenance(){
+            // var spinHandle = loadingOverlay.activate();
+
+            let started_maintenance = $( '#started_maintenance' ).val();
+            let started_business = $( '#started_business' ).val();
+
+            let start_date_time = $( '#start_datetimepicker input' ).val();
+
+            send( '/maintenance/mgt/start/'+started_maintenance,  {
+                business:started_business,
+                start_date_time:start_date_time,
+            }, 'handleStartMaintenance', []);
+        }
+        ////////////////////////////////////////////////////////
+        function handleStartMaintenance(){
+            let message = return_value.message;
+            let res = return_value.code;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_start").html(textmessage);
+                $("#err_msg_box_start").css('display' , 'block');
+
+            }
+
+            else{
+                $("#ajx_suc_msg_start").html(message);
+                $("#suc_msg_box_start").css('display' , 'block');
+
+                setTimeout(function() {$('#startMaintenanceModal').modal('hide');}, 3000);
+
+            }
 
 
+            // loadingOverlay.cancelAll();
+
+        }
+        ///////////////////////////////////////////////////////
+
+        function showEndMaintenanceModal(id_business , id_maintenance){
+
+            $('#ended_maintenance').val(id_maintenance);
+            $('#ended_business').val(id_business);
+
+            $('#err_msg_box_end').css('display' , 'none');
+            $('#suc_msg_box_end').css('display' , 'none');
+            $('#endMaintenanceModal').modal('show');
+
+        }
+        ///////////////////////////////////////////////////////
+        function endMaintenance(){
+            // var spinHandle = loadingOverlay.activate();
+
+            let ended_maintenance = $( '#ended_maintenance' ).val();
+            let ended_business = $( '#ended_business' ).val();
+
+            let end_date_time = $( '#end_datetimepicker input' ).val();
+
+            send( '/maintenance/mgt/end/'+ended_maintenance,  {
+                business:ended_business,
+                end_date_time:end_date_time,
+            }, 'handleEndMaintenance', []);
+        }
+        ////////////////////////////////////////////////////////
+        function handleEndMaintenance(){
+            let message = return_value.message;
+            let res = return_value.code;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_end").html(textmessage);
+                $("#err_msg_box_end").css('display' , 'block');
+
+            }
+
+            else{
+                $("#ajx_suc_msg_end").html(message);
+                $("#suc_msg_box_end").css('display' , 'block');
+
+                setTimeout(function() {$('#endMaintenanceModal').modal('hide');}, 3000);
+
+            }
 
 
-        <!-- data-table js -->
-    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+            // loadingOverlay.cancelAll();
 
+        }
 
-
-        <!-- data-table js -->
-    <script src="../files/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/jszip.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/pdfmake.min.js"></script>
-    <script src="../files/assets/pages/data-table/js/vfs_fonts.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
-    <script src="../files/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="../files/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="../files/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
 
 
 

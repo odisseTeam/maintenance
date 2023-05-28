@@ -21,6 +21,8 @@ use Odisse\Maintenance\Models\Contractor;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
+use stdClass;
 
 class ApiMaintenanceDetailController extends Controller
 {
@@ -694,6 +696,64 @@ class ApiMaintenanceDetailController extends Controller
             ]
         );
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    public function getMaintenanceStatusChartData(Request $request){
+
+
+
+
+        $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
+        $colour_code = ['rgba(95, 190, 170, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
+
+
+
+
+
+
+
+        $temp_val = new stdClass();
+        $temp_val->label = SaasClientBusiness::find($request->business)->business_name;
+
+        $temp_val->data = [];
+        $temp_val->backgroundColor = [];
+        $temp_val->hoverBackgroundColor = [];
+
+        // return response()->json(
+        //     [
+        //     'code' => 'success',
+        //     'message' => trans('maintenance::dashboard.chart_data_prepared'),
+        //     'request' => $request->all(),
+        //     'temp_val' => $temp_val,
+        //     ]);
+
+
+        $counter =0;
+        foreach($statuses as $status){
+            $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('id_maintenance_job_status' , $status->id_maintenance_job_status_ref)->get();
+            $maintenance_count = count($maintenances);
+            // $result[$status->job_status_code]= $maintenance_count;
+
+            array_push($temp_val->data, $maintenance_count);
+            array_push($temp_val->backgroundColor, $colour_code[$counter]);
+            array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
+        }
+
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'message' => trans('maintenance::dashboard.chart_data_prepared'),
+            'result' => $temp_val,
+            ]);
+
+
+
+    }
+
 
 
 }

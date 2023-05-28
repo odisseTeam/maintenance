@@ -1,92 +1,100 @@
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.show_create_page','/maintenance/contractor','get',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.show_mgt_page','/maintenance/contractors','get',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.show_edit_page','/maintenance/contractor/{id_contractor}','get',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.store','/maintenance/contractor','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.update','/maintenance/contractor/{id_contractor}','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractors.get','/maintenance/contractors','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.delete','/maintenance/contractor/delete/{id_contractor}','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.dashboard','/maintenance/dashboard','get',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.list','/maintenance/maintenances_list','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.delete','/maintenance/delete/{id_maintenance}','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('business_contractor.user_agent','/maintenance/business_contractor/user_agents','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.assign_user','/maintenance/assign_user','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.login_setting.change','/maintenance/contractor/login_settings/change','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('contractor.email.get','/maintenance/contractor/email/{id_contractor}','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.management','/maintenance/management','get',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.management.list','/maintenance/mgt_maintenances_list','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.management.details','/maintenancelist_details','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.maintenance.delete','/maintenance/mgt/delete/{id_maintenance}','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.business_contractor','/maintenance/mgt/business_contractors','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1,1);
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1,1);
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1,1);
+INSERT INTO saas_client (client_name,client_code,primary_lang_iso_code,subscription_start_date,subscription_end_date,subscription_status,saas_client_active) VALUES
+	 ('Southdowns Residential Ltd','SDR','en','2018-10-01','2088-10-01',1,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+INSERT INTO saas_client_business (id_saas_client,business_name,saas_client_business_active) VALUES
+	 (1,'SDR - Eastbourne',1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','post',null,null,1,1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.show_create_page','/maintenance/contractor','get',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.show_mgt_page','/maintenance/contractors','get',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.show_edit_page','/maintenance/contractor/{id_contractor}','get',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.store','/maintenance/contractor','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.update','/maintenance/contractor/{id_contractor}','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractors.get','/maintenance/contractors','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.delete','/maintenance/contractor/delete/{id_contractor}','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.dashboard','/maintenance/dashboard','get',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.list','/maintenance/maintenances_list','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.delete','/maintenance/delete/{id_maintenance}','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('business_contractor.user_agent','/maintenance/business_contractor/user_agents','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.assign_user','/maintenance/assign_user','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.login_setting.change','/maintenance/contractor/login_settings/change','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('contractor.email.get','/maintenance/contractor/email/{id_contractor}','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.management','/maintenance/management','get',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.management.list','/maintenance/mgt_maintenances_list','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.management.details','/maintenancelist_details','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.maintenance.delete','/maintenance/mgt/delete/{id_maintenance}','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.business_contractor','/maintenance/mgt/business_contractors','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1);
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1);
 
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1);
 
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'contractor.skills.get','/maintenance/contractor/skill/{id_contractor}','post',null,null,1,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'contractor.skills.change','/maintenance/contractor/skills/change','post',null,null,1,1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','post',null,null,1);
 
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'contractor.locations.get','/maintenance/contractor/location/{id_contractor}','post',null,null,1,1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'contractor.skills.get','/maintenance/contractor/skill/{id_contractor}','post',null,null,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'contractor.skills.change','/maintenance/contractor/skills/change','post',null,null,1);
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'contractor.locations.change','/maintenance/contractor/locations/change','post',null,null,1,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'mgt.maintenance.create','/maintenance/mgt/create','get',null,null,1,1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'contractor.locations.get','/maintenance/contractor/location/{id_contractor}','post',null,null,1);
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.start','/maintenance/start/{id_maintenance}','post',null,null,1,1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'contractor.locations.change','/maintenance/contractor/locations/change','post',null,null,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'mgt.maintenance.create','/maintenance/mgt/create','get',null,null,1);
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
-VALUES (null,'maintenance.end','/maintenance/end/{id_maintenance}','post',null,null,1,1);
-
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.maintenance.start','/maintenance/mgt/start/{id_maintenance}','post',1,1);
-
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('mgt.maintenance.end','/maintenance/mgt/end/{id_maintenance}','post',1,1);
-
-INSERT INTO permission_route_mapping(permission,route,method,mapping_active,id_permission_category)
-VALUES ('maintenance.status.chart','/maintenance/statuses/charts','post',1,1);
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.start','/maintenance/start/{id_maintenance}','post',null,null,1);
 
 
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.end','/maintenance/end/{id_maintenance}','post',null,null,1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.maintenance.start','/maintenance/mgt/start/{id_maintenance}','post',1);
+
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.maintenance.end','/maintenance/mgt/end/{id_maintenance}','post',1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.status.chart','/maintenance/statuses/charts','post',1);
+
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('mgt.maintenance.status.get_data','/maintenance/mgt/statuses/charts','post',1);
 
 
 -- Add base data to initialize package
@@ -264,3 +272,10 @@ INSERT INTO public.contractor_location_ref
 ('Sussex', 1),
 ('Shoreham', 1),
 ('Worthing', 1);
+
+
+
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true}' where slug = 'admin';
+
+
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true}' where slug = 'super_admin';

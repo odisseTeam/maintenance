@@ -3,7 +3,6 @@
 namespace Odisse\Maintenance\Controllers;
 
 use Illuminate\Http\Request;
-use App\SLP\Enum\ActionStatusConstants;
 
 
 use App\Http\Controllers\Controller;
@@ -245,7 +244,7 @@ class MaintenanceManagementController extends Controller
         if($responseObj->status == 200){
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::SUCCESS,
+                  'code' => 'success',
                   'message' => $responseObj->message,
                   'businesses' => $responseObj->businesses,
                   'contractors' => $responseObj->contractors,
@@ -254,7 +253,7 @@ class MaintenanceManagementController extends Controller
         else{
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::FAILURE,
+                  'code' => 'failure',
                   'message' => $responseObj->message,
                   'businesses' => $responseObj->businesses,
                   'contractors' => $responseObj->contractors,
@@ -306,7 +305,7 @@ class MaintenanceManagementController extends Controller
         if($responseObj->status == 200){
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::SUCCESS,
+                  'code' => 'success',
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
                 ]);
@@ -314,7 +313,7 @@ class MaintenanceManagementController extends Controller
         else{
             return response()->json(
                 [
-                  'code' => ActionStatusConstants::FAILURE,
+                  'code' => 'failure',
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
                 ]);
@@ -353,7 +352,7 @@ class MaintenanceManagementController extends Controller
 
             return response()->json(
                 [
-                'code' => ActionStatusConstants::FAILURE,
+                'code' => 'failure',
                 'message' => $validator,
                 ]);
 
@@ -465,7 +464,7 @@ class MaintenanceManagementController extends Controller
             Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
             . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-            return view('maintenance::create_maintenance')->with([ActionStatusConstants::ERROR=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
+            return view('maintenance::mgt_create_maintenance')->with(['error'=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
 
         }
 
@@ -576,6 +575,66 @@ class MaintenanceManagementController extends Controller
 
 
 
+
+
+    }
+    /////////////////////////////////////////////////////////////////////////////
+
+
+
+    public Function ajaxGetStatusChartData(Request $request){
+
+
+
+        $user = Sentinel::getUser();
+        $selected_businesses =  $request->businesses; //explode(",", $request->businesses);
+
+
+        //get labels
+        $labels = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active',1)->pluck('job_status_name');
+        $datasets=[];
+            $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if(in_array($business['id_saas_client_business'] , $selected_businesses )){
+
+                    $url =$business['maintenance_api_url'].'/api/maintenance/status/chart_data';
+                    $params =[
+                        'business'=>$business['id_saas_client_business'],
+                    ];
+
+                    $response = Http::post($url,$params);
+
+                    $responseObj = json_decode($response->body());
+                    //dd($responseObj);
+                    $datasets[$business['business_name']] = $responseObj->result;
+
+                }
+            }
+
+
+            $data = new stdClass();
+            $data->labels = $labels;
+            $data->datasets = $datasets;
+
+            // dd($data);
+
+            $result = json_encode($data);
+
+
+
+
+
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'widget_data'=>$datasets,
+            'labels'=>$labels,
+
+            'message' => trans('maintenance::dashboard.your_data_loaded'),
+            ]);
 
 
     }

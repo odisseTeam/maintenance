@@ -27,6 +27,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/business_contractors', [MaintenanceManagementController::class,'ajaxLoadBusinessContractors']);
            Route::post('/mgt/business_contractor/user_agents', [MaintenanceManagementController::class,'ajaxLoadMgtUserAgents']);
            Route::post('/mgt/assign_user', [MaintenanceManagementController::class,'ajaxMgtAssignMaintenanceToUser']);
+           Route::post('/mgt/statuses/charts', [MaintenanceManagementController::class,'ajaxGetStatusChartData']);
 
 
         });
