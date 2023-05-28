@@ -28,6 +28,8 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/business_contractor/user_agents', [MaintenanceManagementController::class,'ajaxLoadMgtUserAgents']);
            Route::post('/mgt/assign_user', [MaintenanceManagementController::class,'ajaxMgtAssignMaintenanceToUser']);
            Route::post('/mgt/statuses/charts', [MaintenanceManagementController::class,'ajaxGetStatusChartData']);
+           Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
+
 
 
         });
@@ -89,9 +91,6 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/start/{id_maintenance}', [MaintenanceDashboardController::class,'ajaxStartMaintenance']);
            Route::post('/end/{id_maintenance}', [MaintenanceDashboardController::class,'ajaxEndMaintenance']);
 
-
-
-           Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
 
            //dashboard widgets
            Route::post('/statuses/charts', [MaintenanceDashboardController::class,'ajaxPrepareStatusChartData']);
