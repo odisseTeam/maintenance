@@ -12,6 +12,7 @@ use App\Models\User;
 use App\SLP\Enum\APIStatusConstants;
 use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -639,6 +640,98 @@ class MaintenanceManagementController extends Controller
 
     }
 
+
+    public function createMaintenance( Request $request)
+    {
+        $business_index = 0;
+        $businesses = config('maintenances.businesses_name');
+
+        $url = $businesses[0]['maintenance_api_url'].'/api/maintenance/save/new';
+
+
+
+        $data = [];
+        if ($request->hasFile('files') ) {
+            // get Illuminate\Http\UploadedFile instance
+            $files = $request->file('files');
+
+            $index = 1;
+            foreach($files as $file) {
+                // post request with attachment
+
+                $name = $file->getClientOriginalName();
+                if( file_get_contents($file) == "") continue;
+                $data[] = [
+                    'Content-type' => 'multipart/form-data',
+                    'name' => 'files[]',
+                    'contents' => file_get_contents($file),
+                    'filename' => $name,
+                ] ;
+            }
+
+
+        }
+
+
+        $datum =  $request->all() ;
+        unset($datum['files']);
+        unset($datum['_token']);
+
+
+        foreach( $datum as $key=>$value){
+            $data[] = [
+                'name'  => $key,
+                'contents' => $value
+            ];
+
+        }
+        // dd($data);
+
+        $client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
+        $options = [
+            'multipart' => $data,
+        ];
+        $response = $client->post($url, $options);
+
+
+        /* $req = Http::withoutVerifying()->asForm();
+
+        if ($request->hasFile('files') ) {
+            // get Illuminate\Http\UploadedFile instance
+            $files = $request->file('files');
+
+            $index = 1;
+            foreach($files as $file) {
+                // post request with attachment
+
+                $name = $file->getClientOriginalName();
+                if( file_get_contents($file) == "") continue;
+                $req = $req->attach('attachment'.$index++, file_get_contents($file), $name);
+            }
+
+            $datum =  $request->all() ;
+            unset($datum['files']);
+            unset($datum['_token']);
+
+
+            $data = [];
+            foreach( $datum as $key=>$value){
+                $data[] = [
+                    'name'  => $key,
+                    'contents' => $value
+                ];
+
+            }
+            // dd($data);
+            $response = $req->post($url, $data);
+        } else {
+            $response = Http::post($url, $request->all());
+        }
+ */
+        return $response;
+
+
+    }
 
 
 }

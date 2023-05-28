@@ -29,6 +29,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/assign_user', [MaintenanceManagementController::class,'ajaxMgtAssignMaintenanceToUser']);
            Route::post('/mgt/statuses/charts', [MaintenanceManagementController::class,'ajaxGetStatusChartData']);
            Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
+           Route::post('/mgt/new/save', [MaintenanceManagementController::class,'createMaintenance']);
 
 
 
@@ -98,6 +99,16 @@ Route::middleware(['web','ProxyCAS'])->group(
         });
 
 });
+
+
+
+Route::middleware(['api'])->prefix('api/maintenance/')->group(
+    function () {
+        Route::any('save/new', [\Odisse\Maintenance\Controllers\ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
+
+    }
+);
+
 
 
 
