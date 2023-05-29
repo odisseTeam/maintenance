@@ -1,16 +1,14 @@
 <?php
 
-namespace Odisse\Maintenance\Controllers;
+namespace Odisse\Maintenance\Traits;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Odisse\Maintenance\Models\Contractor;
 use App\SLP\Enum\BookingStatusConstants;
 use App\SLP\Formatter\SystemDateFormats;
 use Hedi\Sentinel\Laravel\Facades\Sentinel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants;
 use Odisse\Maintenance\Models\Maintainable;
@@ -24,51 +22,11 @@ use Odisse\Maintenance\Models\MaintenanceJobStatusHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Illuminate\Support\Str;
 
-class ApiMaintenanceMgtController extends Contractor{
 
+trait MaintenanceTrait
+{
 
-    public function saveNewMaintenance( Request $request)
-    {
-
-        $user = User::find($request->user);;
-
-
-        $validator = $this->validateMaintenance($request);
-
-        if( $validator != null and $validator->fails()) {
-            return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
-        }
-
-        $result = $this->createMaintenance($request);
-
-
-
-        // if( $request->hasFile('files')){
-        //     Log::info("has file");
-        // }
-        // else{
-        //     Log::info("has no file");
-        //     Log::info( print_r($request->all(), true));
-        // }
-
-
-        // foreach($request->all() as $key=>$data){
-        //     Log::info($key);
-        // }
-
-        if( $result['status'] == 'success')
-
-            return response()->json($result, 200);
-        else{
-            return response()->json($result, 400);
-
-        }
-    }
-
-
-    private function validateMaintenance( Request $request)
+    public function validateMaintenance( Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -96,10 +54,9 @@ class ApiMaintenanceMgtController extends Contractor{
 
     }
 
-    private function createMaintenance( $request )
+    public function createMaintenance( $request )
     {
-
-        $user = User::find($request->user);;
+        $user = Sentinel::getUser();
 
 
         try {
@@ -387,5 +344,3 @@ class ApiMaintenanceMgtController extends Contractor{
 
     }
 }
-
-

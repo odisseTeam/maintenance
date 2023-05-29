@@ -128,9 +128,7 @@
                                             <div class="col-xs-10 col-sm-10 col-md-10">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                    <textarea class="form-control" rows="4" name="description" id="description" column="40">
-                                                    {{ old('description') }}
-                                                    </textarea>
+                                                    <textarea class="form-control" rows="4" name="description" id="description" column="40">{{ null !== old('description') ? old('description'): "" }}</textarea>
                                                 </div>
 
                                             </div>
@@ -163,9 +161,7 @@
                                             <div class="col-xs-10 col-sm-10 col-md-10">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                    <textarea class="form-control" rows="4" name="file_description" id="file_description" column="40">
-                                                    {{ old('file_description') }}
-                                                    </textarea>
+                                                    <textarea class="form-control" rows="4" name="file_description" id="file_description" column="40">{{ old('file_description') }}</textarea>
                                                 </div>
 
                                             </div>
@@ -436,6 +432,15 @@
 
                                         <textarea id="description" name="description" class="col-sm-7 col-md-7 col-lg-7"></textarea>
                                     </div>
+
+                                    <div class="mb-3 row">
+                                        <label class="form-label col-sm-2 col-form-label">Textarea</label>
+                                        <div class="col-sm-10">
+                                            <textarea rows="5" cols="5" class="form-control"
+                                            placeholder="Default textarea"></textarea>
+                                        </div>
+                                    </div>
+
 
                                 </div>
 

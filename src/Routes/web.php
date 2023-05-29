@@ -103,9 +103,9 @@ Route::middleware(['web','ProxyCAS'])->group(
 
 
 
-Route::middleware(['api'])->prefix('api/maintenance/')->group(
+Route::prefix('api/maintenance/')->group(
     function () {
-        Route::any('save/new', [\Odisse\Maintenance\Controllers\ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
+        Route::post('save/new', [\Odisse\Maintenance\Controllers\ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
 
     }
 );
