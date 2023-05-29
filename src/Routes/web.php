@@ -95,6 +95,7 @@ Route::middleware(['web','ProxyCAS'])->group(
 
            //dashboard widgets
            Route::post('/statuses/charts', [MaintenanceDashboardController::class,'ajaxPrepareStatusChartData']);
+           Route::post('/sla/charts', [MaintenanceDashboardController::class,'ajaxPrepareSlaChartData']);
 
         });
 

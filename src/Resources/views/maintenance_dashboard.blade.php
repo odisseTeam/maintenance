@@ -143,7 +143,22 @@
                                     <div class="row">
                                         <!-- Start Date -->
                                         <div class="col-md-3">
-                                            <div class="form-group" style="">
+
+
+                                            <div class="input-group date date_place" id="id_0">
+                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="search_start_date" id="search_start_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                <div class="input-group-addon input-group-append">
+                                                    <div class="input-group-text">
+                                                        <i class="glyphicon glyphicon-calendar"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+
+                                            {{-- <div class="form-group" style="">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
                                                     <div class="input-group-addon">
                                                         <i class="fa-solid fa-calendar"></i>
@@ -151,7 +166,7 @@
                                                     <input name="search_start_date" placeholder="{{__('booking.start_date')}}" type="text" class="form-control date active" id="search_start_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                 </div>
 
-                                            </div>
+                                            </div> --}}
 
                                         </div>
 
@@ -222,7 +237,21 @@
 
                                         <!-- End Date -->
                                         <div class="col-md-3">
-                                            <div class="form-group" style="">
+
+
+                                            <div class="input-group date date_place" id="id_1">
+                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control" name="search_end_date" id="search_end_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                <div class="input-group-addon input-group-append">
+                                                    <div class="input-group-text">
+                                                        <i class="glyphicon glyphicon-calendar"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                            {{-- <div class="form-group" style="">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
                                                     <div class="input-group-addon">
                                                         <i class="fa-solid fa-calendar"></i>
@@ -230,7 +259,7 @@
                                                     <input name="search_end_date" type="text" placeholder="{{__('booking.end_date')}}" class="form-control date active" id="search_end_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                 </div>
 
-                                            </div>
+                                            </div> --}}
                                         </div>
 
 
@@ -576,7 +605,7 @@
                             <div class="col-sm-5 col-md-5 col-lg-5">
 
                                 <div class="form-group">
-                                    <div class="input-group date" id="start_datetimepicker">
+                                    <div class="input-group date date_place" id="start_datetimepicker">
                                         <input type="text" class="form-control">
                                         <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
@@ -632,7 +661,7 @@
                             <div class="col-sm-5 col-md-5 col-lg-5">
 
                                 <div class="form-group">
-                                    <div class="input-group date" id="end_datetimepicker">
+                                    <div class="input-group date date_place" id="end_datetimepicker">
                                         <input type="text" class="form-control">
                                         <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
@@ -682,20 +711,21 @@
     <script>
 
         $(function () {
-             $('#start_datetimepicker').datetimepicker({
-                 format: 'DD-MM-YYYY HH:mm',
-                 useCurrent: true
-             });
-             $('#end_datetimepicker').datetimepicker({
-                 format: 'DD-MM-YYYY HH:mm',
-                 useCurrent: true
-             });
+
+            $('.date_place').datetimepicker({
+                "allowInputToggle": true,
+                "showClose": true,
+                "showClear": true,
+                "showTodayButton": true,
+                "format": "DD-MM-YYYY hh:mm",
+            });
          });
 
 
         $(document).ready(function () {
 
             prepareMaintenanceStatusChartData();
+            prepareMaintenanceSlaChartData();
             loadMaintenances();
 
         });
@@ -706,6 +736,14 @@
             send( '/maintenance/statuses/charts',  {}, 'handleMaintenanceStatusChart', []);
 
         };
+        ///////////////////////////////////////////////////////////////////////////
+        let prepareMaintenanceSlaChartData = function () {
+            let spinHandle = loadingOverlay.activate();
+
+            send( '/maintenance/sla/charts',  {}, 'handleMaintenanceSlaChart', []);
+
+        };
+        ///////////////////////////////////////////////////////////////////////////
 
         function handleMaintenanceStatusChart(){
 
@@ -721,10 +759,26 @@
 
 
         }
-        //////////////////////////////////////////////////////////////////////
-        let generateChart2 = function(status_report, status_chart_id){
+        ///////////////////////////////////////////////////////////////////////////
 
-            document.getElementById(status_chart_id).innerHTML='<canvas id="barChart" style="height:250px"></canvas>';
+        function handleMaintenanceSlaChart(){
+
+            let res = return_value.code;
+            if(res == "failure"){
+
+            }
+            else{
+                let sla_report = return_value.result;
+                generateChart2( sla_report, "div_barChart2" ,'barChart2' );
+
+            }
+
+
+        }
+        //////////////////////////////////////////////////////////////////////
+        let generateChart2 = function(report, place_chart_id , canvas_id){
+
+            document.getElementById(place_chart_id).innerHTML='<canvas id="'+canvas_id+'" style="height:250px"></canvas>';
 
 
             //end of edit to fix bug in charts - by ahmadian
@@ -737,9 +791,9 @@
             var ref_colors = ['#1A5276' , '#F7DC6F' , '#A9DFBF' , '#BB8FCE' , '#196F3D' , '#994C40' , '#BD1525' , '#24BD15' , '#2215BD' , '#FA033F'];
 
             var counter = 0;
-            Object.keys(status_report).forEach(function(k){
+            Object.keys(report).forEach(function(k){
                 labels4.push(k);
-                dataset4.push(status_report[k]);
+                dataset4.push(report[k]);
                 colours4.push(ref_colors[counter++]);
             });
 
@@ -770,7 +824,7 @@
                 },
             };
 
-            var bar_ctx4 = $('#barChart');
+            var bar_ctx4 = $('#'+canvas_id);
             var bar_Chart4 = new Chart(bar_ctx4, {
                 type: 'bar',
                 data: data4,

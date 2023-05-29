@@ -78,7 +78,7 @@
                                                                 <div class="box-body card-block">
                                                                     <div class="row">
                                                                         @foreach($businesses as $business)
-                                                                            <div class="border-checkbox-group border-checkbox-group-danger col-md-2">
+                                                                            <div class="border-checkbox-group border-checkbox-group-danger col-md-3">
                                                                                 <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" checked>
 
                                                                                 <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
@@ -138,8 +138,8 @@
                                                                 <!-- Start Date -->
                                                                 <div class="col-md-3">
 
-                                                                    <div class="input-group date" id="id_0">
-                                                                        <input type="text" value="" class="form-control" required="">
+                                                                    <div class="input-group date date_place" id="id_0">
+                                                                        <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="search_start_date" id="search_start_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                                         <div class="input-group-addon input-group-append">
                                                                             <div class="input-group-text">
                                                                                 <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
@@ -148,7 +148,7 @@
                                                                     </div>
 
 
-                                                                    <div class="form-group" style="">
+                                                                    {{-- <div class="form-group" style="">
                                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
                                                                             <div class="input-group-addon">
                                                                                 <i class="fa-solid fa-calendar"></i>
@@ -156,7 +156,7 @@
                                                                             <input name="search_start_date" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" type="text" class="form-control date active" id="search_start_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                                         </div>
 
-                                                                    </div>
+                                                                    </div> --}}
 
                                                                 </div>
 
@@ -227,7 +227,19 @@
 
                                                                 <!-- End Date -->
                                                                 <div class="col-md-3">
-                                                                    <div class="form-group" style="">
+
+
+                                                                    <div class="input-group date date_place" id="id_1">
+                                                                        <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control" name="search_end_date" id="search_end_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                                        <div class="input-group-addon input-group-append">
+                                                                            <div class="input-group-text">
+                                                                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    {{-- <div class="form-group" style="">
                                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
                                                                             <div class="input-group-addon">
                                                                                 <i class="fa-solid fa-calendar"></i>
@@ -235,7 +247,7 @@
                                                                             <input name="search_end_date" type="text" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control date active" id="search_end_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                                         </div>
 
-                                                                    </div>
+                                                                    </div> --}}
                                                                 </div>
 
 
@@ -399,10 +411,9 @@
                                     <div class="modal-dialog modal-lg" style="max-width: 60%;">
                                         <div class="modal-content">
                                             <div class="modal-header">
-
-                                                <button type="button" class="close" data-dismiss="modal"><span
-                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                                 <h4 class="modal-title" id="deleteMaintenanceModalLabel">{{trans('maintenance::dashboard.delete_maintenance')}}</h4>
+                                                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                             </div>
 
 
@@ -422,9 +433,9 @@
 
 
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-warning"
-                                                    data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger sdr-danger"
+                                                <button type="button" class="btn btn-warning mobtn"
+                                                    data-dismiss="modal" data-bs-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn"
                                                     id="delete_maintenance" onclick="deleteMaintenance()">{{trans('maintenance::contractor.delete')}}</button>
                                             </div>
 
@@ -443,10 +454,9 @@
                                     <div class="modal-dialog modal-lg" style="max-width: 60%;">
                                         <div class="modal-content">
                                             <div class="modal-header">
-
-                                                <button type="button" class="close" data-dismiss="modal"><span
-                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                                 <h4 class="modal-title" id="assignMaintenanceModalLabel">{{trans('maintenance::dashboard.assign_maintenance')}}</h4>
+                                                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                             </div>
 
 
@@ -522,9 +532,9 @@
 
 
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-warning"
-                                                    data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger sdr-danger"
+                                                <button type="button" class="btn btn-warning mobtn"
+                                                    data-dismiss="modal" data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn"
                                                     onclick="assignMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
@@ -543,10 +553,9 @@
                                     <div class="modal-dialog modal-lg" style="max-width: 60%;">
                                         <div class="modal-content">
                                             <div class="modal-header">
-
-                                                <button type="button" class="close" data-dismiss="modal"><span
-                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                                 <h4 class="modal-title" id="startMaintenanceModalLabel">{{trans('maintenance::dashboard.start_maintenance')}}</h4>
+                                                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                             </div>
 
 
@@ -564,14 +573,23 @@
                                                         <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_start_date_of_job') }}:</label>
                                                         <div class="col-sm-5 col-md-5 col-lg-5">
 
-                                                            <div class="form-group">
+                                                            <div class="input-group date date_place" id="id_2">
+                                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="start_datetimepicker" id="start_datetimepicker">
+                                                                <div class="input-group-addon input-group-append">
+                                                                    <div class="input-group-text">
+                                                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {{-- <div class="form-group">
                                                                 <div class="input-group date" id="start_datetimepicker">
                                                                     <input type="text" class="form-control">
                                                                     <span class="input-group-addon">
                                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                                     </span>
                                                                 </div>
-                                                            </div>
+                                                            </div> --}}
                                                         </div>
                                                     </div>
 
@@ -581,10 +599,8 @@
 
 
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-warning"
-                                                    data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger"
-                                                    onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                                                <button type="button" class="btn btn-warning mobtn" data-dismiss="modal" data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn" onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
 
@@ -599,10 +615,10 @@
                                     <div class="modal-dialog modal-lg" style="max-width: 60%;">
                                         <div class="modal-content">
                                             <div class="modal-header">
-
-                                                <button type="button" class="close" data-dismiss="modal"><span
-                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                                 <h4 class="modal-title" id="endMaintenanceModalLabel">{{trans('maintenance::dashboard.end_maintenance')}}</h4>
+
+                                                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal"><span
+                                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                             </div>
 
 
@@ -621,6 +637,19 @@
                                                         <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_end_date_of_job') }}:</label>
                                                         <div class="col-sm-5 col-md-5 col-lg-5">
 
+
+                                                            <div class="input-group date date_place" id="id_3">
+                                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control" name="end_datetimepicker" id="end_datetimepicker">
+                                                                <div class="input-group-addon input-group-append">
+                                                                    <div class="input-group-text">
+                                                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                        {{--
                                                             <div class="form-group">
                                                                 <div class="input-group date" id="end_datetimepicker">
                                                                     <input type="text" class="form-control">
@@ -628,7 +657,7 @@
                                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                                     </span>
                                                                 </div>
-                                                            </div>
+                                                            </div> --}}
                                                         </div>
                                                     </div>
 
@@ -638,9 +667,9 @@
 
 
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-warning"
-                                                    data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger"
+                                                <button type="button" class="btn btn-warning mobtn" data-dismiss="modal"
+                                                data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn"
                                                     onclick="endMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
@@ -684,15 +713,13 @@
 
         $(document).ready(function () {
 
-            // $('#start_datetimepicker').datetimepicker({
-            //      format: 'DD-MM-YYYY HH:mm',
-            //      useCurrent: true
-            //  });
-            //  $('#end_datetimepicker').datetimepicker({
-            //      format: 'DD-MM-YYYY HH:mm',
-            //      useCurrent: true
-            //  });
-
+            $('.date_place').datetimepicker({
+                "allowInputToggle": true,
+                "showClose": true,
+                "showClear": true,
+                "showTodayButton": true,
+                "format": "DD-MM-YYYY hh:mm",
+            });
 
             loadMaintenances();
             //prepareMaintenanceStatusChartData();
@@ -862,15 +889,15 @@
                         '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i>' +
                         '</a>' +
 
-                        '<a href="#" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_business+','+id_maintenance_job+')">'+
-                        '<i class="fa-solid fa-user"></i>'+
+                        '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_business+','+id_maintenance_job+')">'+
+                        '<i class="fa fa-solid fa-user"></i>'+
                         '</a>'+
 
-                        '<a href="#" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
-                        '<i class="fa-solid fa-play"></i>'+
+                        '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                        '<i class="fa fa-solid fa-play"></i>'+
                         '</a>'+
                         '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business + ',' + id_maintenance_job+')"> '+
-                        '<i class="fa-solid fa-stop"></i>'+
+                        '<i class="fa fa-solid fa-stop"></i>'+
                         '</a>'+
 
 
@@ -1057,7 +1084,7 @@
             }
 
 
-            loadingOverlay.cancelAll();
+            // loadingOverlay.cancelAll();
             $('#err_msg_box_assign_maintenance').css('display' , 'none');
             $('#suc_msg_box_assign_maintenance').css('display' , 'none');
             $('#assignMaintenanceModal').modal('show');
@@ -1154,6 +1181,7 @@
 
         function showStartMaintenanceModal(id_business , id_maintenance){
 
+            $('#start_datetimepicker').val('');
             $('#started_maintenance').val(id_maintenance);
             $('#started_business').val(id_business);
 
@@ -1169,7 +1197,7 @@
             let started_maintenance = $( '#started_maintenance' ).val();
             let started_business = $( '#started_business' ).val();
 
-            let start_date_time = $( '#start_datetimepicker input' ).val();
+            let start_date_time = $( '#start_datetimepicker' ).val();
 
             send( '/maintenance/mgt/start/'+started_maintenance,  {
                 business:started_business,
@@ -1193,7 +1221,10 @@
                 $("#ajx_suc_msg_start").html(message);
                 $("#suc_msg_box_start").css('display' , 'block');
 
-                setTimeout(function() {$('#startMaintenanceModal').modal('hide');}, 3000);
+                setTimeout(function() {
+                    $('#startMaintenanceModal').modal('hide');
+                    loadMaintenances();
+                }, 3000);
 
             }
 
@@ -1205,6 +1236,7 @@
 
         function showEndMaintenanceModal(id_business , id_maintenance){
 
+            $('#end_datetimepicker').val('');
             $('#ended_maintenance').val(id_maintenance);
             $('#ended_business').val(id_business);
 
@@ -1220,7 +1252,7 @@
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let ended_business = $( '#ended_business' ).val();
 
-            let end_date_time = $( '#end_datetimepicker input' ).val();
+            let end_date_time = $( '#end_datetimepicker' ).val();
 
             send( '/maintenance/mgt/end/'+ended_maintenance,  {
                 business:ended_business,
@@ -1244,7 +1276,10 @@
                 $("#ajx_suc_msg_end").html(message);
                 $("#suc_msg_box_end").css('display' , 'block');
 
-                setTimeout(function() {$('#endMaintenanceModal').modal('hide');}, 3000);
+                setTimeout(function() {
+                    $('#endMaintenanceModal').modal('hide');
+                    loadMaintenances();
+                }, 3000);
 
             }
 

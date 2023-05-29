@@ -99,6 +99,9 @@ VALUES ('maintenance.status.chart','/maintenance/statuses/charts','post',1);
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 VALUES ('mgt.maintenance.status.get_data','/maintenance/mgt/statuses/charts','post',1);
 
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.sla.chart','/maintenance/sla/charts','post',1);
+
 
 -- Add base data to initialize package
 INSERT INTO public.maintenance_job_category_ref

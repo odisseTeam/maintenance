@@ -29,6 +29,7 @@ use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
 use Spatie\LaravelRay\Commands\PublishConfigCommand;
+use stdClass;
 use Validator;
 
 class MaintenanceManagementController extends Controller
@@ -483,6 +484,26 @@ class MaintenanceManagementController extends Controller
 
             Log::info("In maintenance package, MaintenanceManagementController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
+            $validator = Validator::make($request->all(), [
+
+                'start_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
+
+            ]);
+
+            if ($validator->fails()) {
+
+                Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtStartMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => $validator,
+                    ]);
+
+            }
+
             if( $request->has('business') and $request->business != null ){
 
 
@@ -510,9 +531,7 @@ class MaintenanceManagementController extends Controller
 
 
             }
-            else{
-                //get maintenance of all businesses
-            }
+
 
             return response()->json(
                 [
@@ -593,6 +612,7 @@ class MaintenanceManagementController extends Controller
 
         //get labels
         $labels = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active',1)->pluck('job_status_name');
+
         $datasets=[];
             $businesses = config('maintenances.businesses_name');
             foreach($businesses as $business){
@@ -606,7 +626,11 @@ class MaintenanceManagementController extends Controller
                     $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
+                    // var_dump($responseObj);
                     //dd($responseObj);
+
+                    //dd($responseObj->result);
+
                     $datasets[$business['business_name']] = $responseObj->result;
 
                 }
@@ -622,12 +646,6 @@ class MaintenanceManagementController extends Controller
             $result = json_encode($data);
 
 
-
-
-
-
-
-
         return response()->json(
             [
             'code' => 'success',
@@ -639,6 +657,8 @@ class MaintenanceManagementController extends Controller
 
 
     }
+
+    /////////////////////////////////////////////////////////////////////////////
 
 
     public function createMaintenance( Request $request)

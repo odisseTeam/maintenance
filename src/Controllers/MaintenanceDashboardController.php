@@ -94,10 +94,19 @@ class MaintenanceDashboardController extends Controller
         join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
-        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident')->
-        leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
-        leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
-        leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
+
+        if( $request->has('assignee') and $request->assignee != null ){
+            $maintenances = $maintenances->
+            leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+            leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
+            leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            $maintenances = $maintenances->where('contractor.name','like', "%".$request->assignee."%");
+        }
+        else{
+            //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+        }
+
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
@@ -115,19 +124,34 @@ class MaintenanceDashboardController extends Controller
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $request->start_date)->format('Y-m-d H:i:s'));
+        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d H:i:s'));
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+
+
+
+        // $maintenaces = $maintenances->distinct()
+        // ->select(
+        //     'maintenance_job.*' ,
+        //     'maintenance_job_category_ref.*' ,
+        //     'maintenance_job_status_ref.*' ,
+        //     'maintenance_job_priority_ref.*',
+        //     'users.*',
+        //     'maintenance_job_sla.*',
+        //     'maintenance_job_sla_ref.*',
+        //     'maintenance_job_sla_ref.*',
+        //     'resident.*'
+        // );
+
 
         if( $request->has('assignee') and $request->assignee != null ){
-            $maintenances = $maintenances->where('contractor.name','like', "%".$request->assignee."%");
+            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
         }
         else{
-            $maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident');
         }
 
-        $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
 
 
 
@@ -135,10 +159,11 @@ class MaintenanceDashboardController extends Controller
 
         foreach($maintenances as $maintenance){
 
+            $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
-            if($maintenance->expected_target_minutes){
-                $time = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $maintenance->job_report_date_time )->addMinutes($maintenance->expected_target_minutes);
-                $maintenance->remain_time = $time->format(SystemDateFormats::getDateTimeFormat());
+
+            if($remain_time){
+                $maintenance->remain_time = $remain_time;
             }
             else{
                 $maintenance->remain_time = '-';
@@ -535,6 +560,52 @@ class MaintenanceDashboardController extends Controller
             'code' => ActionStatusConstants::SUCCESS,
             'message' => trans('maintenance::dashboard.chart_data_prepared'),
             'result' => $result,
+            ]);
+
+
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    public function ajaxPrepareSlaChartData(Request $request){
+
+        $sla_count = ['Expired'=>0,'Not Expired'=>0];
+
+
+        $user = Sentinel::getUser();
+        Log::info("In maintenance package, MaintenanceDashboardController- ajaxPrepareSlaChartData function " . " try to prepare data for widgets  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        $maintenaces = MaintenanceJob::where('maintenance_job_active' , 1)->
+        join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+        join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        where('maintenance_job_status_ref.job_status_code' , '!=' , 'CLOS')->get();
+
+        foreach($maintenaces as $maintenance){
+            $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+            if($remain_time){
+                $date1 =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time);
+                $date2 = Carbon::createFromDate('now');
+                if($date1->gt($date2)){
+                    $sla_count['Not Expired']++;
+                }
+                else{
+                    $sla_count['Expired']++;
+                }
+
+            }
+        }
+
+
+
+
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::dashboard.chart_data_prepared'),
+            'result' => $sla_count,
             ]);
 
 
