@@ -16,7 +16,7 @@ class CreateMaintenanceJobDetailTable extends Migration
         Schema::create('maintenance_job_detail', function (Blueprint $table) {
             $table->increments('id_maintenance_job_detail',true);
             $table->integer('id_maintenance_job')->index('fk_maintenance_job_detail_maintanance_job1_idx');
-            $table->dateTime('maintenance_job_detail_date_time');
+            $table->dateTime('maintenance_job_detail_date_time')->nullable()->default(now());
             $table->integer('id_staff')->nullable();
             $table->text('job_detail_note')->nullable();
             $table->tinyInteger('maintenance_job_detail_active');

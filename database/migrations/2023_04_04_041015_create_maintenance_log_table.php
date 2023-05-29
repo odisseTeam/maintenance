@@ -17,7 +17,7 @@ class CreateMaintenanceLogTable extends Migration
             $table->increments('id_maintenance_log',true);
             $table->integer('id_maintenance_job')->index('fk_maintanance_log_maintanance_job1_idx');
             $table->integer('id_staff')->index('fk_maintanance_log_user1_idx');
-            $table->dateTime('log_date_time');
+            $table->dateTime('log_date_time')->nullable()->default(now());
             $table->text('log_note')->nullable();
             $table->charset = "utf8";
             $table->collation = "utf8_general_ci";

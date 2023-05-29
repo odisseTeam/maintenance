@@ -17,7 +17,7 @@ class CreateMaintenanceJobPriorityHistoryTable extends Migration
             $table->increments('id_maintenance_job_priority_history',true);
             $table->integer('id_maintenance_job')->index('fk_maintenance_job_priority_history_maintanance_job1_idx');
             $table->integer('id_maintenance_job_priority_ref')->index('fk_maintenance_job_priority_history_maintanance_job_priority_ref1_idx');
-            $table->dateTime('priority_start_date_time');
+            $table->dateTime('priority_start_date_time')->nullable()->default(now());
             $table->dateTime('priority_end_date_time')->nullable();
             $table->tinyInteger('maintenance_job_priority_history_active');
             $table->charset = "utf8";

@@ -19,7 +19,7 @@ class CreateHistoricalMaintenanceJobTable extends Migration
             $table->integer('id_saas_client_business')->index('fk_historical_maintanance_job_saas_client_business1_idx');
             $table->integer('id_parent_job')->nullable();
             $table->integer('id_saas_staff_reporter')->index('fk_historical_maintanance_job_user1_idx');
-            $table->dateTime('job_report_date_time');
+            $table->dateTime('job_report_date_time')->nullable()->default(now());
             $table->dateTime('job_start_date_time')->nullable();
             $table->dateTime('job_finish_date_time')->nullable();
             $table->integer('id_maintenance_job_category')->index('fk_historical_maintanance_job_category1_idx');
