@@ -79,7 +79,7 @@
                                                                     <div class="row">
                                                                         @foreach($businesses as $business)
                                                                             <div class="border-checkbox-group border-checkbox-group-danger col-md-3">
-                                                                                <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" checked>
+                                                                                <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@else{{'disabled'}}@endif>
 
                                                                                 <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
                                                                             </div>
@@ -105,6 +105,21 @@
                                                             <div>
                                                                 <div class="box-body card-block" id="div_barChart2">
                                                                     <canvas id="barChart2" style="height:250px"></canvas>
+                                                                </div>
+                                                                <div class="box-body card-block">
+                                                                    <div class="row">
+                                                                        @foreach($businesses as $business)
+                                                                            <div class="border-checkbox-group border-checkbox-group-danger col-md-3">
+                                                                                <input  class="border-checkbox sla_selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@else{{'disabled'}}@endif>
+
+                                                                                <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
+                                                                            </div>
+
+                                                                        @endforeach
+                                                                    </div>
+                                                                    <div class="card-block">
+                                                                        <button type="button" onclick="prepareMaintenanceSlaChartData()" class="btn waves-effect waves-light hor-grd btn-grd-primary sdr-primary">Update</button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -722,12 +737,12 @@
             });
 
             loadMaintenances();
-            //prepareMaintenanceStatusChartData();
+            prepareMaintenanceStatusChartData();
+            prepareMaintenanceSlaChartData();
 
         });
         ///////////////////////////////////////////////////////
         let prepareMaintenanceStatusChartData = function () {
-            // let spinHandle = loadingOverlay.activate();
             var businesses = $('.selected_business:checkbox:checked').map(function() {
                 return this.value;
             }).get();
@@ -737,6 +752,17 @@
             }, 'handleMaintenanceStatusChart', []);
 
         };
+        ///////////////////////////////////////////////////////////////////////////
+        let prepareMaintenanceSlaChartData = function () {
+            var businesses = $('.sla_selected_business:checkbox:checked').map(function() {
+                return this.value;
+            }).get();
+            send( '/maintenance/mgt/sla/charts',  {
+                businesses:businesses,
+            }, 'handleMaintenanceSlaChart', []);
+
+        };
+
         ///////////////////////////////////////////////////////
         function handleMaintenanceStatusChart(){
 
@@ -753,19 +779,41 @@
 
         }
         ///////////////////////////////////////////////////////
+        function handleMaintenanceSlaChart(){
+
+            let res = return_value.code;
+            if(res == "failure"){
+
+            }
+            else{
+                let widget_data = return_value.widget_data;
+                ShowChart2( widget_data);
+
+            }
+
+
+        }
+        ///////////////////////////////////////////////////////
         function ShowChart(widget_data){
-
-
-            //widget_data=JSON.parse(widget_data);
-            // var z = widget_data.datasets;
-            // widget_data.datasets= Object.keys(z)
-            //     .map(function(key) {
-            //         return z[key];
-            //     });
 
 
             var place = document.getElementById("div_barChart").innerHTML = '<canvas id="barChart" width="400" height="200"></canvas>';
             var bar = document.getElementById("barChart").getContext('2d');
+            var myBarChart = new Chart(bar, {
+            type: 'bar',
+            data: widget_data,
+            options: {
+                barValueSpacing: 20
+            }
+            });
+
+        }
+        ///////////////////////////////////////////////////////
+        function ShowChart2(widget_data){
+
+
+            var place = document.getElementById("div_barChart2").innerHTML = '<canvas id="barChart2" width="400" height="200"></canvas>';
+            var bar = document.getElementById("barChart2").getContext('2d');
             var myBarChart = new Chart(bar, {
             type: 'bar',
             data: widget_data,

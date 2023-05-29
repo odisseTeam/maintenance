@@ -203,8 +203,7 @@
                                                     <option value="" >{{trans('maintenance::maintenance.select_category')}}</option>
                                                     @if(isset($maintenance_categories))
                                                     @foreach ($maintenance_categories as $maintenance_category)
-                                                     <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}"
-                                                        @if(($maintenance_category->id_maintenance_job_category_ref == $maintenance_category->id_credit_note_category )||(old('maintenance_category') == $maintenance_category->id_maintenance_job_category_ref)) {{ 'selected' }} @endif>
+                                                     <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}">
                                                         {{ $maintenance_category->job_category_name }}
                                                      </option>
                                                     @endforeach

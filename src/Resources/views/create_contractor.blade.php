@@ -174,9 +174,7 @@
                                         <div class="col-xs-10 col-sm-10 col-md-10">
                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                            <textarea class="form-control" rows="4" name="address_line1" id="address_line1" column="40" >
-                                                @if (old('address_line1')){{old('address_line1')}}@elseif(null==old('_token') && isset($contractor) ){{$contractor->address_line1}} @endif
-                                            </textarea>
+                                            <textarea class="form-control" rows="4" name="address_line1" id="address_line1" column="40" >@if (old('address_line1')){{old('address_line1')}}@elseif(null==old('_token') && isset($contractor) ){{$contractor->address_line1}} @endif</textarea>
                                         </div>
 
                                         </div>
@@ -188,9 +186,7 @@
                                         <div class="col-xs-10 col-sm-10 col-md-10">
                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                            <textarea class="form-control" rows="4" name="address_line2" id="address_line2" column="40" >
-                                                @if (old('address_line2')){{old('address_line2')}}@elseif(null==old('_token') && isset($contractor) ){{$contractor->address_line2}} @endif
-                                            </textarea>
+                                            <textarea class="form-control" rows="4" name="address_line2" id="address_line2" column="40" >@if (old('address_line2')){{old('address_line2')}}@elseif(null==old('_token') && isset($contractor) ){{$contractor->address_line2}} @endif</textarea>
                                         </div>
 
                                         </div>
@@ -203,9 +199,7 @@
                                         <div class="col-xs-10 col-sm-10 col-md-10">
                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                            <textarea class="form-control" rows="4" name="address_line3" id="address_line3" column="40" >
-                                                @if (old('address_line3')){{old('address_line3')}}@elseif(null==old('_token') && isset($contractor) ){{strip_tags($contractor->address_line3)}} @endif
-                                            </textarea>
+                                            <textarea class="form-control" rows="4" name="address_line3" id="address_line3" column="40" >@if (old('address_line3')){{old('address_line3')}}@elseif(null==old('_token') && isset($contractor) ){{strip_tags($contractor->address_line3)}} @endif</textarea>
                                         </div>
 
                                         </div>

@@ -431,44 +431,51 @@ class MaintenanceManagementController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in MaintenanceManagementController- showCreateMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
 
-        try {
+        $businesses = config('maintenances.businesses_name');
 
-            //get all maintenance category
-            $maintenance_category = MaintenanceJobCategoryRef::all();
+        $url = $businesses[0]['maintenance_api_url'].'/api/maintenance/get_data_to_create';
 
+        $params =[
+            'user'=>$user->id,
+        ];
 
-            //get all businesses
-            $saas_client_businesses = SaasClientBusiness::all();
+        $data = Http::get($url,$params);
 
-            //get all maintenance priorities
-            $priorities = MaintenanceJobPriorityRef::all();
-
-            $locations = $this->getMaintainables();;
-
-            $jobs = MaintenanceJob::all();
-
-            return view(
-                'maintenance::mgt_create_maintenance',
-                [
-                          'maintenance_categories' => $maintenance_category,
-                          'saas_client_businesses' => $saas_client_businesses,
-                          'priorities' => $priorities,
-                          'locations' => $locations,
-                          'jobs' => $jobs,
+        $objects = json_decode( $data->body() );
 
 
-                        ]
-            );
+        //get all maintenance category
+        $maintenance_category =$objects->maintenance_category;
 
-        } catch (\Exception $e) {
-            Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
-            . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-            return view('maintenance::mgt_create_maintenance')->with(['error'=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
+        //get all businesses
+        $saas_client_businesses = SaasClientBusiness::all();
 
-        }
+        //get all maintenance priorities
+         //get all maintenance priorities
+         $priorities = $objects->priorities;
+
+         $locations = $objects->locations;
+
+         $jobs = $objects->jobs;
+
+
+//        dd($maintenance_category, $locations, $priorities);
+        return view(
+            'maintenance::mgt_create_maintenance',
+            [
+                        'maintenance_categories' => $maintenance_category,
+                        'saas_client_businesses' => $saas_client_businesses,
+                        'priorities' => $priorities,
+                        'locations' => $locations,
+                        'jobs' => $jobs,
+
+
+                    ]
+        );
+
+
 
 
     }
@@ -626,12 +633,8 @@ class MaintenanceManagementController extends Controller
                     $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
-                    // var_dump($responseObj);
-                    //dd($responseObj);
 
-                    //dd($responseObj->result);
-
-                    $datasets[$business['business_name']] = $responseObj->result;
+                    $datasets[] = $responseObj->result;
 
                 }
             }
@@ -649,7 +652,63 @@ class MaintenanceManagementController extends Controller
         return response()->json(
             [
             'code' => 'success',
-            'widget_data'=>$datasets,
+            'widget_data'=>$data,
+            'labels'=>$labels,
+
+            'message' => trans('maintenance::dashboard.your_data_loaded'),
+            ]);
+
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
+
+
+
+    public Function ajaxGetSlaChartData(Request $request){
+
+
+
+        $user = Sentinel::getUser();
+        $selected_businesses =  $request->businesses; //explode(",", $request->businesses);
+
+
+        //get labels
+        $labels = ['Expired' , 'Not Expired'];
+
+        $datasets=[];
+            $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if(in_array($business['id_saas_client_business'] , $selected_businesses )){
+
+                    $url =$business['maintenance_api_url'].'/api/maintenance/sla/chart_data';
+                    $params =[
+                        'business'=>$business['id_saas_client_business'],
+                    ];
+
+                    $response = Http::post($url,$params);
+
+                    $responseObj = json_decode($response->body());
+
+                    $datasets[] = $responseObj->result;
+
+                }
+            }
+
+
+            $data = new stdClass();
+            $data->labels = $labels;
+            $data->datasets = $datasets;
+
+            // dd($data);
+
+            $result = json_encode($data);
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'widget_data'=>$data,
             'labels'=>$labels,
 
             'message' => trans('maintenance::dashboard.your_data_loaded'),
@@ -696,7 +755,7 @@ class MaintenanceManagementController extends Controller
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
-
+        $datum['user'] = $user->id;
 
         foreach( $datum as $key=>$value){
             $data[] = [
@@ -711,7 +770,12 @@ class MaintenanceManagementController extends Controller
         $options = [
             'multipart' => $data,
         ];
-        $response = $client->post($url, $options);
+        try {
+            $response = $client->post($url, $options);
+
+        }
+        catch(\Exception $e){
+        }
 
 
         /* $req = Http::withoutVerifying()->asForm();
@@ -748,7 +812,7 @@ class MaintenanceManagementController extends Controller
             $response = Http::post($url, $request->all());
         }
  */
-        return $response;
+        return redirect('/maintenance/mgt/create')->withInputs();
 
 
     }

@@ -753,7 +753,7 @@
             }
             else{
                 let status_report = return_value.result;
-                generateChart2( status_report, "div_barChart");
+                generateChart2( status_report, "div_barChart" , "barChart");
 
             }
 

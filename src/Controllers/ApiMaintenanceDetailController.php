@@ -93,10 +93,11 @@ class ApiMaintenanceDetailController extends Controller
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', $request->start_date);
+        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d H:i:s'));
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', $request->end_date);
+        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+
 
 
         if( $request->has('assignee') and $request->assignee != null ){
@@ -760,6 +761,90 @@ class ApiMaintenanceDetailController extends Controller
             array_push($temp_val->backgroundColor, $colour_code[$counter]);
             array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
         }
+
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'message' => trans('maintenance::dashboard.chart_data_prepared'),
+            'result' => $temp_val,
+            ]);
+
+
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    public function getMaintenanceSlaChartData(Request $request){
+
+
+
+
+        $states = ['Expired' , 'Not Expired'];
+        $colour_code = ['rgba(95, 190, 170, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
+
+
+
+
+
+
+
+        $temp_val = new stdClass();
+        $temp_val->label = SaasClientBusiness::find($request->business)->business_name;
+
+        $temp_val->data = [];
+        $temp_val->backgroundColor = [];
+        $temp_val->hoverBackgroundColor = [];
+        $temp_val->status = [];
+
+        // return response()->json(
+        //     [
+        //     'code' => 'success',
+        //     'message' => trans('maintenance::dashboard.chart_data_prepared'),
+        //     'request' => $request->all(),
+        //     'temp_val' => $temp_val,
+        //     ]);
+
+
+        $counter =0;
+        $sla_count = ['Expired'=>0,'Not Expired'=>0];
+
+
+            $maintenaces = MaintenanceJob::where('maintenance_job_active' , 1)->
+            join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+            join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+            join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+            where('maintenance_job_status_ref.job_status_code' , '!=' , 'CLOS')->get();
+
+            foreach($maintenaces as $maintenance){
+                $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+                if($remain_time){
+                    $date1 =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time);
+                    $date2 = Carbon::createFromDate('now');
+                    if($date1->gt($date2)){
+                        $sla_count['Not Expired']++;
+                    }
+                    else{
+                        $sla_count['Expired']++;
+                    }
+
+                }
+            }
+
+            array_push($temp_val->status, 'Expired');
+            array_push($temp_val->data, $sla_count['Expired']);
+            array_push($temp_val->backgroundColor, $colour_code[$counter]);
+            array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
+
+
+            array_push($temp_val->status, 'Not Expired');
+            array_push($temp_val->data, $sla_count['Not Expired']);
+            array_push($temp_val->backgroundColor, $colour_code[$counter]);
+            array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
+
 
 
 
