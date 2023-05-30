@@ -41,7 +41,7 @@ use Odisse\Maintenance\Models\ManintenanceJob;
 
 
 use App\Http\General\UserData;
-
+use Illuminate\Support\Facades\Http;
 use Sentinel;
 use Illuminate\Support\Facades\Validator;
 
@@ -589,6 +589,28 @@ class MaintenanceController extends Controller
               return response()->json([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful')]);
 
           }
+
+
+      }
+
+
+      //api to load residents of location in portal area
+      public function getLocationResidents(Request $request)
+      {
+
+        //TODO fix the problem on hardcoding the business id
+
+
+        // if($request->has('business') and $request->business != null) {
+
+            //get maintenances of specific business
+
+            $businesses = config('maintenances.businesses_name');
+
+            $url =$businesses[0]['maintenance_api_url'].'/api/maintenance/resident_reporter';
+            $response = Http::get($url, $request->all());
+
+            return $response;
 
 
       }

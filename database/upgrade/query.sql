@@ -1,5 +1,6 @@
-INSERT INTO saas_client (client_name,client_code,primary_lang_iso_code,subscription_start_date,subscription_end_date,subscription_status,saas_client_active) VALUES
-	 ('Southdowns Residential Ltd','SDR','en','2018-10-01','2088-10-01',1,1);
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+    VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1);
 
 INSERT INTO saas_client_business (id_saas_client,business_name,saas_client_business_active) VALUES
 	 (1,'SDR - Eastbourne',1);
@@ -105,6 +106,11 @@ VALUES ('maintenance.sla.chart','/maintenance/sla/charts','post',1);
 
 INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 VALUES ('mgt.maintenance.sla.get_data','/maintenance/mgt/sla/charts','post',1);
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1),
+ (null,'maintenance.mgt.resident_reporter','/maintenance/mgt/resident_reporter','post',null,null,1);
 
 -- Add base data to initialize package
 INSERT INTO public.maintenance_job_category_ref
@@ -284,7 +290,7 @@ INSERT INTO public.contractor_location_ref
 
 
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true}' where slug = 'admin';
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true}' where slug = 'admin';
 
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true}' where slug = 'super_admin';
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true}' where slug = 'super_admin';

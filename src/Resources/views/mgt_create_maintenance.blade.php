@@ -717,7 +717,7 @@
             var locations = $('#locations').val();
 
             console.log(locations);
-            send('/maintenance/get/resident_reporter', {
+            send('/maintenance/mgt/resident_reporter', {
                 'locations': locations,
             }, 'handleLoadResidentReporter', []);
         }

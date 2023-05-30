@@ -26,14 +26,17 @@ use Odisse\Maintenance\Models\MaintenanceJobSlaRef;
 use Odisse\Maintenance\Models\MaintenanceJobStatusHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Illuminate\Support\Str;
+use Odisse\Maintenance\App\Traits\MaintenanceDetails;
 use Odisse\Maintenance\Models\MaintenanceJobCategoryRef;
 use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
 
 class ApiMaintenanceMgtController extends Contractor{
 
+    use MaintenanceDetails;
 
     public function saveNewMaintenance( Request $request)
     {
+
 
         $user = User::find($request->user);;
 
@@ -63,6 +66,7 @@ class ApiMaintenanceMgtController extends Contractor{
         //     Log::info($key);
         // }
 
+        Log::info($result['status']);
         if( $result['status'] == 'success')
 
             return response()->json($result, 200);
@@ -464,6 +468,48 @@ class ApiMaintenanceMgtController extends Contractor{
           }
 
           return $locations;
+    }
+
+
+    //api to load residents of location
+    public function getLocationResident(Request $request)
+    {
+        try {
+
+            $rooms = [];
+            $locations = $request->locations;
+
+            Log::info(print_r($request->all(), true));
+            foreach($locations as $location) {
+
+                if(Str::contains($location, 'Room')) {
+
+                    $room_id_part = strtok($location, 'Room');
+                    $rooms[] = $room_id_part;
+                }
+            }
+
+            if(sizeof($rooms) == 0) {
+                $residents = [];
+            } else {
+                $residents = $this->getMaintenanceResidentInfo($rooms);
+            }
+
+            return response()->json(
+                [
+                  'residents'=> $residents,
+                  'message' => trans('maintenance::maintenance.get_resident_was_successful'),
+                ], 200
+            );
+
+        } catch (\Exception $e) {
+            Log::error("in TemplatesController- listTemplates function list templates "
+                .$e->getMessage());
+
+            return response()->json([ 'message' =>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful'), 400]);
+
+        }
+
     }
 }
 

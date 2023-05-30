@@ -99,16 +99,11 @@ class MaintenanceManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->business){
 
-                    $url =$business['maintenance_api_url'].'/api/maintenancelist_details';
-
+                    $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
 
                     $response = Http::post($url,$request->all());
-                    // $response = Http::post($url,[
-                    //     'name' => 'Steve',
-                    // ]);
 
                     $responseObj = json_decode($response->body());
-                    //dd($responseObj);
 
                 }
             }
@@ -116,24 +111,6 @@ class MaintenanceManagementController extends Controller
 
 
         }
-        else{
-            //get maintenance of all businesses
-        }
-
-        // Log::info(" in MaintenanceDashboardController- ajaxLoadMaintenances function " . " try to load maintenances data  ------- by user " . $user->first_name . " " . $user->last_name);
-
-
-
-
-
-        return response()->json(
-            [
-            'code' => 'success',
-            'maintenances'=>$responseObj->maintenances,
-
-            'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
-            ]);
-
 
     }
 
@@ -759,10 +736,26 @@ class MaintenanceManagementController extends Controller
 
         }
 
+        if ($request->has('locations') ) {
+            // get Illuminate\Http\UploadedFile instance
+            $locations = $request->get('locations');
+
+            $index = 1;
+            foreach($locations as $location) {
+                // post request with attachment
+                $data[] = [
+                    'name' => 'locations[]',
+                    'contents' => $location,
+                ] ;
+            }
+
+        }
+
 
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
+        unset($datum['locations']);
         $datum['user'] = $user->id;
 
         foreach( $datum as $key=>$value){
@@ -772,12 +765,12 @@ class MaintenanceManagementController extends Controller
             ];
 
         }
-         dd($data);
 
         $client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
         $options = [
             'multipart' => $data,
         ];
+
         try {
             $response = $client->post($url, $options);
 
@@ -785,43 +778,7 @@ class MaintenanceManagementController extends Controller
         catch(\Exception $e){
         }
 
-
-        /* $req = Http::withoutVerifying()->asForm();
-
-        if ($request->hasFile('files') ) {
-            // get Illuminate\Http\UploadedFile instance
-            $files = $request->file('files');
-
-            $index = 1;
-            foreach($files as $file) {
-                // post request with attachment
-
-                $name = $file->getClientOriginalName();
-                if( file_get_contents($file) == "") continue;
-                $req = $req->attach('attachment'.$index++, file_get_contents($file), $name);
-            }
-
-            $datum =  $request->all() ;
-            unset($datum['files']);
-            unset($datum['_token']);
-
-
-            $data = [];
-            foreach( $datum as $key=>$value){
-                $data[] = [
-                    'name'  => $key,
-                    'contents' => $value
-                ];
-
-            }
-            // dd($data);
-            $response = $req->post($url, $data);
-        } else {
-            $response = Http::post($url, $request->all());
-        }
- */
-        return redirect('/maintenance/mgt/create')->withInputs();
-
+        return redirect('/maintenance/mgt/create')->with(['success' => 'maintenance created']);
 
     }
 

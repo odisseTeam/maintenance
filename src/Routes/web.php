@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Odisse\Maintenance\Controllers\ApiMaintenanceMgtController;
 use Odisse\Maintenance\Controllers\MaintenanceController;
 use Odisse\Maintenance\Controllers\MaintenanceDashboardController;
 use Odisse\Maintenance\Controllers\MaintenanceManagementController;
@@ -31,8 +32,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/sla/charts', [MaintenanceManagementController::class,'ajaxGetSlaChartData']);
            Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
            Route::post('/mgt/new/save', [MaintenanceManagementController::class,'createMaintenance']);
-
-
+           Route::post('/mgt/resident_reporter', [MaintenanceController::class,'getLocationResidents']);
 
         });
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware', 'settingsLoader']],function () {
@@ -106,9 +106,9 @@ Route::middleware(['web','ProxyCAS'])->group(
 
 Route::prefix('api/maintenance/')->group(
     function () {
-        Route::post('save/new', [\Odisse\Maintenance\Controllers\ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
-        Route::get('/get_data_to_create', [\Odisse\Maintenance\Controllers\ApiMaintenanceMgtController::class, 'getDataToCreate']);
-
+        Route::post('save/new', [ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
+        Route::get('/get_data_to_create', [ApiMaintenanceMgtController::class, 'getDataToCreate']);
+        Route::get('/resident_reporter', [ApiMaintenanceMgtController::class,'getLocationResident']);
     }
 );
 
