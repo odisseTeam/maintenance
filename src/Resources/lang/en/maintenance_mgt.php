@@ -7,6 +7,7 @@ return [
     'end_date'  =>  'End Date',
     'search'  =>  'Search',
     'reset'  =>  'Reset',
+    'create_maintenance'  =>  'Create Maintenance',
 
 
 

@@ -66,6 +66,9 @@ class ApiMaintenanceDetailController extends Controller
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
         leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
 
+
+        // $maintenaces = $maintenances->select('maintenance_job.*' , 'maintenance_job_category_ref.*' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' , 'users.*' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' ,'resident.resident_first_name' , 'resident.resident_last_name');
+
         if( $request->has('assignee') and $request->assignee != null ){
             $maintenances = $maintenances->
             leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
@@ -108,17 +111,22 @@ class ApiMaintenanceDetailController extends Controller
         }
 
 
+        // Log::debug($maintenances->toSql());
+
 
         $maintenances = $maintenances->get();
+
 
         $businesses = config('maintenances.businesses_name');
 
 
         foreach($maintenances as $maintenance){
 
-            $maintenance->id_business = $maintenance->id_saas_client_business;
+            $maintenance_obj = MaintenanceJob::find($maintenance->id_maintenance_job);
+
+            $maintenance->id_business = $maintenance_obj->id_saas_client_business;
             foreach($businesses as $business){
-                if($maintenance->id_saas_client_business == $business['id_saas_client_business']){
+                if($maintenance_obj->id_saas_client_business == $business['id_saas_client_business']){
                     $maintenance->business_name = $business['business_name'];
 
                 }
@@ -724,7 +732,7 @@ class ApiMaintenanceDetailController extends Controller
 
 
         $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
-        $colour_code = ['rgba(95, 190, 170, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
+        $colour_code = ['rgba(95, 190, 170, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 216, 0.99)'];
 
 
 
@@ -784,7 +792,7 @@ class ApiMaintenanceDetailController extends Controller
 
 
         $states = ['Expired' , 'Not Expired'];
-        $colour_code = ['rgba(95, 190, 170, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
+        $colour_code = ['rgba(255, 19, 17, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
 
 
 

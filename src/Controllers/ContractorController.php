@@ -247,7 +247,7 @@ class ContractorController extends Controller
 
 
             DB::commit();
-            return redirect()->route('contractor_management_page')->with(ActionStatusConstants::SUCCESS, trans('contractor.contractor_updated'));
+            return redirect()->route('contractor_management_page')->with(ActionStatusConstants::SUCCESS, trans('maintenance::contractor.contractor_updated'));
 
 
         }
@@ -256,7 +256,7 @@ class ContractorController extends Controller
 
             Log::error($e->getMessage());
             DB::rollback();
-            return redirect()->back()->withInput()->with(ActionStatusConstants::ERROR, $e->getMessage());//->with(ActionStatusConstants::ERROR, trans('room_mgt.new_room_not_created'));
+            return redirect()->back()->withInput()->with(ActionStatusConstants::ERROR, trans('maintenance::contractor.contractor_not_updated'));
 
 
         }

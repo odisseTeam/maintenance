@@ -182,7 +182,7 @@
                                                <div class="">
                                                     <div class="form-group">
                                                         <div class="input-group date" id="datetimepicker1" >
-                                                        <input type="text" class="form-control" 
+                                                        <input type="text" class="form-control"
                                                         value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"
                                                         placeholder="{{ trans('maintenance::maintenance.date_time') }}"
                                                         id="maintenance_date" name="maintenance_date"   >
@@ -192,7 +192,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                               
+
                                             </div>
                                         </div>
 
@@ -240,7 +240,7 @@
                                                 <select name="saas_client_business" id="saas_client_business"
                                                     class="form-control select ">
                                                     <option value="">
-                                                        {{ __('maintenance::maintenance.select_saas_client_business') }}
+                                                        {{-- {{ __('maintenance::maintenance.select_saas_client_business') }} --}}
                                                     </option>
                                                     @if (isset($saas_client_businesses))
                                                         @foreach ($saas_client_businesses as $saas_client_business)
@@ -580,11 +580,11 @@
 
             console.log(OldValue);
 
-          
+
 
             loadResidentReporters();
 
-        
+
              $('#datetimepicker1').datetimepicker({
                  format: window._date_time_format,
                  useCurrent: true
@@ -594,11 +594,11 @@
                  format: window._date_time_format,
                  useCurrent: true
              });
-             
-         
+
+
 
         });
-    
+
         ///////////////////////////////////////////////////
 
         $("select[name=resident_reporter]").change(function() {
@@ -700,7 +700,7 @@
                 });
                 $('#resident_reporter').html(htmlValue);
 
-              
+
 
             }
         }

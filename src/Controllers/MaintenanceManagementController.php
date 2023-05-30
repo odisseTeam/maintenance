@@ -460,6 +460,8 @@ class MaintenanceManagementController extends Controller
 
          $jobs = $objects->jobs;
 
+         $businesses = config('maintenances.businesses_name');
+
 
 //        dd($maintenance_category, $locations, $priorities);
         return view(
@@ -467,6 +469,7 @@ class MaintenanceManagementController extends Controller
             [
                         'maintenance_categories' => $maintenance_category,
                         'saas_client_businesses' => $saas_client_businesses,
+                        'businesses' => $businesses,
                         'priorities' => $priorities,
                         'locations' => $locations,
                         'jobs' => $jobs,
@@ -722,6 +725,11 @@ class MaintenanceManagementController extends Controller
 
     public function createMaintenance( Request $request)
     {
+
+        $user = Sentinel::getUser();
+
+
+        // dd("***");
         $business_index = 0;
         $businesses = config('maintenances.businesses_name');
 
@@ -764,7 +772,7 @@ class MaintenanceManagementController extends Controller
             ];
 
         }
-        // dd($data);
+         dd($data);
 
         $client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
         $options = [

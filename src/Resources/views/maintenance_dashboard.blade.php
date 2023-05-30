@@ -788,7 +788,7 @@
             var dataset4 = [];
             var colours4 = [];
 
-            var ref_colors = ['#1A5276' , '#F7DC6F' , '#A9DFBF' , '#BB8FCE' , '#196F3D' , '#994C40' , '#BD1525' , '#24BD15' , '#2215BD' , '#FA033F'];
+            var ref_colors = ['#EE3322','#1A5276' , '#F7DC6F' , '#A9DFBF' , '#BB8FCE' , '#196F3D' , '#994C40' , '#BD1525' , '#24BD15' , '#2215BD' , '#FA033F'];
 
             var counter = 0;
             Object.keys(report).forEach(function(k){
@@ -1179,7 +1179,13 @@
                 $("#ajx_suc_msg_start").html(message);
                 $("#suc_msg_box_start").css('display' , 'block');
 
-                setTimeout(function() {$('#startMaintenanceModal').modal('hide');}, 3000);
+                setTimeout(function() {
+                    $('#startMaintenanceModal').modal('hide');
+                    prepareMaintenanceStatusChartData();
+                    prepareMaintenanceSlaChartData();
+                    loadMaintenances();
+
+            }, 3000);
 
             }
 
@@ -1226,7 +1232,12 @@
                 $("#ajx_suc_msg_end").html(message);
                 $("#suc_msg_box_end").css('display' , 'block');
 
-                setTimeout(function() {$('#endMaintenanceModal').modal('hide');}, 3000);
+                setTimeout(function() {
+                    $('#endMaintenanceModal').modal('hide');
+                    prepareMaintenanceStatusChartData();
+                    prepareMaintenanceSlaChartData();
+                    loadMaintenances();
+                }, 3000);
 
             }
 

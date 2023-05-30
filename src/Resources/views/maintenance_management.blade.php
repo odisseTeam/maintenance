@@ -1271,6 +1271,8 @@
 
                 setTimeout(function() {
                     $('#startMaintenanceModal').modal('hide');
+                    prepareMaintenanceStatusChartData();
+                    prepareMaintenanceSlaChartData();
                     loadMaintenances();
                 }, 3000);
 
@@ -1326,6 +1328,8 @@
 
                 setTimeout(function() {
                     $('#endMaintenanceModal').modal('hide');
+                    prepareMaintenanceStatusChartData();
+                    prepareMaintenanceSlaChartData();
                     loadMaintenances();
                 }, 3000);
 

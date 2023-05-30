@@ -78,5 +78,7 @@ return [
     'contractor_skills_not_updated'=>'Contractor skills not updated',
     'contractor_locations_updated'=>'Contractor locations updated',
     'contractor_locations_not_changed'=>'Contractor locations not updated',
+    'contractor_updated'=>'Contractor updated',
+    'contractor_not_updated'=>'Contractor not updated',
 
 ];

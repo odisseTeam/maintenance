@@ -59,6 +59,7 @@ return [
     'something_wrong_end_status_not_found'=>'Something wrong end status not found',
     'end_maintenance_was_not_successful'=>'End maintenance was not successful',
     'chart_data_prepared'=>'Chart data prepared',
+    'your_maintenances_loaded'=>'Your maintenances loaded',
 
     'create' => 'Create Maintenance',
     'create_job' => 'Create New Job'

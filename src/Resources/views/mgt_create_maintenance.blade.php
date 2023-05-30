@@ -79,301 +79,354 @@
     <!-- Main content -->
     <section class="content">
 
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="box box-primary">
-                    <div class="box-header">
-
-                        <form action="/maintenance/mgt/new/save" method="post" enctype="multipart/form-data">
-                            @csrf
-                            <div class="box-body">
-
-                                <div class="form-group row">
-                                    <div class="col-sm-12 col-xs-12 col-md-12">
 
 
 
 
+    <!-- [ navigation menu ] end -->
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header card">
+            <div class="row align-items-end">
+                <div class="col-lg-8">
+                    <div class="page-header-title">
+                        <i class="feather icon-home bg-c-blue sdr-primary"></i>
+                        <div class="d-inline">
+                            <h5>{{__('maintenance::maintenance_mgt.maintenance_management')}}</h5>
+                            <span>{{__('maintenance::maintenance_mgt.create_maintenance')}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="page-header-breadcrumb">
+                        <ul class=" breadcrumb breadcrumb-title breadcrumb-padding">
+                            <li class="breadcrumb-item">
+                                <a href="index.html"><i class="feather icon-home"></i></a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="/maintenance/management">{{__('maintenance::maintenance_mgt.maintenance_management')}}</a> </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <div class="pcoded-inner-content">
+            <div class="main-body">
+                <div class="page-wrapper">
+                    <div class="page-body">
+                        <!-- [ page content ] start -->
 
-                                        <!-- maintenance title-->
 
-                                        <div class="form-group row">
-                                               <label
-                                                     class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.maintenance_title') }}:</label>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="box box-primary card">
+                                    <div class="box-header card-header">
 
-                                                    <div class="col-xs-10 col-sm-10 col-md-10">
-                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                        <form action="/maintenance/mgt/new/save" method="post" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="box-body card-block">
 
-                                                            <input class="form-control" name="maintenance_title"
-                                                                id="maintenance_title"
-                                                                value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif" />
+                                                <div class="form-group row">
+                                                    <div class="col-sm-12 col-xs-12 col-md-12">
+
+
+                                                        <!-- saas client budiness-->
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.saas_client_business') }}:</label>
+                                                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                                <select name="saas_client_business" id="saas_client_business"
+                                                                    class="form-control select ">
+                                                                    <option value="">
+                                                                        {{ __('maintenance::maintenance.select_saas_client_business') }}
+                                                                    </option>
+                                                                    @if (isset($businesses))
+                                                                        @foreach ($businesses as $business)
+                                                                            <option
+                                                                                value="{{ $business['id_saas_client_business'] }}"
+                                                                                @if (old('saas_client_business') == $business['id_saas_client_business']) {{ 'selected' }} @endif>
+                                                                                {{ $business['business_name'] }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    @else
+                                                                    @endif
+
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
+
+                                                        <!-- maintenance title-->
+
+                                                        <div class="form-group row">
+                                                            <label
+                                                                    class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.maintenance_title') }}:</label>
+
+                                                                    <div class="col-xs-10 col-sm-10 col-md-10">
+                                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+                                                                            <input class="form-control" name="maintenance_title"
+                                                                                id="maintenance_title"
+                                                                                value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif" />
+
+
+                                                                        </div>
+
+
+                                                                    </div>
+
+
+
+                                                        </div>
+                                                        <!-- </div> -->
+
+
+                                                        <!-- description-->
+
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.description') }}:</label>
+                                                            <div class="col-xs-10 col-sm-10 col-md-10">
+                                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+                                                                    <textarea class="form-control" rows="4" name="description" id="description" column="40">{{ null !== old('description') ? old('description'): "" }}</textarea>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- attachments-->
+
+                                                        <div class="form-group row">
+                                                            <label  style="margin-top:10px;"
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.attachments') }}:</label>
+                                                            <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                                                <!-- <div class=" input-group" id="contaner"> -->
+
+
+                                                                <div class="form-group col-sm-3 col-md-3 col-lg-3">
+                                                                    <!-- <label class="control-label col-sm-3 col-md-3 col-lg-3 col-md-offset-1">{{ trans('maintenance::maintenance.file') }}:</label> -->
+                                                                    <div>
+                                                                        <input type="file" id="file" name="files[]" class=""
+                                                                            multiple style="margin-top:10px;">
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.file_description') }}:</label>
+                                                            <div class="col-xs-10 col-sm-10 col-md-10">
+                                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+                                                                    <textarea class="form-control" rows="4" name="file_description" id="file_description" column="40">{{ old('file_description') }}</textarea>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+
+
+
+
+                                                        <!-- datetime -->
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
+                                                            <div class="col-xs-5 col-sm-5 col-md-5">
+
+                                                                <div class="input-group date date_place" id="id_2">
+                                                                    <input type="text" id="maintenance_date" name="maintenance_date" placeholder="{{ trans('maintenance::maintenance.date_time') }}" value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"  class="form-control" name="start_datetimepicker" id="start_datetimepicker">
+                                                                    <div class="input-group-addon input-group-append">
+                                                                        <div class="input-group-text">
+                                                                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                {{-- <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="fa-solid fa-calendar"
+                                                                            onclick="setNow('maintenance_date')"></i>
+                                                                    </span>
+
+                                                                    <input type="text" class="form-control"
+                                                                        onkeydown="event.preventDefault()"
+                                                                        placeholder="{{ trans('maintenance::maintenance.date_time') }}"
+                                                                        autocomplete="off"
+                                                                        value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"
+                                                                        id="maintenance_date" name="maintenance_date">
+                                                                </div> --}}
+                                                            </div>
+                                                        </div>
+
+
+                                                        <!-- category-->
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
+                                                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+
+                                                                <select name="maintenance_category" id="maintenance_category" class="form-control select ">
+                                                                    <option value="" >{{trans('maintenance::maintenance.select_category')}}</option>
+                                                                    @if(isset($maintenance_categories))
+                                                                    @foreach ($maintenance_categories as $maintenance_category)
+                                                                    <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}">
+                                                                        {{ $maintenance_category->job_category_name }}
+                                                                    </option>
+                                                                    @endforeach
+                                                                    @else
+                                                                    @endif
+
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
+
+                                                        <!-- locations-->
+                                                        <div class="form-group row">
+
+                                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
+                                                            <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
+
+
+                                                                <select name="locations[]" id="locations" class="form-control select2"
+                                                                    placeholder="{{ __('maintenance.select_locations') }}"
+                                                                    multiple="multiple" onchange="loadResidentReporters()">
+                                                                    <!-- <option value="">{{ __('maintenance.select_locations') }}</option> -->
+                                                                    @if (isset($locations))
+                                                                        @foreach ($locations as $location)
+                                                                            <option value="{{ $location->id }}"
+                                                                            {{in_array($location->id, old("locations") ?: []) ? "selected": ""}}
+                                                                            >
+                                                                                {{ $location->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    @else
+                                                                    @endif
+
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <!-- priority-->
+
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
+                                                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                                <select name="priority" id="priority" class="form-control select ">
+                                                                    <option value="">
+                                                                        {{ trans('maintenance::maintenance.select_priority') }}</option>
+                                                                    @if (isset($priorities))
+                                                                        @foreach ($priorities as $priority)
+                                                                            <option
+                                                                                value="{{ $priority->id_maintenance_job_priority_ref }}"
+                                                                                @if (old('priority') == $priority->id_maintenance_job_priority_ref) {{ 'selected' }} @endif>
+                                                                                {{ $priority->priority_name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    @else
+                                                                    @endif
+
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <!-- resident reporter-->
+
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.resident_reporter') }}:</label>
+                                                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                                <select name="resident_reporter" id="resident_reporter"
+                                                                    class="form-control select ">
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <input type="hidden" id="previous_resident_value" name="previous_resident_value" />
+
+                                                        <!-- parent job-->
+
+                                                        <!-- <div class="form-group row">
+                                                                    <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.parent_job') }}:</label>
+                                                                    <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                                                        <div class="input-group ">
+
+                                                                            <input class="form-control"  name="parent_job" id="parent_job"  style="display: inline-block;">
+
+                                                                                <span class="input-group-btn" >
+                                                                                    <button class="btn btn-default" type="button" style="display: inline-block;" onclick="showAddParentModal()">{{ trans('maintenance::maintenance.select_parent_job') }}</button>
+                                                                                </span>
+                                                                        </div>
+
+                                                                    </div>
+                                                        </div> -->
+
+
+
+
+                                                        <div class="box-footer text-right">
+
+
+                                                            <a href="/maintenance/management"><button type="button"
+                                                                class="btn btn-warning">{{ trans('maintenance::maintenance.cancel') }}</button></a>
+
+
+
+                                                            <button type="submit" id="save_maintenance"
+                                                                class="btn btn-primary">{{ trans('maintenance::maintenance.save') }}</button>
+
 
 
                                                         </div>
 
 
-                                                    </div>
 
 
 
-                                        </div>
-                                        <!-- </div> -->
+                                        </form>
 
-
-                                        <!-- description-->
-
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.description') }}:</label>
-                                            <div class="col-xs-10 col-sm-10 col-md-10">
-                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
-
-                                                    <textarea class="form-control" rows="4" name="description" id="description" column="40">{{ null !== old('description') ? old('description'): "" }}</textarea>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <!-- attachments-->
-
-                                        <div class="form-group row">
-                                            <label  style="margin-top:10px;"
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.attachments') }}:</label>
-                                            <div class="input-group col-xs-10 col-sm-10 col-md-10">
-                                                <!-- <div class=" input-group" id="contaner"> -->
-
-
-                                                <div class="form-group col-sm-3 col-md-3 col-lg-3">
-                                                    <!-- <label class="control-label col-sm-3 col-md-3 col-lg-3 col-md-offset-1">{{ trans('maintenance::maintenance.file') }}:</label> -->
-                                                    <div>
-                                                        <input type="file" id="file" name="files[]" class=""
-                                                            multiple style="margin-top:10px;">
-
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.file_description') }}:</label>
-                                            <div class="col-xs-10 col-sm-10 col-md-10">
-                                                <div class="input-group col-xs-10 col-sm-10 col-md-10">
-
-                                                    <textarea class="form-control" rows="4" name="file_description" id="file_description" column="40">{{ old('file_description') }}</textarea>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-
-
-
-                                        <!-- datetime -->
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
-                                            <div class="col-xs-5 col-sm-5 col-md-5">
-                                                <div class="input-group">
-                                                    <span class="input-group-addon"><i class="fa-solid fa-calendar"
-                                                            onclick="setNow('maintenance_date')"></i>
-                                                    </span>
-
-                                                    <input type="text" class="form-control"
-                                                        onkeydown="event.preventDefault()"
-                                                        placeholder="{{ trans('maintenance::maintenance.date_time') }}"
-                                                        autocomplete="off"
-                                                        value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"
-                                                        id="maintenance_date" name="maintenance_date">
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- category-->
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
-
-
-
-                                                <select name="maintenance_category" id="maintenance_category" class="form-control select ">
-                                                    <option value="" >{{trans('maintenance::maintenance.select_category')}}</option>
-                                                    @if(isset($maintenance_categories))
-                                                    @foreach ($maintenance_categories as $maintenance_category)
-                                                     <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}">
-                                                        {{ $maintenance_category->job_category_name }}
-                                                     </option>
-                                                    @endforeach
-                                                    @else
-                                                    @endif
-
-
-                                                </select>
-
-
-                                            </div>
-                                        </div>
-
-
-                                        <!-- saas client budiness-->
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.saas_client_business') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
-
-
-                                                <select name="saas_client_business" id="saas_client_business"
-                                                    class="form-control select ">
-                                                    <option value="">
-                                                        {{ __('maintenance::maintenance.select_saas_client_business') }}
-                                                    </option>
-                                                    @if (isset($saas_client_businesses))
-                                                        @foreach ($saas_client_businesses as $saas_client_business)
-                                                            <option
-                                                                value="{{ $saas_client_business->id_saas_client_business }}"
-                                                                @if (old('saas_client_business') == $saas_client_business->id_saas_client_business) {{ 'selected' }} @endif>
-                                                                {{ $saas_client_business->business_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    @else
-                                                    @endif
-
-
-                                                </select>
-
-
-                                            </div>
-                                        </div>
-
-                                        <!-- locations-->
-                                        <div class="form-group row">
-
-                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
-
-
-                                                <select name="locations[]" id="locations" class="form-control select2"
-                                                    placeholder="{{ __('maintenance.select_locations') }}"
-                                                    multiple="multiple" onchange="loadResidentReporters()">
-                                                    <!-- <option value="">{{ __('maintenance.select_locations') }}</option> -->
-                                                    @if (isset($locations))
-                                                        @foreach ($locations as $location)
-                                                            <option value="{{ $location->id }}"
-                                                            {{in_array($location->id, old("locations") ?: []) ? "selected": ""}}
-                                                            >
-                                                                {{ $location->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    @else
-                                                    @endif
-
-
-                                                </select>
-
-
-                                            </div>
-                                        </div>
-
-
-                                        <!-- priority-->
-
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
-
-
-                                                <select name="priority" id="priority" class="form-control select ">
-                                                    <option value="">
-                                                        {{ trans('maintenance::maintenance.select_priority') }}</option>
-                                                    @if (isset($priorities))
-                                                        @foreach ($priorities as $priority)
-                                                            <option
-                                                                value="{{ $priority->id_maintenance_job_priority_ref }}"
-                                                                @if (old('priority') == $priority->id_maintenance_job_priority_ref) {{ 'selected' }} @endif>
-                                                                {{ $priority->priority_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    @else
-                                                    @endif
-
-
-                                                </select>
-
-
-                                            </div>
-                                        </div>
-
-
-                                        <!-- resident reporter-->
-
-                                        <div class="form-group row">
-                                            <label
-                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.resident_reporter') }}:</label>
-                                            <div class="col-sm-5 col-md-5 col-lg-5">
-
-
-                                                <select name="resident_reporter" id="resident_reporter"
-                                                    class="form-control select ">
-
-                                                </select>
-
-
-                                            </div>
-                                        </div>
-
-
-                                        <input type="hidden" id="previous_resident_value" name="previous_resident_value" />
-
-                                        <!-- parent job-->
-
-                                        <!-- <div class="form-group row">
-                                                    <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.parent_job') }}:</label>
-                                                    <div class="col-sm-5 col-md-5 col-lg-5">
-
-                                                        <div class="input-group ">
-
-                                                            <input class="form-control"  name="parent_job" id="parent_job"  style="display: inline-block;">
-
-                                                                <span class="input-group-btn" >
-                                                                    <button class="btn btn-default" type="button" style="display: inline-block;" onclick="showAddParentModal()">{{ trans('maintenance::maintenance.select_parent_job') }}</button>
-                                                                </span>
-                                                        </div>
-
-                                                    </div>
-                                        </div> -->
-
-
-
-
-                                        <div class="box-footer text-right">
-
-
-                                            <a href="/maintenance/dashboard"><button type="button"
-                                                class="btn btn-warning">{{ trans('maintenance::maintenance.cancel') }}</button></a>
-
-
-
-                                            <button type="submit" id="save_maintenance"
-                                                class="btn btn-primary">{{ trans('maintenance::maintenance.save') }}</button>
-
-
-
-                                        </div>
-
-
-
-
-
-                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
     </section>
     <!-- /.content -->
@@ -573,53 +626,13 @@
 
             loadResidentReporters();
 
-            //Date picker
-            $('#maintenance_date').daterangepicker({
-                timePicker: true,
-                timePickerIncrement: 30,
-                singleDatePicker: true,
-                timePickerSeconds: false,
-                timePicker24Hour:true,
-                showDropdowns: true,
-                // minYear: 2000,
-                format: window._date_time_format,
 
-                timePickerIncrement: 5,
-                locale: {
-                    format: window._date_time_format,
-                    separator: "/",
-                    applyLabel: "Apply",
-                    cancelLabel: "Cancel",
-                    fromLabel: "From",
-                    toLabel: "To",
-                    customRangeLabel: "Custom",
-                    weekLabel: "W",
-                    daysOfWeek: [
-                        "Su",
-                        "Mo",
-                        "Tu",
-                        "We",
-                        "Th",
-                        "Fr",
-                        "Sa"
-                    ],
-                    monthNames: [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December"
-                    ],
-                    firstDay: 1
-
-                }
+            $('.date_place').datetimepicker({
+                "allowInputToggle": true,
+                "showClose": true,
+                "showClear": true,
+                "showTodayButton": true,
+                "format": "DD-MM-YYYY hh:mm",
             });
 
         });
@@ -648,6 +661,44 @@
             $("#attachFileModal").modal('show');
 
         }
+                ///////////////////////////////////////////////////////
+                function send( url , data , name, parameters ) {
+            return_value = null;
+            $.ajax({
+                'type': "POST",
+                'global': false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content')
+                },
+                'dataType': 'json',
+                'url': url,
+                'data': data,
+                'success': function (data) {
+                    callback(data , name , parameters );
+                },
+                'error': function(xhr, ajaxOptions, thrownError, ) {
+
+                    alert(xhr.responseJSON.message);
+                    //todo hanle error
+                    callback(data , name , parameters );
+                }
+            });
+        }
+        /////////////////////////////////////////////////////////
+
+        function callback(response , name, parameters ) {
+            return_value = response;
+
+            var fn = window[name];
+            if(typeof fn !== 'function')
+                return;
+
+            fn.apply(window, parameters);
+
+            //use return_first variable here
+        }
+
+
         ////////////////////////////////////////////////////////////
         function submitAttachMaintenanceDocument() {
             console.log('fgui');
