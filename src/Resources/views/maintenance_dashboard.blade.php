@@ -1314,6 +1314,8 @@
             }
 
             else{
+                $('#err_msg_box_end').css('display' , 'none');
+
                 $("#ajx_suc_msg_end").html(message);
                 $("#suc_msg_box_end").css('display' , 'block');
 

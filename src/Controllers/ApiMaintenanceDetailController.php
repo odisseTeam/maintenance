@@ -24,6 +24,7 @@ use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use stdClass;
 use Validator;
+use Sentinel;
 
 
 class ApiMaintenanceDetailController extends Controller
@@ -398,6 +399,8 @@ class ApiMaintenanceDetailController extends Controller
 
             $staff_user = User::where('email' , $request->staff_user)->first();
             if($staff_user){
+                $user = Sentinel::findById($staff_user->id);
+                Sentinel::login($user);
                 $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->where('id_saas_client_business' , $staff_user->id_saas_client_business)->get();
             }
             else{
@@ -644,7 +647,8 @@ class ApiMaintenanceDetailController extends Controller
 
                 if($staff_user){
 
-
+                    $user = Sentinel::findById($staff_user->id);
+                    Sentinel::login($user);
                     //insert into maintenance_job_staff table
                     $maintenance_log = new MaintenanceLog([
                         'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
@@ -756,7 +760,7 @@ class ApiMaintenanceDetailController extends Controller
 
             $validator = Validator::make($request->all(), [
 
-                'start_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_javascript'),
+                'start_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_validation'),
 
             ]);
 
@@ -776,6 +780,8 @@ class ApiMaintenanceDetailController extends Controller
 
             $staff_user = User::where('email' , $request->staff_user)->first();
             if($staff_user){
+                $user = Sentinel::findById($staff_user->id);
+                Sentinel::login($user);
                 $result = $this->startMaintenance($staff_user->id ,$request->maintenance ,$request->start_date_time);
 
             }
@@ -859,6 +865,7 @@ class ApiMaintenanceDetailController extends Controller
 
             }
 
+            Log::info("after validation");
 
             $maintenance = MaintenanceJob::find($request->maintenance);
 
@@ -878,6 +885,8 @@ class ApiMaintenanceDetailController extends Controller
 
             }
 
+            Log::info("one");
+
             if(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_validation'), $maintenance->job_start_date_time)->gt(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_validation'), $request->end_date_time))){
 
                 Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". 'maintenance start date is after maintenance end date! ');
@@ -890,12 +899,19 @@ class ApiMaintenanceDetailController extends Controller
 
             }
 
+            Log::info("two"  . $request->staff_user);
             $staff_user = User::where('email' , $request->staff_user)->first();
+
             if($staff_user){
+                $user = Sentinel::findById($staff_user->id);
+                Sentinel::login($user);
+                Log::info("three");
                 $result = $this->endMaintenance($staff_user->id ,$request->maintenance ,$request->end_date_time);
 
             }
             else{
+
+                Log::info("four");
 
                 //get api user
                 $api_user = User::where('email' , 'api.user@sdr.uk')->first();
@@ -915,7 +931,7 @@ class ApiMaintenanceDetailController extends Controller
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error($e->getMessage() . " " . $e->getLine() );
             $message = $e->getMessage();//trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
             $status = APIStatusConstants::BAD_REQUEST;
 

@@ -126,19 +126,21 @@ trait MaintenanceOperation
             DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'CLOS' )->where('maintenance_job_status_ref_active' , 1)->first();
+            Log::info("e");
             if($status){
 
-
+                Log::info("e1");
                 $maintenance = MaintenanceJob::find($id_maintenance);
+                Log::info("e5");
                 $maintenance->update([
                     'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
                     'job_finish_date_time' => $end_datetime,
                 ]);
-
+                Log::info("e6");
 
               $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
               $HistoricalMaintenanceManager->insertHistory($maintenance);
-
+              Log::info("e2");
 
                 $now = Carbon::createFromDate('now');
 
@@ -151,13 +153,13 @@ trait MaintenanceOperation
 
                 ]);
                 $maintenance_log->save();
-
+                Log::info("e3");
 
                 $old_maintenance_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job' , $maintenance->id_maintenance_job )->whereNull('maintenance_status_end_date_time')->first();
                 $old_maintenance_status_history->update([
                     'maintenance_status_end_date_time'  =>  $now->format(SystemDateFormats::getDateTimeFormat()),
                 ]);
-
+                Log::info("e4");
 
                 $maintenance_status_history = new MaintenanceJobStatusHistory([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
@@ -189,7 +191,7 @@ trait MaintenanceOperation
         } catch (\Exception $e) {
 
 
-            Log::error($e->getMessage());
+            Log::error($e->getMessage() . $e->getLine());
             DB::rollback();
 
 
