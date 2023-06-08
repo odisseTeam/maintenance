@@ -23,6 +23,8 @@ use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use stdClass;
+use Validator;
+
 
 class ApiMaintenanceDetailController extends Controller
 {
@@ -96,10 +98,15 @@ class ApiMaintenanceDetailController extends Controller
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d H:i:s'));
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_start_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_start_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 23:59:59'));
+
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
 
 
 
@@ -136,7 +143,7 @@ class ApiMaintenanceDetailController extends Controller
 
             $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
 
-            $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+            $remain_time = $this->calculateSlaRemainTime($request->business , $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
             if($remain_time){
                 $maintenance->remain_time = $remain_time;
@@ -389,8 +396,53 @@ class ApiMaintenanceDetailController extends Controller
             Log::info("Call API :: MaintenanceDetailController - getMaintenanceListDetail function");
 
 
-            $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
-            $contractors = Contractor::where('contractor_active' , 1)->get();
+            $staff_user = User::where('email' , $request->staff_user)->first();
+            if($staff_user){
+                $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->where('id_saas_client_business' , $staff_user->id_saas_client_business)->get();
+            }
+            else{
+
+                //get api user
+                $api_user = User::where('email' , 'api.user@sdr.uk')->first();
+                $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->where('id_saas_client_business' , $api_user->id_saas_client_business)->get();
+
+
+            }
+
+            $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $request->maintenance)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
+            join('room' , 'maintainable.maintenable_id' , 'room.id_room')->
+            join('property' , 'room.id_property' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+            })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+            // join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->where('contractor_location_ref.contractor_location_ref_active' , 1)->
+            // where('contractor_location_ref.location' , 'city.name')->select('contractor.*')->get()->toArray();
+
+            $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $request->maintenance)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
+            join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+            })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+            // join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->where('contractor_location_ref.contractor_location_ref_active' , 1)->
+            // where('contractor_location_ref.location' , 'city.name')->select('contractor.*');//->get()->toArray();
+
+
+            // dd($property_contractors);
+
+            $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+
+
+            //$contractors = Contractor::where('contractor_active' , 1)->get();
 
 
 
@@ -512,6 +564,29 @@ class ApiMaintenanceDetailController extends Controller
         try {
 
 
+            $validator = Validator::make($request->all(), [
+
+                'business' => 'required|numeric',
+                'maintenance' => 'required|numeric',
+                'user' => 'required|numeric',
+
+            ]);
+
+            if ($validator->fails()) {
+
+                Log::error("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function ".": ". $validator->errors());
+
+
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => $validator->errors(),
+                    ]);
+
+            }
+
+
 
 
             Log::info("Call API :: ApiMaintenanceDetailController - assignMaintenanceToUser function");
@@ -565,17 +640,41 @@ class ApiMaintenanceDetailController extends Controller
                 ]);
                 $maintenance_staff->save();
 
+                $staff_user = User::where('email' , $request->staff_user)->first();
+
+                if($staff_user){
+
+
+                    //insert into maintenance_job_staff table
+                    $maintenance_log = new MaintenanceLog([
+                        'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                        'id_staff'    =>  $staff_user->id,
+                        'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
+
+                    ]);
+                    $maintenance_log->save();
+
+
+                }
+                else{
+
+                    //get api user
+                    $api_user = User::where('email' , 'api.user@sdr.uk')->first();
 
 
                 //insert into maintenance_job_staff table
                 $maintenance_log = new MaintenanceLog([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_staff'    =>  $request->staff_user,
+                    'id_staff'    =>  $api_user->id,
                     'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
                     'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
 
                 ]);
                 $maintenance_log->save();
+
+
+                }
 
 
 
@@ -653,8 +752,44 @@ class ApiMaintenanceDetailController extends Controller
         // }
             Log::info("Call API :: ApiMaintenanceDetailController - deleteMaintenance function");
 
+            try{
 
-            $result = $this->startMaintenance($request->staff_user ,$request->maintenance ,$request->start_date_time);
+            $validator = Validator::make($request->all(), [
+
+                'start_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_javascript'),
+
+            ]);
+
+            if ($validator->fails()) {
+
+                Log::error("In maintenance package, ApiMaintenanceDetailController- startMaintenanceApi function ".": ". $validator->errors());
+
+
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => $validator->errors(),
+                    ]);
+
+            }
+
+            $staff_user = User::where('email' , $request->staff_user)->first();
+            if($staff_user){
+                $result = $this->startMaintenance($staff_user->id ,$request->maintenance ,$request->start_date_time);
+
+            }
+            else{
+
+                //get api user
+                $api_user = User::where('email' , 'api.user@sdr.uk')->first();
+                $result = $this->startMaintenance($api_user->id ,$request->maintenance ,$request->start_date_time);
+
+
+            }
+
+
+
 
 
             return response()->json(
@@ -662,6 +797,18 @@ class ApiMaintenanceDetailController extends Controller
                   'code' => $result['code'],
                   'message' => $result['message'],
                 ]);
+
+
+
+            }
+            catch(\Exception $e){
+
+                return response()->json([
+                    'code'=> 'failure',
+                    'message'=>$e->getMessage(),
+                ]);
+
+            }
 
 
 
@@ -692,10 +839,70 @@ class ApiMaintenanceDetailController extends Controller
         //         ]
         //     );
         // }
-            Log::info("Call API :: ApiMaintenanceDetailController - deleteMaintenance function");
+            Log::info("Call API :: ApiMaintenanceDetailController - endMaintenanceApi function");
+
+            $validator = Validator::make($request->all(), [
+
+                'end_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_validation'),
+
+            ]);
+
+            if ($validator->fails()) {
+
+                Log::error("In maintenance package, ApiMaintenanceDetailController- endMaintenanceApi function ".": ". $validator->errors());
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => $validator->errors(),
+                    ]);
+
+            }
 
 
-            $result = $this->endMaintenance($request->staff_user ,$request->maintenance ,$request->end_date_time);
+            $maintenance = MaintenanceJob::find($request->maintenance);
+
+            if(!$maintenance->job_start_date_time){
+
+
+                Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". 'maintenance start date must have start date for this action! ' );
+
+
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => trans('maintenance::dashboard.maintenance_must_have_start_date_for_this_action'),
+                    ]);
+
+
+            }
+
+            if(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_validation'), $maintenance->job_start_date_time)->gt(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_validation'), $request->end_date_time))){
+
+                Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". 'maintenance start date is after maintenance end date! ');
+
+                return response()->json(
+                    [
+                    'code' => 'failure',
+                    'message' => trans('maintenance::dashboard.start_date_is_after_end_date'),
+                    ]);
+
+            }
+
+            $staff_user = User::where('email' , $request->staff_user)->first();
+            if($staff_user){
+                $result = $this->endMaintenance($staff_user->id ,$request->maintenance ,$request->end_date_time);
+
+            }
+            else{
+
+                //get api user
+                $api_user = User::where('email' , 'api.user@sdr.uk')->first();
+                $result = $this->endMaintenance($api_user->id ,$request->maintenance ,$request->end_date_time);
+
+
+            }
 
 
             return response()->json(
@@ -709,19 +916,21 @@ class ApiMaintenanceDetailController extends Controller
         } catch (\Exception $e) {
 
             Log::error($e->getMessage());
-            $message = trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
+            $message = $e->getMessage();//trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
             $status = APIStatusConstants::BAD_REQUEST;
-            $$maintenances=null;
+
+            return response()->json(
+                [
+                    'code'=>'failure',
+                    'status' => $status,
+                    'message'   => $message,
+                ]
+            );
 
 
         }
 
-        return response()->json(
-            [
-                'status' => $status,
-                'message'   => $message,
-            ]
-        );
+
     }
 
 
@@ -791,7 +1000,7 @@ class ApiMaintenanceDetailController extends Controller
 
 
 
-        $states = ['Expired' , 'Not Expired'];
+        $states = ['Expired' ,'Near to Expire' , 'Not Expired'];
         $colour_code = ['rgba(255, 19, 17, 0.99)' , 'rgba(26, 188, 156, 0.88)' , 'rgba(93, 156, 236, 0.93)', 'rgba(0, 255, 236, 0.99)', 'rgba(100, 25, 126, 0.99)', 'rgba(10, 25, 16, 0.99)'];
 
 
@@ -818,7 +1027,7 @@ class ApiMaintenanceDetailController extends Controller
 
 
         $counter =0;
-        $sla_count = ['Expired'=>0,'Not Expired'=>0];
+        $sla_count = ['Expired'=>0,'Near to Expire'=>0,'Not Expired'=>0];
 
 
             $maintenaces = MaintenanceJob::where('maintenance_job_active' , 1)->
@@ -828,22 +1037,40 @@ class ApiMaintenanceDetailController extends Controller
             where('maintenance_job_status_ref.job_status_code' , '!=' , 'CLOS')->get();
 
             foreach($maintenaces as $maintenance){
-                $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+                $remain_time = $this->calculateSlaRemainTime($request->business , $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+
                 if($remain_time){
                     $date1 =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time);
                     $date2 = Carbon::createFromDate('now');
-                    if($date1->gt($date2)){
-                        $sla_count['Not Expired']++;
-                    }
-                    else{
+                    $date3 = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() ,$maintenance->job_report_date_time);
+
+                    if($date2->gt($date1)){
                         $sla_count['Expired']++;
                     }
+                    else{
+                        $sla_show_percent_passed = false;
+                        $sla_show_percent_passed = $this->isPassedSlaShowPercent($request->business,$maintenance->expected_target_minutes, $date3 , $date2);
+                        if($sla_show_percent_passed){
+                            $sla_count['Near to Expire']++;
+                        }
+                        else{
+                            $sla_count['Not Expired']++;
+                        }
+                    }
+
 
                 }
             }
 
             array_push($temp_val->status, 'Expired');
             array_push($temp_val->data, $sla_count['Expired']);
+            array_push($temp_val->backgroundColor, $colour_code[$counter]);
+            array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
+
+
+
+            array_push($temp_val->status, 'Near to Expire');
+            array_push($temp_val->data, $sla_count['Near to Expire']);
             array_push($temp_val->backgroundColor, $colour_code[$counter]);
             array_push($temp_val->hoverBackgroundColor, $colour_code[$counter++]);
 

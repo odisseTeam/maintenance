@@ -369,7 +369,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
-                    <button type="button" class="btn btn-primary"
+                    <button type="button" class="btn btn-primary" id="change_skill_btn"
                          onclick="changeContractorSkill()">{{trans('maintenance::contractor.save')}}</button>
                 </div>
 
@@ -433,7 +433,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::contractor.cancel')}}</button>
-                    <button type="button" class="btn btn-primary"
+                    <button type="button" class="btn btn-primary"  id="change_location_btn"
                          onclick="changeContractorLocation()">{{trans('maintenance::contractor.save')}}</button>
                 </div>
 
@@ -720,6 +720,8 @@
             let email = $('#email' ).val();
             let password = $('#password' ).val();
             let password_confirmation = $('#confirm_password' ).val();
+            $("#save_contractor").attr('disabled','disabled');
+
 
 
             send( '/maintenance/contractor/login_settings/change',  {
@@ -748,6 +750,8 @@
                 }
                 $("#ajx_err_msg_login_setting").html(x);
                 $("#err_msg_box_login_setting").css('display' , 'block');
+                $("#save_contractor").removeAttr('disabled');
+
             }
             else{
                 $("#ajx_suc_msg_login_setting").html(message);
@@ -879,6 +883,8 @@
             }
 
             $("#change_skill_contractor").val(id_contractor);
+            $("#change_skill_btn").removeAttr('disabled');
+
 
             $("#err_msg_box_skill").css('display' , 'none');
             $("#suc_msg_box_skill").css('display' , 'none');
@@ -896,6 +902,8 @@
 
             let change_skill_contractor = $('#change_skill_contractor' ).val();
             let skills = $('select#skill').val();
+            $("#change_skill_btn").attr('disabled','disabled');
+
 
 
 
@@ -923,6 +931,8 @@
                 }
                 $("#ajx_err_msg_skill").html(x);
                 $("#err_msg_box_skill").css('display' , 'block');
+                $("#change_skill_btn").removeAttr('disabled');
+
             }
             else{
                 $("#ajx_suc_msg_skill").html(message);
@@ -997,6 +1007,8 @@
             });
 
             $('#location').multiselect("clearSelection");
+            $("#change_location_btn").removeAttr('disabled');
+
 
 
 
@@ -1068,6 +1080,8 @@
 
             let change_location_contractor = $('#change_location_contractor' ).val();
             let locations = $('select#location').val();
+            $("#change_location_btn").attr('disabled','disabled');
+
 
 
 
@@ -1095,6 +1109,8 @@
                 }
                 $("#ajx_err_msg_location").html(x);
                 $("#err_msg_box_location").css('display' , 'block');
+                $("#change_location_btn").removeAttr('disabled');
+
             }
             else{
                 $("#ajx_suc_msg_location").html(message);

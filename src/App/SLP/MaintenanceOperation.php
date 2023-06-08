@@ -1,6 +1,7 @@
 <?php
 namespace Odisse\Maintenance\App\SLP;
 
+use App\SLP\Com\Configuration\SaasClientBusinessConfiguration;
 use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
 use Odisse\Maintenance\Models\MaintenanceJob;
@@ -8,7 +9,9 @@ use Odisse\Maintenance\Models\MaintenanceJobStatusHistory;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalMaintenanceManager;
 
 /**
  * Created by PhpStorm.
@@ -42,6 +45,9 @@ trait MaintenanceOperation
                     'job_finish_date_time' => null,
                 ]);
 
+
+              $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
+              $HistoricalMaintenanceManager->insertHistory($maintenance);
                 $now = Carbon::createFromDate('now');
 
 
@@ -129,6 +135,11 @@ trait MaintenanceOperation
                     'job_finish_date_time' => $end_datetime,
                 ]);
 
+
+              $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
+              $HistoricalMaintenanceManager->insertHistory($maintenance);
+
+
                 $now = Carbon::createFromDate('now');
 
 
@@ -198,21 +209,110 @@ trait MaintenanceOperation
 
 
 
-    private function calculateSlaRemainTime($id_maintenance , $job_report_date_time ,$expected_target_minutes ){
+    private function calculateSlaRemainTime($id_saas_client_business,$id_maintenance , $job_report_date_time ,$expected_target_minutes ){
 
         $maintenance = MaintenanceJob::find($id_maintenance);
         if(!$maintenance){
             return null;
         }
 
+        $now = Carbon::createFromDate('now');
+        $holiday_objs = $this->getHolidaysOfBusiness($id_saas_client_business , $now->format('Y'));
+        $holidays=[];
+        foreach($holiday_objs as $obj){
+            $holidays[] = $obj->calendar_date;
+        }
+
+
         if($expected_target_minutes){
-                $time = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $job_report_date_time )->addMinutes($expected_target_minutes);
-                return $time->format(SystemDateFormats::getDateTimeFormat());
+            $expected_target_hour = $expected_target_minutes /60;
+            $days_count = $expected_target_hour/ 8 ;
+            $base_date_time = $job_report_date_time;
+            $counter=1;
+            while($counter<=$days_count){
+                $base_date_time =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $base_date_time)->addDay()->format(SystemDateFormats::getDateTimeFormat());
+
+
+                if(in_array(Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $base_date_time)->format('Y-m-d'), $holidays)){
+                    //if day is holiday
+                }
+                else{
+                    //if day is not holiday
+                    $counter++;
+
+                }
+
+
+            }
+
+            $minute_count = (fmod($expected_target_hour , 8) * 60) + (fmod($expected_target_minutes ,60));
+            $base_date_time =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $base_date_time)->addMinutes($minute_count);
+
+            return $base_date_time->format(SystemDateFormats::getDateTimeFormat());
         }
         else{
             return null;
 
         }
+
+    }
+
+
+    private function getDateTimeFormat($key_format){
+
+        $dates_format = [
+
+            'date_format' => 'm/d/Y',
+            'date_format_javascript' => 'mm/dd/yyyy',
+            'date_format_moment' => 'MMM/DD/yyyy',
+            'date_format_vue' => 'MMM/dd/yyyy',
+
+            'date_time_format_moment' => 'mm/DD/yyyy HH:mm:ss',
+            'date_time_format' => 'd-m-Y H:i:s',
+            'date_time_format_validation' => 'd-m-Y H:i',
+            'date_time_format_javascript' => 'DD-MM-YYYY H:i',
+            'date_time_format_vue' => 'DD-MM-YYYY H:i',
+        ];
+
+
+        return $dates_format[$key_format];
+    }
+
+
+
+    private function getHolidaysOfBusiness($id_saas_client_business ,$year , $api_url='https://living.odisse.local/api/get_holidays'){
+
+
+        $params =[
+            'year'=>$year,
+            'id_saas_client_business'=>$id_saas_client_business,
+        ];
+
+
+        $response = Http::post($api_url,$params);
+
+        $responseObj = json_decode($response->body());
+        if($responseObj){
+            return $responseObj->holidays;
+        }
+        return null;
+
+
+    }
+
+
+    private function isPassedSlaShowPercent($id_saas_client_business , $sla_minutes, $first_date_time  , $source_date_time){
+
+        $configs = new SaasClientBusinessConfiguration($id_saas_client_business);
+        $sla_show_percent = $configs->getSlaShowPercent();
+
+        $percent = ($first_date_time->diffInMinutes($source_date_time) * 100 )/$sla_minutes;
+
+
+        if($percent>$sla_show_percent)
+            return true;
+
+        return false;
 
     }
 

@@ -15,5 +15,6 @@ return [
     'delete_maintenance_was_successful'  =>  'Delete maintenance was successful',
     'delete_maintenance_was_unsuccessful'  =>  'Delete maintenance was unsuccessful',
     'load_maintenances_successfully'  =>  'load maintenances done successfully',
+    'end_maintenance_was_unsuccessful'  =>  'End maintenace was unsuccessful',
 
 ];

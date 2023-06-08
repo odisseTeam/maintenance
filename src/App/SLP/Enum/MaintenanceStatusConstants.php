@@ -8,11 +8,11 @@ namespace Odisse\Maintenance\App\SLP\Enum;
  */
 class MaintenanceStatusConstants
 {
-    public const OPNU = 1;
-    public const OPNA = 2;
+    public const OPUN = 1;
+    public const OPAS = 2;
     public const HOLD = 3;
-    public const PROG = 4;
-    public const CLSD = 5;
+    public const INPR = 4;
+    public const CLOS = 5;
 
 
 }

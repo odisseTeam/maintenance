@@ -512,16 +512,16 @@
 
                                 <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
                                     <option value="">{{trans('maintenance::dashboard.select_business_contractor')}}</option>
-                                    @foreach ($businesses as $business)
+                                     {{-- @foreach ($businesses as $business)
                                      <option value="B{{ $business->id_saas_client_business }}">
                                         {{ $business->business_name }}
                                      </option>
-                                    @endforeach
-                                    @foreach ($contractors as $contractor)
+                                    @endforeach --}}
+                                    {{-- @foreach ($contractors as $contractor)
                                      <option value="C{{ $contractor->id_contractor }}">
                                         {{ $contractor->name }}
                                      </option>
-                                    @endforeach
+                                    @endforeach --}}
 
 
 
@@ -566,7 +566,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-danger" id="assign_maintenance_btn"
                          onclick="assignMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                 </div>
 
@@ -623,7 +623,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-danger" id="start_maintenance_btn"
                          onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                 </div>
 
@@ -679,7 +679,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning"
                         data-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-danger" id="end_maintenance_btn"
                          onclick="endMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                 </div>
 
@@ -949,7 +949,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] },{ "width": "20%", "targets": 11 }
                 ]
             });
 
@@ -1050,10 +1050,57 @@
 
         function showAssignMaintenanceModal(id_maintenance){
 
+            $("#assign_maintenance_btn").removeAttr('disabled');
+
             $('#assigned_maintenance').val(id_maintenance);
             $('#err_msg_box_assign_maintenance').css('display' , 'none');
             $('#suc_msg_box_assign_maintenance').css('display' , 'none');
+            // $('#assignMaintenanceModal').modal('show');
+            $('#user_agent').find('option').not(':first').remove();
+            $("#business_contractor").prop("selectedIndex", 0);
+
+
+            send( '/maintenance/contractors_for_assignment',  {
+                maintenance:id_maintenance
+            }, 'handelShowAssignMaintenanceModal', []);
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function handelShowAssignMaintenanceModal(){
+            let message = return_value.message;
+            let res = return_value.code;
+            let contractors = return_value.contractors;
+            let businesses = return_value.businesses;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                $("#err_msg_box_assign_maintenance").css('display' , 'block');
+
+            }
+
+            else{
+
+                $('#business_contractor').find('option').not(':first').remove();
+                businesses.forEach(item => {
+                    var item_name = item.business_name ;
+                    var item_id = 'B'+item.id_saas_client_business ;
+                    $('#business_contractor').append(new Option(item_name ,item_id));
+                });
+                contractors.forEach(item => {
+                    var item_name = item.name ;
+                    var item_id = 'C'+item.id_contractor ;
+                    $('#business_contractor').append(new Option(item_name ,item_id));
+                });
+
+
+            }
             $('#assignMaintenanceModal').modal('show');
+
+
+            loadingOverlay.cancelAll();
 
         }
         ///////////////////////////////////////////////////////
@@ -1092,7 +1139,7 @@
 
 
             }
-            $('#assignMaintenanceModal').modal('show');
+            // $('#assignMaintenanceModal').modal('show');
 
 
             loadingOverlay.cancelAll();
@@ -1100,6 +1147,9 @@
         }
         ///////////////////////////////////////////////////////
         function assignMaintenance(){
+
+            $("#assign_maintenance_btn").attr('disabled','disabled');
+
             var spinHandle = loadingOverlay.activate();
             maintenance = $('#assigned_maintenance').val();
             user = $('#user_agent').val();
@@ -1123,6 +1173,8 @@
 
                 $("#ajx_err_msg_assign_maintenance").html(message);
                 $("#err_msg_box_assign_maintenance").css('display' , 'block');
+                $("#assign_maintenance_btn").removeAttr('disabled');
+
 
             }
 
@@ -1144,6 +1196,8 @@
 
         function showStartMaintenanceModal(id_maintenance){
 
+            $("#start_maintenance_btn").removeAttr('disabled');
+
             $('#started_maintenance').val(id_maintenance);
             $('#err_msg_box_start').css('display' , 'none');
             $('#suc_msg_box_start').css('display' , 'none');
@@ -1153,6 +1207,8 @@
         ///////////////////////////////////////////////////////
         function startMaintenance(){
             var spinHandle = loadingOverlay.activate();
+            $("#start_maintenance_btn").attr('disabled','disabled');
+
 
             let started_maintenance = $( '#started_maintenance' ).val();
             let start_date_time = $( '#start_datetimepicker input' ).val();
@@ -1166,12 +1222,23 @@
         {
             let message = return_value.message;
             let res = return_value.code;
+            var textmessage = message;
+
 
             if(res == "failure"){
-                var textmessage = message;
+
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
 
                 $("#ajx_err_msg_start").html(textmessage);
                 $("#err_msg_box_start").css('display' , 'block');
+                $("#start_maintenance_btn").removeAttr('disabled');
+
 
             }
 
@@ -1197,6 +1264,8 @@
 
         function showEndMaintenanceModal(id_maintenance){
 
+            $("#end_maintenance_btn").removeAttr('disabled');
+
             $('#ended_maintenance').val(id_maintenance);
             $('#err_msg_box_end').css('display' , 'none');
             $('#suc_msg_box_end').css('display' , 'none');
@@ -1209,6 +1278,8 @@
 
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let end_date_time = $( '#end_datetimepicker input' ).val();
+            $("#end_maintenance_btn").attr('disabled','disabled');
+
 
             send( '/maintenance/end/'+ended_maintenance,  {
                 end_date_time:end_date_time,
@@ -1219,12 +1290,26 @@
         {
             let message = return_value.message;
             let res = return_value.code;
+            var textmessage = message;
+
 
             if(res == "failure"){
-                var textmessage = message;
+
+
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+
+
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
 
                 $("#ajx_err_msg_end").html(textmessage);
                 $("#err_msg_box_end").css('display' , 'block');
+                $("#end_maintenance_btn").removeAttr('disabled');
+
 
             }
 

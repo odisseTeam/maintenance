@@ -108,6 +108,10 @@ INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 VALUES ('mgt.maintenance.sla.get_data','/maintenance/mgt/sla/charts','post',1);
 
 
+INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
+VALUES ('maintenance.contractors.get','/maintenance/contractors_for_assignment','post',1);
+
+
 INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
 VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1),
  (null,'maintenance.mgt.resident_reporter','/maintenance/mgt/resident_reporter','post',null,null,1);
@@ -289,8 +293,14 @@ INSERT INTO public.contractor_location_ref
 ('Worthing', 1);
 
 
+INSERT INTO public.city (id_city,"name",county,country_iso_code,city_active) VALUES
+	 (1,'Eastbourne','Sussex','gb',1),
+	 (2,'St Leonards On Sea','Sussex','gb',1),
+	 (3,'Hampshire','Hampshire','gb',1);
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true}' where slug = 'admin';
+
+     
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true}' where slug = 'admin';
 
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true}' where slug = 'super_admin';
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true}' where slug = 'super_admin';

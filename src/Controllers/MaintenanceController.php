@@ -13,6 +13,7 @@ use Odisse\Maintenance\Models\MaintenanceJobPriorityHistory;
 use Odisse\Maintenance\Models\Contractor;
 use Odisse\Maintenance\Models\MaintenanceJobSlaRef;
 use Odisse\Maintenance\Models\MaintenanceJobSla;
+use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalMaintenanceManager;
 
 use App\Models\User;
 use App\SLP\Enum\ActionStatusConstants;
@@ -272,13 +273,19 @@ class MaintenanceController extends Controller
               $maintenance_job->job_report_date_time = $request->maintenance_date;
               $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
               $maintenance_job->id_maintenance_job_priority = $request->priority;
-              $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPNU;
+              $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
               $maintenance_job->maintenance_job_title = $request->maintenance_title;
               $maintenance_job->maintenance_job_description = $request->description;
               $maintenance_job->id_resident_reporter = $request->resident_reporter;
               $maintenance_job->maintenance_job_active = 1;
 
               $maintenance_job->save();
+
+
+              $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
+              $HistoricalMaintenanceManager->insertHistory($maintenance_job);
+
+
 
 
               $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
@@ -299,7 +306,7 @@ class MaintenanceController extends Controller
               $maintenance_job_status_history = new MaintenanceJobStatusHistory();
               $maintenance_job_status_history->id_maintenance_job =  $maintenance_job->id_maintenance_job;
               $maintenance_job_status_history->id_maintenance_staff = $user->id;
-              $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::OPNU;
+              $maintenance_job_status_history->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
               $maintenance_job_status_history->maintenance_status_start_date_time = $request->maintenance_date;
               $maintenance_job_status_history->maintenance_status_end_date_time = null;
               $maintenance_job_status_history->maintenance_job_status_history_active = 1;
@@ -511,6 +518,8 @@ class MaintenanceController extends Controller
 
 
               }
+
+
 
               // session(['success' => 'value']);
               DB::commit();
@@ -1045,6 +1054,10 @@ class MaintenanceController extends Controller
                   $maintenance_log->save();
               }
 
+              $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
+             $HistoricalMaintenanceManager->insertHistory($maintenance_old_data);
+
+
               DB::commit();
 
 
@@ -1218,18 +1231,18 @@ class MaintenanceController extends Controller
             }
 
 
-            $sites = Site::all();
+            // $sites = Site::all();
 
 
-            foreach($sites as $site) {
-                $site->id = 'Site'.$site->id_site;
-                $site->name = '[Site] '.$site->site_full_name;
+            // foreach($sites as $site) {
+            //     $site->id = 'Site'.$site->id_site;
+            //     $site->name = '[Site] '.$site->site_full_name;
 
-            }
+            // }
 
-            foreach($sites as $site) {
-                $locations[] = $site;
-            }
+            // foreach($sites as $site) {
+            //     $locations[] = $site;
+            // }
 
             return $locations;
       }

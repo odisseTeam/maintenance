@@ -9,6 +9,7 @@ use App\SLP\Enum\ActionStatusConstants;
 use App\Http\Controllers\Controller;
 use App\Models\SaasClientBusiness;
 use App\Models\User;
+use App\SLP\Com\LinkGenerator\WikiLinkGenerator;
 use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -61,6 +62,8 @@ class MaintenanceDashboardController extends Controller
         $contractor_agents = [];
 
         $contractors = Contractor::where('contractor_active' , 1)->get();
+        $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_dashboard');
+
 
         return view('maintenance::maintenance_dashboard',
                     [
@@ -73,6 +76,7 @@ class MaintenanceDashboardController extends Controller
                         'contractors'=>$contractors,
                         'maintenance_users'=>$maintenance_users,
                         'contractor_agents'=>$contractor_agents,
+                        'wiki_link'=>$wiki_link,
 
                     ]
                 );
@@ -124,10 +128,14 @@ class MaintenanceDashboardController extends Controller
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_start_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d H:i:s'));
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_start_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_start_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 23:59:59'));
 
         if( $request->has('end_date') and $request->end_date != null )
-        $maintenances = $maintenances->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d H:i:s'));
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
 
 
 
@@ -159,7 +167,7 @@ class MaintenanceDashboardController extends Controller
 
         foreach($maintenances as $maintenance){
 
-            $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+            $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
 
             if($remain_time){
@@ -466,7 +474,7 @@ class MaintenanceDashboardController extends Controller
             return response()->json(
                 [
                 'code' => ActionStatusConstants::FAILURE,
-                'message' => $validator,
+                'message' => $validator->errors(),
                 ]);
 
         }
@@ -493,6 +501,7 @@ class MaintenanceDashboardController extends Controller
     public Function ajaxEndMaintenance(Request $request , $id_maintenance){
 
         //dd($request->all());
+        //dd(SystemDateFormats::getDateTimeFormat());
 
 
         $user = Sentinel::getUser();
@@ -512,7 +521,39 @@ class MaintenanceDashboardController extends Controller
             return response()->json(
                 [
                 'code' => ActionStatusConstants::FAILURE,
-                'message' => $validator,
+                'message' => $validator->errors(),
+                ]);
+
+        }
+
+        $maintenance = MaintenanceJob::find($id_maintenance);
+
+        if(!$maintenance->job_start_date_time){
+
+
+            Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". 'maintenance start date must have start date for this action! ' ." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+            return response()->json(
+                [
+                'code' => 'failure',
+                'message' => trans('maintenance::dashboard.maintenance_must_have_start_date_for_this_action'),
+                ]);
+
+
+        }
+
+        if(Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $maintenance->job_start_date_time)->gt(Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date_time))){
+
+            Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". 'maintenance start date is after maintenance end date! ' ." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+            return response()->json(
+                [
+                'code' => 'failure',
+                'message' => trans('maintenance::dashboard.start_date_is_after_end_date'),
                 ]);
 
         }
@@ -570,7 +611,10 @@ class MaintenanceDashboardController extends Controller
     ///////////////////////////////////////////////////////////////////////////
     public function ajaxPrepareSlaChartData(Request $request){
 
-        $sla_count = ['Expired'=>0,'Not Expired'=>0];
+        $user = Sentinel::getUser();
+
+
+        $sla_count = ['Expired'=>0, 'Near to Expire'=>0 ,'Not Expired'=>0];
 
 
         $user = Sentinel::getUser();
@@ -583,15 +627,23 @@ class MaintenanceDashboardController extends Controller
         where('maintenance_job_status_ref.job_status_code' , '!=' , 'CLOS')->get();
 
         foreach($maintenaces as $maintenance){
-            $remain_time = $this->calculateSlaRemainTime($maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+            $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business , $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
             if($remain_time){
                 $date1 =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time);
                 $date2 = Carbon::createFromDate('now');
-                if($date1->gt($date2)){
-                    $sla_count['Not Expired']++;
+                $date3 = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() ,$maintenance->job_report_date_time);
+                if($date2->gt($date1)){
+                    $sla_count['Expired']++;
                 }
                 else{
-                    $sla_count['Expired']++;
+                    $sla_show_percent_passed = false;
+                    $sla_show_percent_passed = $this->isPassedSlaShowPercent($user->id_saas_client_business,$maintenance->expected_target_minutes, $date3 , $date2);
+                    if($sla_show_percent_passed){
+                        $sla_count['Near to Expire']++;
+                    }
+                    else{
+                        $sla_count['Not Expired']++;
+                    }
                 }
 
             }

@@ -60,6 +60,8 @@ return [
     'end_maintenance_was_not_successful'=>'End maintenance was not successful',
     'chart_data_prepared'=>'Chart data prepared',
     'your_maintenances_loaded'=>'Your maintenances loaded',
+    'start_date_is_after_end_date'=>'Start date is after end date',
+    'maintenance_must_have_start_date_for_this_action'=>'Maintenance must have start date for this action',
 
     'create' => 'Create Maintenance',
     'create_job' => 'Create New Job'

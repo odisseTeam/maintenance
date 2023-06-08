@@ -80,5 +80,6 @@ return [
     'contractor_locations_not_changed'=>'Contractor locations not updated',
     'contractor_updated'=>'Contractor updated',
     'contractor_not_updated'=>'Contractor not updated',
+    'your_contractors_returned'=>'Your Contractor returned',
 
 ];

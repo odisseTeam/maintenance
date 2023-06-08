@@ -162,9 +162,9 @@
                                             <div class="col-xs-9 col-sm-9 col-md-9">
                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                    <textarea class="form-control" rows="4" name="coment" id="coment" column="40">
-                                                    {{ old('coment') }}
-                                                    </textarea>
+                                                    <textarea class="form-control" rows="4" name="coment" id="coment" column="40">{{ old('coment') }}</textarea>
+
+                                                    
                                                 </div>
 
                                             </div>
@@ -192,12 +192,12 @@
                                                     <option value="">
                                                         {{ trans('maintenance::maintenance.select_assignee') }}</option>
                                                     @foreach ($contactors as $contractor)
-                                                        <option value="{{ $contractor->id_contractor }}"
-                                                            @if ($contractor->id_contractor == $maintenance_job_detail->id_staff) {{ 'selected' }} @endif>
+                                                        <option value="{{ $contractor['id_contractor'] }}"
+                                                            @if ($contractor['id_contractor'] == $maintenance_job_detail->id_staff) {{ 'selected' }} @endif>
 
 
 
-                                                            {{ $contractor->name }}
+                                                            {{ $contractor['name'] }}
                                                         </option>
                                                     @endforeach
 
@@ -358,7 +358,7 @@
                                 <div class="box-footer">
                                     <div class="" style="text-align: right;">
 
-                                        <button type="button" class="btn btn-warning"  style="min-width: 60px;">{{ __('general.close') }}</button>
+                                        <a href="/maintenance/dashboard"><button type="button" class="btn btn-warning"  style="min-width: 60px;">{{ __('general.close') }}</button></a>
                                         <button type="submit" class="btn btn-primary" style="margin-left:1px;min-width: 60px;">{{ __('general.save') }}</button>
                                     </div>
                                 </div>
@@ -722,7 +722,10 @@
                         '<i class="fa-solid fa-trash" ></i> </a>';
                     operation += '<a href="/maintenance/attachment/' + id_maintenance_job_document +
                         '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
-                        '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
+                        // '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
+                       
+                     operation += '<a href="/maintenance/files/' + document_name +'" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" title="Show Document" ><i class="fa-solid fa-eye "></i></a>';
+
 
 
                     htmlValue += "<tr><td>" + counter + "</td><td>" + document_name + "</td><td>" +

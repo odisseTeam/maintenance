@@ -366,51 +366,54 @@
                                                         <br>
                                                     </div>
                                                 </div>
-                                                <div class="box-body table-responsive no-padding card-block">
-                                                    <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>{{__('maintenance::maintenance_mgt.business')}}</th>
-                                                            <th>{{__('maintenance::dashboard.category')}}</th>
-                                                            <th>{{__('maintenance::dashboard.title')}}</th>
-                                                            <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                                            <th>{{__('maintenance::dashboard.priority')}}</th>
-                                                            <th>{{__('maintenance::dashboard.status')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_report_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_start_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                                            <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                                            <th>{{__('maintenance::dashboard.operation')}}</th>
+                                                <div class="box-body card-block">
+
+                                                    <div class="row table-responsive no-padding">
+                                                        <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>{{__('maintenance::maintenance_mgt.business')}}</th>
+                                                                <th>{{__('maintenance::dashboard.category')}}</th>
+                                                                <th>{{__('maintenance::dashboard.title')}}</th>
+                                                                <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                                                <th>{{__('maintenance::dashboard.priority')}}</th>
+                                                                <th>{{__('maintenance::dashboard.status')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_start_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_end_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.operation')}}</th>
 
 
-                                                        </tr>
-                                                        </thead>
+                                                            </tr>
+                                                            </thead>
 
 
-                                                        <tbody id="maintenance_tbl_body"
-                                                            class="table table-bordered table-hover dataTable text-center">
+                                                            <tbody id="maintenance_tbl_body"
+                                                                class="table table-bordered table-hover dataTable text-center">
 
-                                                        </tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>{{__('maintenance::maintenance_mgt.business')}}</th>
-                                                            <th>{{__('maintenance::dashboard.category')}}</th>
-                                                            <th>{{__('maintenance::dashboard.title')}}</th>
-                                                            <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                                            <th>{{__('maintenance::dashboard.priority')}}</th>
-                                                            <th>{{__('maintenance::dashboard.status')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_report_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_start_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                                            <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                                            <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                                            <th>{{__('maintenance::dashboard.operation')}}</th>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
+                                                            </tbody>
+                                                            <tfoot>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>{{__('maintenance::maintenance_mgt.business')}}</th>
+                                                                <th>{{__('maintenance::dashboard.category')}}</th>
+                                                                <th>{{__('maintenance::dashboard.title')}}</th>
+                                                                <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                                                <th>{{__('maintenance::dashboard.priority')}}</th>
+                                                                <th>{{__('maintenance::dashboard.status')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_start_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.task_end_date')}}</th>
+                                                                <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.operation')}}</th>
+                                                            </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
 
                                                 </div>
                                             </div>
@@ -549,7 +552,7 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-warning mobtn"
                                                     data-dismiss="modal" data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger sdr-danger mobtn"
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn" id="assign_maintenance_btn"
                                                     onclick="assignMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
@@ -615,7 +618,7 @@
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-warning mobtn" data-dismiss="modal" data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger sdr-danger mobtn" onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn" id="start_maintenance_btn" onclick="startMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
 
@@ -684,7 +687,7 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-warning mobtn" data-dismiss="modal"
                                                 data-bs-dismiss="modal">{{trans('maintenance::dashboard.cancel')}}</button>
-                                                <button type="button" class="btn btn-danger sdr-danger mobtn"
+                                                <button type="button" class="btn btn-danger sdr-danger mobtn" id="end_maintenance_btn"
                                                     onclick="endMaintenance()">{{trans('maintenance::dashboard.save')}}</button>
                                             </div>
 
@@ -981,7 +984,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] },{ "width": "20%", "targets": 12 }
                 ]
             });
 
@@ -1086,6 +1089,8 @@
 
         function showAssignMaintenanceModal(id_business , id_maintenance){
 
+            $("#assign_maintenance_btn").removeAttr('disabled');
+
             $('#assigned_business').val(id_business);
             $('#assigned_maintenance').val(id_maintenance);
 
@@ -1097,6 +1102,7 @@
 
             send( '/maintenance/mgt/business_contractors',  {
                 business :id_business,
+                maintenance :id_maintenance,
             }, 'handleLoadBusinessContractor', []);
 
 
@@ -1184,6 +1190,9 @@
         }
         ///////////////////////////////////////////////////////
         function assignMaintenance(){
+
+            $("#assign_maintenance_btn").attr('disabled','disabled');
+
             // var spinHandle = loadingOverlay.activate();
             business = $('#assigned_business').val();
             maintenance = $('#assigned_maintenance').val();
@@ -1202,12 +1211,27 @@
             let message = return_value.message;
             let res = return_value.code;
             // loadingOverlay.cancelAll();
+            var textmessage = message;
 
 
             if(res == "failure"){
 
-                $("#ajx_err_msg_assign_maintenance").html(message);
+
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+
+
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
+
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
                 $("#err_msg_box_assign_maintenance").css('display' , 'block');
+                $("#assign_maintenance_btn").removeAttr('disabled');
+
 
             }
 
@@ -1229,6 +1253,8 @@
 
         function showStartMaintenanceModal(id_business , id_maintenance){
 
+            $("#start_maintenance_btn").removeAttr('disabled');
+
             $('#start_datetimepicker').val('');
             $('#started_maintenance').val(id_maintenance);
             $('#started_business').val(id_business);
@@ -1241,6 +1267,10 @@
         ///////////////////////////////////////////////////////
         function startMaintenance(){
             // var spinHandle = loadingOverlay.activate();
+
+            $("#start_maintenance_btn").attr('disabled','disabled');
+            $('#err_msg_box_start').css('display' , 'none');
+
 
             let started_maintenance = $( '#started_maintenance' ).val();
             let started_business = $( '#started_business' ).val();
@@ -1256,12 +1286,23 @@
         function handleStartMaintenance(){
             let message = return_value.message;
             let res = return_value.code;
+            var textmessage = message;
+
 
             if(res == "failure"){
-                var textmessage = message;
+
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
 
                 $("#ajx_err_msg_start").html(textmessage);
                 $("#err_msg_box_start").css('display' , 'block');
+                $("#start_maintenance_btn").removeAttr('disabled');
+
 
             }
 
@@ -1286,6 +1327,8 @@
 
         function showEndMaintenanceModal(id_business , id_maintenance){
 
+            $("#end_maintenance_btn").removeAttr('disabled');
+
             $('#end_datetimepicker').val('');
             $('#ended_maintenance').val(id_maintenance);
             $('#ended_business').val(id_business);
@@ -1298,6 +1341,11 @@
         ///////////////////////////////////////////////////////
         function endMaintenance(){
             // var spinHandle = loadingOverlay.activate();
+
+            $("#end_maintenance_btn").attr('disabled','disabled');
+            $('#err_msg_box_end').css('display' , 'none');
+
+
 
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let ended_business = $( '#ended_business' ).val();
@@ -1313,12 +1361,25 @@
         function handleEndMaintenance(){
             let message = return_value.message;
             let res = return_value.code;
+            var textmessage = message;
+
 
             if(res == "failure"){
-                var textmessage = message;
+
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+
+
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
 
                 $("#ajx_err_msg_end").html(textmessage);
                 $("#err_msg_box_end").css('display' , 'block');
+                $("#end_maintenance_btn").removeAttr('disabled');
+
 
             }
 

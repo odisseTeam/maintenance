@@ -10,7 +10,6 @@ use App\Models\MaintenanceLog;
 use App\Models\SaasClientBusiness;
 use App\Models\User;
 use App\SLP\Enum\APIStatusConstants;
-use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +24,7 @@ use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use Odisse\Maintenance\Models\MaintenanceLog as ModelsMaintenanceLog;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
@@ -34,6 +34,8 @@ use Validator;
 
 class MaintenanceManagementController extends Controller
 {
+
+    use MaintenanceOperation;
 
 
 
@@ -89,6 +91,8 @@ class MaintenanceManagementController extends Controller
 
         $user = Sentinel::getUser();
 
+        $responseObj= null;
+
         $maintenances = [];
         if( $request->has('business') and $request->business != null ){
 
@@ -99,9 +103,15 @@ class MaintenanceManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->business){
 
-                    $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
+                    $url =$business['maintenance_api_url'].'/api/maintenancelist_details';
 
-                    $response = Http::post($url,$request->all());
+                    $params =[
+                        'business'=>$request->business,
+                    ];
+
+
+
+                    $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
 
@@ -111,6 +121,17 @@ class MaintenanceManagementController extends Controller
 
 
         }
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'maintenances'=>$responseObj->maintenances,
+
+            'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
+            ]);
+
 
     }
 
@@ -178,11 +199,12 @@ class MaintenanceManagementController extends Controller
     ///////////////////////////////////////////////////////////////////////////
 
 
-    public Function ajaxLoadBusinessContractors(Request $request){
+    public Function ajaxLoadBusinessContractors(Request $request ){
 
 
 
         $user = Sentinel::getUser();
+        $staff_user = User::find($user->id);
 
         Log::info("In maintenance package, MaintenanceManagementController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
@@ -200,8 +222,9 @@ class MaintenanceManagementController extends Controller
                    // dd($request->all());
 
                     $params =[
+                        'maintenance'=>$request->maintenance,
                         'business'=>$request->business,
-                        'staff_user'=>$user->id
+                        'staff_user'=>$staff_user->email
                     ];
 
 
@@ -312,30 +335,32 @@ class MaintenanceManagementController extends Controller
 
 
         $user = Sentinel::getUser();
+        $staff_user = User::find($user->id);
+
 
         Log::info("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function " . " try to assign maintenance to user  ------- by user " . $user->first_name . " " . $user->last_name);
 
-        $validator = Validator::make($request->all(), [
+        // $validator = Validator::make($request->all(), [
 
-            'business' => 'required|numeric',
-            'maintenance' => 'required|numeric',
-            'user' => 'required|numeric',
+        //     'business' => 'required|numeric',
+        //     'maintenance' => 'required|numeric',
+        //     'user' => 'required|numeric',
 
-        ]);
+        // ]);
 
-        if ($validator->fails()) {
+        // if ($validator->fails()) {
 
-            Log::error("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+        //     Log::error("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
 
 
-            return response()->json(
-                [
-                'code' => 'failure',
-                'message' => $validator,
-                ]);
+        //     return response()->json(
+        //         [
+        //         'code' => 'failure',
+        //         'message' => $validator->errors(),
+        //         ]);
 
-        }
+        // }
 
         try{
 
@@ -353,7 +378,7 @@ class MaintenanceManagementController extends Controller
                         'business'=>$request->business,
                         'maintenance'=>$request->maintenance,
                         'user'=>$request->user,
-                        'staff_user'=>$user->id
+                        'staff_user'=>$staff_user->email,
                     ];
 
 
@@ -440,7 +465,7 @@ class MaintenanceManagementController extends Controller
          $businesses = config('maintenances.businesses_name');
 
 
-//        dd($maintenance_category, $locations, $priorities);
+        //dd($maintenance_category, $locations, $priorities);
         return view(
             'maintenance::mgt_create_maintenance',
             [
@@ -468,28 +493,11 @@ class MaintenanceManagementController extends Controller
 
 
             $user = Sentinel::getUser();
+            $staff_user = User::find($user->id);
+
 
             Log::info("In maintenance package, MaintenanceManagementController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
-            $validator = Validator::make($request->all(), [
-
-                'start_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
-
-            ]);
-
-            if ($validator->fails()) {
-
-                Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtStartMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
-
-
-
-                return response()->json(
-                    [
-                    'code' => 'failure',
-                    'message' => $validator,
-                    ]);
-
-            }
 
             if( $request->has('business') and $request->business != null ){
 
@@ -503,7 +511,7 @@ class MaintenanceManagementController extends Controller
                         $url =$business['maintenance_api_url'].'/api/maintenance/start';
                         $params =[
                             'maintenance'=>$id_maintenance,
-                            'staff_user'=>$user->id,
+                            'staff_user'=>$staff_user->email,
                             'start_date_time'=>$request->start_date_time
                         ];
 
@@ -537,52 +545,95 @@ class MaintenanceManagementController extends Controller
 
     public Function ajaxMgtEndMaintenance(Request $request , $id_maintenance){
 
+        $user = Sentinel::getUser();
+        $staff_user = User::find($user->id);
+
+        //dd($this->getDateTimeFormat('date_time_format_javascript'));
+
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        // $validator = Validator::make($request->all(), [
+
+        //     'end_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_javascript'),
+
+        // ]);
+
+        // if ($validator->fails()) {
+
+        //     Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+        //     return response()->json(
+        //         [
+        //         'code' => 'failure',
+        //         'message' => $validator->errors(),
+        //         ]);
+
+        // }
+
+        // $maintenance = MaintenanceJob::find($id_maintenance);
+
+        // if(!$maintenance->job_start_date_time){
 
 
-            $user = Sentinel::getUser();
-
-            Log::info("In maintenance package, MaintenanceManagementController- ajaxEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
-
-            if( $request->has('business') and $request->business != null ){
+        //     Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". 'maintenance start date must have start date for this action! ' ." by user ".$user->first_name . " " . $user->last_name);
 
 
-                //get maintenances of specific business
 
-                $businesses = config('maintenances.businesses_name');
-                foreach($businesses as $business){
-                    if($business['id_saas_client_business'] == $request->business){
-
-                        $url =$business['maintenance_api_url'].'/api/maintenance/end';
-                        $params =[
-                            'maintenance'=>$id_maintenance,
-                            'staff_user'=>$user->id,
-                            'end_date_time'=>$request->end_date_time
-                        ];
+        //     return response()->json(
+        //         [
+        //         'code' => 'failure',
+        //         'message' => trans('maintenance::dashboard.maintenance_must_have_start_date_for_this_action'),
+        //         ]);
 
 
-                        $response = Http::post($url,$params);
+        // }
 
-                        $responseObj = json_decode($response->body());
+        // if(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format'), $maintenance->job_start_date_time)->gt(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_javascript'), $request->end_date_time))){
 
-                    }
+        //     Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". 'maintenance start date is after maintenance end date! ' ." by user ".$user->first_name . " " . $user->last_name);
+
+        //     return response()->json(
+        //         [
+        //         'code' => 'failure',
+        //         'message' => trans('maintenance::dashboard.start_date_is_after_end_date'),
+        //         ]);
+
+        // }
+
+        if( $request->has('business') and $request->business != null ){
+
+
+            //get maintenances of specific business
+
+            $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if($business['id_saas_client_business'] == $request->business){
+
+                    $url =$business['maintenance_api_url'].'/api/maintenance/end';
+                    $params =[
+                        'maintenance'=>$id_maintenance,
+                        'staff_user'=>$staff_user->email,
+                        'end_date_time'=>$request->end_date_time
+                    ];
+
+
+                    $response = Http::post($url,$params);
+
+                    $responseObj = json_decode($response->body());
+
                 }
-
-
-
-            }
-            else{
-                //get maintenance of all businesses
             }
 
-            return response()->json(
-                [
-                    'code' => $responseObj->code,
-                    'message' => $responseObj->message,
-                ]);
+        }
+        else{
+            //get maintenance of all businesses
+        }
 
-
-
-
+        return response()->json(
+            [
+                'code' => $responseObj->code,
+                'message' => $responseObj->message,
+            ]);
 
     }
     /////////////////////////////////////////////////////////////////////////////
@@ -654,7 +705,7 @@ class MaintenanceManagementController extends Controller
 
 
         //get labels
-        $labels = ['Expired' , 'Not Expired'];
+        $labels = ['Expired' ,'Near to Expire' , 'Not Expired'];
 
         $datasets=[];
             $businesses = config('maintenances.businesses_name');

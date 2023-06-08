@@ -18,6 +18,27 @@ Route::group(['prefix' => 'maintenance'],function () {
 
 Route::middleware(['web','ProxyCAS'])->group(
     function () {
+
+
+        Route::get('/maintenance/files/{filename}', function($filename){
+
+         
+
+            $path = storage_path('../../systemfiles/maintenance_files/uploaded_files/' . $filename);
+
+
+
+            if (!file_exists($path)) {
+                abort(404);
+            }
+
+            $file = file_get_contents($path);
+
+            return response($file, 200)->header('Content-Type', mime_content_type($path));
+
+        });
+
+
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware']], function(){
 
            Route::get('/management', [MaintenanceManagementController::class,'showManagementPage'])->name('maintenance_management');
@@ -66,12 +87,12 @@ Route::middleware(['web','ProxyCAS'])->group(
 
            Route::post('/new/save', [MaintenanceController::class,'saveNewMaintenence'])->name('save_new_maintenance');
 
-           Route::post('/get/resident_reporter', [MaintenanceController::class,'ajaxGetResidentReporter'])->name('save_new_maintenance');
+           Route::post('/get/resident_reporter', [MaintenanceController::class,'ajaxGetResidentReporter'])->name('resident_list_of_location');
 
            //maintenance detail
            Route::get('/detail/{maintenanceId}', [MaintenanceController::class,'showMaintenanceDetailPage'])->name('maintenance_detail');
 
-           Route::post('/detail/edit', [MaintenanceController::class,'editMaintenanceDetail'])->name('save_new_maintenance');
+           Route::post('/detail/edit', [MaintenanceController::class,'editMaintenanceDetail'])->name('update_maintenance');
 
            Route::post('/timeline/get', [MaintenanceController::class,'ajaxGetMaintenanceTimeline'])->name('get_maintenance_timeline');
 
@@ -97,6 +118,11 @@ Route::middleware(['web','ProxyCAS'])->group(
            //dashboard widgets
            Route::post('/statuses/charts', [MaintenanceDashboardController::class,'ajaxPrepareStatusChartData']);
            Route::post('/sla/charts', [MaintenanceDashboardController::class,'ajaxPrepareSlaChartData']);
+
+           //load contractors for assignment
+           Route::post('/contractors_for_assignment', [ContractorController::class,'ajaxGetContractors']);
+
+
 
         });
 
