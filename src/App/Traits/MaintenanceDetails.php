@@ -72,10 +72,10 @@ trait MaintenanceDetails{
 
         $maintenance_old_data = MaintenanceJob::findOrFail($id_maintenance);
 
-   
 
-        if( $status == MaintenanceStatusConstants::OPNU){
-           
+
+        if( $status == MaintenanceStatusConstants::OPUN){
+
             //update data of maintenance status history
              $maintenance_old_data->update([
                 'job_start_date_time' => $now->format(SystemDateFormats::getDateTimeFormat()),
@@ -84,7 +84,7 @@ trait MaintenanceDetails{
 
                     Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to start a  maintenance titled".$maintenance_old_data->maintenance_job_title. "  ------- by user " . $user->first_name . " " . $user->last_name);
 
-        }elseif( $status == MaintenanceStatusConstants::CLSD){
+        }elseif( $status == MaintenanceStatusConstants::CLOS){
 
              //update data of maintenance status history
              $maintenance_old_data->update([
@@ -95,7 +95,7 @@ trait MaintenanceDetails{
 
         }
 
-    
-        
+
+
     }
 }
