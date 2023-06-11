@@ -35,6 +35,18 @@ return [
 
 
 
+    'title'=>'Title',
+    'sla_expire_time'=>'SLA Expire Time',
+    'priority'=>'Priority',
+    'status'=>'Status',
+    'task_report_date'=>'Task Report Date',
+    'task_start_date'=>'Task Start Date',
+    'task_end_date'=>'Task End Date',
+    'contractor_task_list'=>'Contractor Task List',
+    'close'=>'Close',
+
+
+
 
 
 
@@ -81,5 +93,8 @@ return [
     'contractor_updated'=>'Contractor updated',
     'contractor_not_updated'=>'Contractor not updated',
     'your_contractors_returned'=>'Your Contractor returned',
+    'your_selected_contractor_does_not_deleted'=>'Your selected contractor does not deleted!',
+    'contractor_has_active_tasks'=>'Contractor has active task!',
+    'contractor_tasks_returned'=>'Contractor tasks returned!',
 
 ];

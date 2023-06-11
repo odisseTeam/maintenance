@@ -77,7 +77,7 @@ class ApiMaintenanceDetailController extends Controller
             leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
             leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
             leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
-            $maintenances = $maintenances->where('contractor.name','like', "%".$request->assignee."%");
+            $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
         }
         else{
             //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
@@ -96,7 +96,7 @@ class ApiMaintenanceDetailController extends Controller
         $maintenances = $maintenances->where('maintenance_job_status_ref.id_maintenance_job_status_ref','=', $request->status);
 
         if( $request->has('title') and $request->title != null )
-        $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','like', "%".$request->title."%");
+        $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','ilike', "%".$request->title."%");
 
         if( $request->has('start_date') and $request->start_date != null )
             $maintenances = $maintenances
@@ -604,7 +604,7 @@ class ApiMaintenanceDetailController extends Controller
 
             //check this task assigned to this user already
             $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-                                                where('id_maintenance_staff' , $request->user)->
+                                                where('id_maintenance_assignee' , $request->user)->
                                                 whereNull('staff_end_date_time')->
                                                 where('maintenance_job_staff_history_active' , 1)->get();
             if(count($check)==0 ){
@@ -623,25 +623,8 @@ class ApiMaintenanceDetailController extends Controller
 
                 }
 
-                // return response()->json(
-                // [
-                // 'status' => APIStatusConstants::OK,
-                // 'code' => ActionStatusConstants::SUCCESS,
-                // 'message' => 'yah yah yah',
-                // 'req' => $request->all(),
-                // ]);
 
 
-                //insert into maintenance_job_staff table
-                $maintenance_staff = new MaintenanceJobStaffHistory([
-                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_maintenance_staff'    =>  $request->user,
-                    'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'maintenance_job_staff_history_active'  =>  1,
-
-                ]);
-                $maintenance_staff->save();
 
                 $staff_user = User::where('email' , $request->staff_user)->first();
 
@@ -649,7 +632,20 @@ class ApiMaintenanceDetailController extends Controller
 
                     $user = Sentinel::findById($staff_user->id);
                     Sentinel::login($user);
+
+
                     //insert into maintenance_job_staff table
+                    $maintenance_staff = new MaintenanceJobStaffHistory([
+                        'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                        'id_maintenance_assignee'    =>  $request->user,
+                        'id_maintenance_staff'    =>  $staff_user->id,
+                        'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'maintenance_job_staff_history_active'  =>  1,
+
+                    ]);
+                    $maintenance_staff->save();
+                    //insert into maintenance_log table
                     $maintenance_log = new MaintenanceLog([
                         'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
                         'id_staff'    =>  $staff_user->id,
@@ -666,8 +662,20 @@ class ApiMaintenanceDetailController extends Controller
                     //get api user
                     $api_user = User::where('email' , 'api.user@sdr.uk')->first();
 
+                    //insert into maintenance_job_staff table
+                    $maintenance_staff = new MaintenanceJobStaffHistory([
+                        'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                        'id_maintenance_assignee'    =>  $request->user,
+                        'id_maintenance_staff'    =>  $api_user->id,
+                        'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'maintenance_job_staff_history_active'  =>  1,
 
-                //insert into maintenance_job_staff table
+                    ]);
+                    $maintenance_staff->save();
+
+
+                //insert into maintenance_log table
                 $maintenance_log = new MaintenanceLog([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
                     'id_staff'    =>  $api_user->id,

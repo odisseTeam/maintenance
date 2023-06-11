@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Odisse\Maintenance\Models\MaintenanceJob;
 use Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants;
 use App\SLP\Formatter\SystemDateFormats;
+use Exception;
 
 trait MaintenanceDetails{
 
@@ -74,24 +75,28 @@ trait MaintenanceDetails{
 
 
 
-        if( $status == MaintenanceStatusConstants::OPUN){
+        if( $status == MaintenanceStatusConstants::CLOS){
 
-            //update data of maintenance status history
-             $maintenance_old_data->update([
-                'job_start_date_time' => $now->format(SystemDateFormats::getDateTimeFormat()),
-                'job_finish_date_time'=>null
-                    ]);
+            if(!$maintenance_old_data->job_start_date_time){
+                throw new \ErrorException('Maintenance has not started yet, can not be closed');
 
-                    Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to start a  maintenance titled".$maintenance_old_data->maintenance_job_title. "  ------- by user " . $user->first_name . " " . $user->last_name);
+            }
 
-        }elseif( $status == MaintenanceStatusConstants::CLOS){
+                //update data of maintenance status history
+                $maintenance_old_data->update([
+                    'job_finish_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
+                        ]);
 
-             //update data of maintenance status history
-             $maintenance_old_data->update([
-                'job_finish_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
-                    ]);
+                        Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to close a  maintenance titled".$maintenance_old_data->maintenance_job_title."   ------- by user " . $user->first_name . " " . $user->last_name);
 
-                    Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to close a  maintenance titled".$maintenance_old_data->maintenance_job_title."   ------- by user " . $user->first_name . " " . $user->last_name);
+        }
+        else if($status == MaintenanceStatusConstants::INPR){
+            if(!$maintenance_old_data->job_start_date_time){
+                $maintenance_old_data->update([
+                    'job_start_date_time'=>$now->format(SystemDateFormats::getDateTimeFormat()),
+                ]);
+            }
+
 
         }
 

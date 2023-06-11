@@ -74,12 +74,12 @@
             <div class="col-md-12">
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
-                        <li class="{{ ( null == session('active_tab') or session('active_tab') == 'contractor_mgt') ? "active" : "" }}" id="contractor_mgt_tab"><a href="#contractor_mgt" data-toggle="tab">{{trans('maintenance::contractor.contractor_mgt')}}</a></li>
+                        <li class="active" id="contractor_mgt_tab"><a href="#contractor_mgt" data-toggle="tab">{{trans('maintenance::contractor.contractor_mgt')}}</a></li>
 
                     </ul>
                     <div class="tab-content">
                        <!-- start of tab report -->
-                        <div class="{{ ( null == session('active_tab') or session('active_tab') == 'contractor_mgt') ? "active" : "" }} tab-pane" id="contractor_mgt">
+                        <div class="active tab-pane" id="contractor_mgt">
 
                             <div class="row">
                                 <div class="col-xs-12">
@@ -444,6 +444,92 @@
 
 
 
+
+    <!-- Modal -->
+    <div class="modal fade" id="listModal" tabindex="-1" role="dialog" aria-labelledby="listModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="listModalLabel">{{trans('maintenance::contractor.contractor_task_list')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_list" style="display: none">
+                            <div id="ajx_err_msg_list"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_list" style="display: none">
+                            <div id="ajx_suc_msg_list"></div>
+                        </div>
+
+                        <div class="box">
+                            <div class="box-body table-responsive no-padding">
+
+                                <div>
+
+
+                                    <!-- list-->
+
+                                    <table id="task_list_table" class="table table-bordered table-hover dataTable text-center" style="width:100%!important;">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>{{trans('maintenance::contractor.title')}}</th>
+                                                <th>{{trans('maintenance::contractor.sla_expire_time')}}</th>
+                                                <th>{{trans('maintenance::contractor.priority')}}</th>
+                                                <th>{{trans('maintenance::contractor.status')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_report_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_start_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_end_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.operation')}}</th>
+                                            </tr>
+                                        </thead>
+
+
+                                        <tbody id="task_list_body_tbl">
+
+
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>{{trans('maintenance::contractor.title')}}</th>
+                                                <th>{{trans('maintenance::contractor.sla_expire_time')}}</th>
+                                                <th>{{trans('maintenance::contractor.priority')}}</th>
+                                                <th>{{trans('maintenance::contractor.status')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_report_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_start_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.task_end_date')}}</th>
+                                                <th>{{trans('maintenance::contractor.operation')}}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"  data-dismiss="modal">{{trans('maintenance::contractor.close')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
 @endsection
 
 
@@ -470,12 +556,6 @@
     <script src="{{ asset('resources/iCheck/icheck.min.js') }}"></script>
 
     <script>
-
-
-
-
-
-
 
         $(document).ready(function () {
 
@@ -548,6 +628,11 @@
                         '<i class="fa fa-solid fa-location-dot"></i>'+
                         '</button>'+
 
+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Task List" onclick="showListModal('+id_contractor+')">'+
+                        '<i class="fa fa-solid fa-list"></i>'+
+                        '</button>'+
+
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Contractor" onclick="showDeleteContractorModal('+id_contractor+')">'+
                         '<i class="fa-solid fa-trash"></i>'+
                         '</button>'
@@ -581,7 +666,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7] }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7] },{ "width": "20%", "targets": 7 }
                 ]
             });
 
@@ -1070,6 +1155,101 @@
 
 
             $('#locationModal').modal('show');
+            loadingOverlay.cancelAll();
+
+        }
+        /////////////////////////////////////////////////////////
+        function showListModal(id_contractor){
+
+
+
+            var spinHandle = loadingOverlay.activate();
+
+            send( '/maintenance/contractor/tasks/'+id_contractor,  {
+            }, 'handleShowListModal', [id_contractor]);
+
+
+        }
+        /////////////////////////////////////////////////////////
+        function handleShowListModal(id_contractor){
+
+
+            let tasks = return_value.tasks;
+            let res = return_value.code;
+            let message = return_value.message;
+            if(res == "failure"){
+
+                $('#task_list_table').DataTable().clear().destroy();
+
+                x=message;
+                if(typeof message == "object"){
+                    x="";
+                    //var messages = get_object_vars(message);
+                    var messages2 = Object.values(message);
+                    for(var i=0;i<messages2.length;i++){
+                        x=x+messages2[i];
+                    }
+
+                }
+
+
+            }
+            else if(tasks != null && tasks !="undefined"){
+
+                var htmlValue = "";
+                Object.keys(tasks).forEach(function(k){
+
+                    var counter = 1+parseInt(k);
+
+
+                    var id_maintenance_job = tasks[k]["id_maintenance_job"];
+                    var maintenance_job_title = tasks[k]["maintenance_job_title"];
+                    var sla_expire_time = tasks[k]["remain_time"];
+                    var priority = tasks[k]["priority_name"];
+                    var status = tasks[k]["job_status_name"];
+                    var job_report_date_time = tasks[k]["job_report_date_time"];
+                    var job_start_date_time = tasks[k]["job_start_date_time"]?tasks[k]["job_start_date_time"]:'-';
+                    var job_finish_date_time = tasks[k]["job_finish_date_time"]?tasks[k]["job_finish_date_time"]:'-';
+
+                    var operation = '<a href="/maintenance/detail/' + id_maintenance_job + '" target="_blank" data-toggle="tooltip" title="Edit Maintenance Job" >' +
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" id="edit' + counter + '" >' +
+                        '<i class="fa-solid fa-edit" aria-hidden="true"></i></button>' +
+                        '</a>';
+
+
+                    htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+maintenance_job_title+"</td><td>"+sla_expire_time+"</td><td>"
+                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finish_date_time+"</td><td>"+operation+"</td></tr>";
+
+
+                });
+
+
+
+                $('#task_list_table').DataTable().clear().destroy();
+                $('#task_list_table #task_list_body_tbl').html('');
+                $('#task_list_table #task_list_body_tbl').append(htmlValue);
+
+            //datatable
+            var table = $('#task_list_table').DataTable({
+                'paging'      : true,
+                'lengthChange': true,
+                'searching'   : true,
+                'ordering'    : true,
+                'info'        : true,
+                'autoWidth'   : true,
+                "aoColumnDefs": [
+
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7 ,8] },{ "width": "20%", "targets":8 }
+                ]
+            });
+
+
+            }
+
+
+
+
+            $('#listModal').modal('show');
             loadingOverlay.cancelAll();
 
         }

@@ -42,9 +42,11 @@ use Odisse\Maintenance\Models\ManintenanceJob;
 
 
 use App\Http\General\UserData;
+use App\SLP\Com\LinkGenerator\WikiLinkGenerator;
 use Illuminate\Support\Facades\Http;
 use Sentinel;
 use Illuminate\Support\Facades\Validator;
+use Odisse\Maintenance\Models\ContractorAgent;
 
 class MaintenanceController extends Controller
 {
@@ -89,6 +91,8 @@ class MaintenanceController extends Controller
             $locations = $this->getMaintainables();;
 
             $jobs = MaintenanceJob::all();
+            $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('create_maintenance');
+
 
             return view(
                 'maintenance::create_maintenance',
@@ -99,6 +103,7 @@ class MaintenanceController extends Controller
                           'priorities' => $priorities,
                           'locations' => $locations,
                           'jobs' => $jobs,
+                          'wiki_link' => $wiki_link,
 
 
                         ]
@@ -674,7 +679,7 @@ class MaintenanceController extends Controller
 
             //   dd($room_contractors->toSql());
 
-$property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+            $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
               join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
               join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
               join('city' , 'property.id_city' , 'city.id_city')->
@@ -688,6 +693,7 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
               //dd($property_contractors);
 
               $contactors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+              $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
 
               //get all users as reporters
               $reporters = User::all();
@@ -725,9 +731,57 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
 
 
 
+            // get selected User/agent
+            $mjsh = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenanceId )->
+            whereNull('staff_end_date_time')->
+            where('maintenance_job_staff_history_active' , 1)->get();
+
+
+            if(count($mjsh) >1){
+                return redirect('/maintenance/dashboard')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.maintenance_have_multiple_assignee_please_fix_it')]);
+
+            }
+            $selected_user_agent = null;
+            $selected_contractor = null;
+            $selected_business = null;
+            $users = null;
+            $agents = null;
+
+            if(count($mjsh) == 1){
+                $selected_user_agent = $mjsh[0]->id_maintenance_assignee;
+                $contractor_agent = ContractorAgent::where('id_user' , $selected_user_agent)->
+                                 where('contractor_agent_active' , 1)->first();
+
+                $users = User::where('users_active' , 1)->where('is_deleted' , 0)->
+                                 join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
+                                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
+
+                if($contractor_agent){
+                    $selected_contractor = Contractor::find($contractor_agent->id_contractor);
+                    $agents = Contractor::where('contractor.id_contractor' , $selected_contractor->id_contractor)->
+                    join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
+                    join('users','users.id','contractor_agent.id_user')->get();
+
+                }
+                else{
+                    $selected_business = SaasClientBusiness::where('saas_client_business.id_saas_client_business' ,'>' ,0)->
+                                         join('users' , 'users.id_saas_client_business' , 'saas_client_business.id_saas_client_business')->
+                                         where('users.id' , $selected_user_agent)->first();
+
+                }
+
+            }
+
+            //dd($mjsh[0]->id_maintenance_assignee);
+
+
+
+
+
               $locations = $this->getMaintainables();
 
 
+            $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_detail');
 
               //get all maintenance priorities
               $priorities = MaintenanceJobPriorityRef::all();
@@ -746,10 +800,17 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
                 'priorities' => $priorities,
                 'maintenance_status'=>$maintenance_status,
                 'maintenance_job_detail'=>$maintenance_job_detail,
+                'businesses'=>$businesses,
                 'contactors'=>$contactors,
                 'reporters'=>$reporters,
                 'maintainables'=>$maintainables,
                 'maintenance_documents'=>$maintenance_documents,
+		        'selected_user_agent'=>$selected_user_agent,
+		        'selected_contractor'=>$selected_contractor,
+		        'selected_business'=>$selected_business,
+		        'users'=>$users,
+		        'agents'=>$agents,
+		        'wiki_link'=>$wiki_link,
 
 
               ]
@@ -759,7 +820,7 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
               Log::error("in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
               . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
-              return redirect('/maintenance/dashboard')->with([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
+              return redirect('/maintenance/dashboard')->with([ActionStatusConstants::ERROR=> $e->getMessage()]); //trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
 
           }
       }
@@ -856,72 +917,123 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
               }
 
               //check if maintenance reporter has been changed
-              if($maintenance_old_data->id_saas_staff_reporter != $request->maintenance_reporter) {
+            //   if($maintenance_old_data->id_saas_staff_reporter != $request->maintenance_reporter) {
 
-                  // edit reporter of maintenance job
-                  $maintenance_old_data->update([
-                    'id_saas_staff_reporter' => $request->maintenance_reporter
-                        ]);
+            //       // edit reporter of maintenance job
+            //       $maintenance_old_data->update([
+            //         'id_saas_staff_reporter' => $request->maintenance_reporter
+            //             ]);
 
-                  $staff_reporter = User::findOrFail($request->maintenance_reporter);
+            //       $staff_reporter = User::findOrFail($request->maintenance_reporter);
 
-                  $note = $note. " " . $user->first_name . " " . $user->last_name." changed maintenance reporter to ".$staff_reporter->first_name." ".$staff_reporter->last_name;
+            //       $note = $note. " " . $user->first_name . " " . $user->last_name." changed maintenance reporter to ".$staff_reporter->first_name." ".$staff_reporter->last_name;
 
-              }
+            //   }
 
               //check if maintenance staff has been changed
-              if($request->maintenance_assignee != null) {
+              if($request->user_agent != null) {
 
                 Log::info("going to save new assignee");
 
-                  if($maintenance_detail_old_data->id_staff != $request->maintenance_assignee) {
+                //check this task assigned to this user already
+                $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance_old_data->id_maintenance_job )->
+                where('id_maintenance_assignee' , $request->user_agent)->
+                whereNull('staff_end_date_time')->
+                where('maintenance_job_staff_history_active' , 1)->get();
 
+                if(count($check)==0 ){
 
-                    Log::info("1");
-                      // edit staff of maintenance job detail
+                    //check if this task is assigned to another person
+                    $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance_old_data->id_maintenance_job )->
+                    whereNull('staff_end_date_time')->
+                    where('maintenance_job_staff_history_active' , 1)->get();
 
-                      $maintenance_detail_old_data->update([
-                        'id_staff' => $request->maintenance_assignee
-                        ]);
-
-                        Log::info("old data updated");
-                      //get data of maintenance staff history
-                      $previous_maintenance_job_staff_history = MaintenanceJobStaffHistory::where('id_maintenance_job', '=', $id_maintenance)
-                      ->where('staff_end_date_time', null)->get();
-
-                      //update data of maintenance status history
-                      if(sizeof($previous_maintenance_job_staff_history) > 0 ) {
-                            $previous_maintenance_job_staff_history = $previous_maintenance_job_staff_history[0];
-                          $previous_maintenance_job_staff_history->update([
-                                'staff_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
+                    if(count($check2)>0){
+                        foreach($check2  as $assign_staf_obj){
+                            $assign_staf_obj->update([
+                                'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
                             ]);
+                        }
 
-                        Log::info("prev job staff history updated");
-
-                      }
-
-                      //make a new history for maintenance staff history
-                      $maintenance_job_staff_history = new MaintenanceJobStaffHistory();
-                      $maintenance_job_staff_history->id_maintenance_job =  $id_maintenance;
-                      $maintenance_job_staff_history->id_maintenance_staff =  $user->id;
-                      $maintenance_job_staff_history->id_maintenance_assignee =  $request->maintenance_assignee;
-                      $maintenance_job_staff_history->staff_assign_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                      $maintenance_job_staff_history->staff_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                      $maintenance_job_staff_history->staff_end_date_time = null;
-                      $maintenance_job_staff_history->maintenance_job_staff_history_active = 1;
-
-                      $maintenance_job_staff_history->save();
-
-                    Log::info("job staff hist saved");
-
-                      $new_staff = Contractor::findOrFail($request->maintenance_assignee);
+                    }
 
 
-                    Log::info("after find or fail");
-                      $note = $note. " " .$user->first_name . " " . $user->last_name." changed maintenance staff to ".$new_staff->name;
+                    //insert into maintenance_job_staff table
+                    $maintenance_staff = new MaintenanceJobStaffHistory([
+                        'id_maintenance_job'    =>  $maintenance_old_data->id_maintenance_job,
+                        'id_maintenance_staff'    =>  $user->id,
+                        'id_maintenance_assignee'    =>  $request->user_agent,
+                        'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'maintenance_job_staff_history_active'  =>  1,
+
+                    ]);
+                    $maintenance_staff->save();
 
 
-                  }
+
+                    //insert into maintenance_job_staff table
+                    $maintenance_log = new MaintenanceLog([
+                        'id_maintenance_job'    =>  $maintenance_old_data->id_maintenance_job,
+                        'id_staff'    =>  $user->id,
+                        'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
+
+                    ]);
+                    $maintenance_log->save();
+
+
+                }else{
+
+
+                }
+
+                //   if($maintenance_detail_old_data->id_staff != $request->maintenance_assignee) {
+
+                //       // edit staff of maintenance job detail
+
+                //       $maintenance_detail_old_data->update([
+                //         'id_staff' => $request->maintenance_assignee
+                //         ]);
+
+                //         Log::info("old data updated");
+                //       //get data of maintenance staff history
+                //       $previous_maintenance_job_staff_history = MaintenanceJobStaffHistory::where('id_maintenance_job', '=', $id_maintenance)
+                //       ->where('staff_end_date_time', null)->get();
+
+                //       //update data of maintenance status history
+                //       if(sizeof($previous_maintenance_job_staff_history) > 0 ) {
+                //             $previous_maintenance_job_staff_history = $previous_maintenance_job_staff_history[0];
+                //           $previous_maintenance_job_staff_history->update([
+                //                 'staff_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
+                //             ]);
+
+                //         Log::info("prev job staff history updated");
+
+                //       }
+
+                //       //make a new history for maintenance staff history
+                //       $maintenance_job_staff_history = new MaintenanceJobStaffHistory();
+                //       $maintenance_job_staff_history->id_maintenance_job =  $id_maintenance;
+                //       $maintenance_job_staff_history->id_maintenance_staff =  $user->id;
+                //       $maintenance_job_staff_history->id_maintenance_assignee =  $request->maintenance_assignee;
+                //       $maintenance_job_staff_history->staff_assign_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+                //       $maintenance_job_staff_history->staff_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+                //       $maintenance_job_staff_history->staff_end_date_time = null;
+                //       $maintenance_job_staff_history->maintenance_job_staff_history_active = 1;
+
+                //       $maintenance_job_staff_history->save();
+
+                //     Log::info("job staff hist saved");
+
+                //       $new_staff = Contractor::findOrFail($request->maintenance_assignee);
+
+
+                //     Log::info("after find or fail");
+                //       $note = $note. " " .$user->first_name . " " . $user->last_name." changed maintenance staff to ".$new_staff->name;
+
+
+                //   }
               }
               //check if maintenance priority has been changed
               if($maintenance_old_data->id_maintenance_job_priority != $request->priority) {
@@ -1105,10 +1217,11 @@ $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_jo
 
               DB::rollBack();
 
-              return redirect()->back()->with([
-                  'code' => ActionStatusConstants::FAILURE,
-                  'message' => trans('maintenance::maintenance.maintenance_not_edited'),
-              ]);
+              return redirect()->back()->withError($e->getMessage());
+            //   ->with([
+            //       'code' => ActionStatusConstants::FAILURE,
+            //       'message' => trans('maintenance::maintenance.maintenance_not_edited'),
+            //   ]);
 
           }
 

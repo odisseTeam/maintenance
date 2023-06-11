@@ -64,7 +64,7 @@ return [
     'maintenance_must_have_start_date_for_this_action'=>'Maintenance must have start date for this action',
 
     'create' => 'Create Maintenance',
-    'create_job' => 'Create New Job'
+    'create_job' => 'Create New Job',
 
 
 ];

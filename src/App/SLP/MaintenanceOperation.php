@@ -219,7 +219,8 @@ trait MaintenanceOperation
         }
 
         $now = Carbon::createFromDate('now');
-        $holiday_objs = $this->getHolidaysOfBusiness($id_saas_client_business , $now->format('Y'));
+        $api_url = config('app.url').'/api/get_holidays';
+        $holiday_objs = $this->getHolidaysOfBusiness($id_saas_client_business , $now->format('Y') , $api_url);
         $holidays=[];
         foreach($holiday_objs as $obj){
             $holidays[] = $obj->calendar_date;

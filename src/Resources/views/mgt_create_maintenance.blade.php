@@ -488,8 +488,7 @@
                                     <div class="mb-3 row">
                                         <label class="form-label col-sm-2 col-form-label">Textarea</label>
                                         <div class="col-sm-10">
-                                            <textarea rows="5" cols="5" class="form-control"
-                                            placeholder="Default textarea"></textarea>
+                                            <textarea rows="5" cols="5" class="form-control" placeholder="Default textarea"></textarea>
                                         </div>
                                     </div>
 

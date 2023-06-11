@@ -22,7 +22,7 @@ Route::middleware(['web','ProxyCAS'])->group(
 
         Route::get('/maintenance/files/{filename}', function($filename){
 
-         
+
 
             $path = storage_path('../../systemfiles/maintenance_files/uploaded_files/' . $filename);
 
@@ -121,6 +121,10 @@ Route::middleware(['web','ProxyCAS'])->group(
 
            //load contractors for assignment
            Route::post('/contractors_for_assignment', [ContractorController::class,'ajaxGetContractors']);
+
+           //load active tasks of contractor
+           Route::post('/contractor/tasks/{id_contractor}', [ContractorController::class,'ajaxGetContractorTasks']);
+
 
 
 

@@ -25,9 +25,13 @@ use Sentinel;
 use Spatie\LaravelRay\Commands\PublishConfigCommand;
 use Validator;
 use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalContractorManager;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 
 class ContractorController extends Controller
 {
+
+    use MaintenanceOperation;
+
 
 
 
@@ -198,7 +202,7 @@ class ContractorController extends Controller
 
 
             DB::commit();
-            return redirect()->route('contractor_management_page')->with(ActionStatusConstants::SUCCESS, trans('contractor.new_contractor_created'));
+            return redirect()->route('contractor_management_page')->with(ActionStatusConstants::SUCCESS, trans('maintenance::contractor.new_contractor_created'));
 
 
         }
@@ -369,7 +373,28 @@ class ContractorController extends Controller
 
         $user = Sentinel::getUser();
 
+        try{
+        DB::beginTransaction();
+
         Log::info(" in ContractorController- ajaxDeleteContractor function " . " try to delete specific contractor  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        //check contractor have active task
+        $tasks = MaintenanceJob::join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
+                join('contractor_agent' , 'contractor_agent.id_user' , 'maintenance_job_staff_history.id_maintenance_assignee')->
+                join('contractor' , 'contractor.id_contractor' , 'contractor_agent.id_contractor')->
+                where('contractor.id_contractor' , $id_contractor)->get();
+
+        if(count($tasks)){
+
+            DB::rollBack();
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => trans('maintenance::contractor.contractor_has_active_tasks'),
+                ]);
+
+        }
 
         $contractor = Contractor::find($id_contractor);
         $contractor->update([
@@ -380,12 +405,28 @@ class ContractorController extends Controller
         $HistoricalContractorManager->insertHistory($contractor);
 
 
+        DB::commit();
+
+
 
         return response()->json(
             [
               'code' => ActionStatusConstants::SUCCESS,
               'message' => trans('maintenance::contractor.your_selected_contractor_deleted'),
             ]);
+        }catch(\Exception $e){
+
+            Log::error(" in ContractorController- ajaxDeleteContractor function " . $e->getMessage());
+            DB::rollBack();
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => $e->getMessage(),//trans('maintenance::contractor.your_selected_contractor_does_not_deleted'),
+                ]);
+
+
+        }
 
 
     }
@@ -793,6 +834,48 @@ class ContractorController extends Controller
         }
 
 
+
+
+    }
+
+
+
+
+    public function ajaxGetContractorTasks(Request $request , $id_contractor){
+
+        $user = Sentinel::getUser();
+
+        //get contractor taks
+        $tasks = MaintenanceJob::join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
+                join('contractor_agent' , 'contractor_agent.id_user' , 'maintenance_job_staff_history.id_maintenance_assignee')->
+                join('contractor' , 'contractor.id_contractor' , 'contractor_agent.id_contractor')->
+                join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+                join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
+                where('contractor.id_contractor' , $id_contractor)->get();
+
+
+        foreach($tasks as $maintenance){
+
+            $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business, $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+
+
+            if($remain_time){
+                $maintenance->remain_time = $remain_time;
+            }
+            else{
+                $maintenance->remain_time = '-';
+
+            }
+
+        }
+
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::contractor.contractor_tasks_returned'),
+            'tasks' =>$tasks,
+            ]);
 
 
     }

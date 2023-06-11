@@ -133,7 +133,7 @@
                                     <div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
                                         <div class="form-group row ">
                                             <label
-                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.status') }}:</label>
+                                                class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.status') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
                                                 <select name="maintenance_status" id="maintenance_status"
                                                     class="form-control select ">
@@ -164,7 +164,7 @@
 
                                                     <textarea class="form-control" rows="4" name="coment" id="coment" column="40">{{ old('coment') }}</textarea>
 
-                                                    
+
                                                 </div>
 
                                             </div>
@@ -179,24 +179,26 @@
 
                                     <!-- people-->
                                     <div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
-                                        <!-- assignee-->
+                                        <!-- contractor-->
 
                                         <div class="form-group row ">
-                                            <h4><strong>{{ trans('maintenance::maintenance.people') }}</strong></h4>
+                                            <h4><strong>{{ trans('maintenance::maintenance.assignee') }}</strong></h4>
 
                                             <label
-                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.assignee') }}:</label>
+                                                class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.business_contractor') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
-                                                <select name="maintenance_assignee" id="maintenance_assignee"
-                                                    class="form-control select ">
-                                                    <option value="">
-                                                        {{ trans('maintenance::maintenance.select_assignee') }}</option>
+                                                <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
+                                                    {{-- maintenance_assignee --}}
+                                                    <option value="">{{ trans('maintenance::maintenance.select_business_contractor') }}</option>
+                                                    @foreach ($businesses as $business)
+                                                        <option value="B{{ $business->id_saas_client_business}}"
+                                                            @if (isset($selected_business) && $business->id_saas_client_business == $selected_business->id_saas_client_business) {{ 'selected' }} @endif>
+                                                            {{ $business->business_name }}
+                                                        </option>
+                                                    @endforeach
                                                     @foreach ($contactors as $contractor)
-                                                        <option value="{{ $contractor['id_contractor'] }}"
-                                                            @if ($contractor['id_contractor'] == $maintenance_job_detail->id_staff) {{ 'selected' }} @endif>
-
-
-
+                                                        <option value="C{{ $contractor['id_contractor'] }}"
+                                                            @if (isset($selected_contractor) && $contractor['id_contractor'] == $selected_contractor->id_contractor) {{ 'selected' }} @endif>
                                                             {{ $contractor['name'] }}
                                                         </option>
                                                     @endforeach
@@ -204,12 +206,58 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <!-- reporter-->
+
+
+
+
+                                        <!-- assignee-->
 
                                         <div class="form-group row ">
 
                                             <label
-                                                class="col-xs-3 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.reporter') }}:</label>
+                                                class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.user_agent') }}:</label>
+                                            <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+                                                <select name="user_agent" id="user_agent" class="form-control select ">
+                                                    <option value="">{{trans('maintenance::maintenance.select_user_agent')}}</option>
+                                                    @if($users)
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id}}"
+                                                                @if (isset($selected_user_agent) && $user->id == $selected_user_agent) {{ 'selected' }} @endif>
+                                                                @if(isset($user->first_name) || isset($user->last_name)){{ $user->first_name  }} {{$user->last_name}}
+                                                                @else{{$user->email}}@endif
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                    @if($agents)
+                                                        @foreach ($agents as $agent)
+                                                            <option value="{{ $agent->id}}"
+                                                                @if (isset($selected_user_agent) && $agent->id == $selected_user_agent) {{ 'selected' }} @endif>
+                                                                @if(isset($agent->first_name) || isset($agent->last_name)){{ $agent->first_name  }} {{$agent->last_name}}
+                                                                @else{{$agent->email}}@endif
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                    {{-- maintenance_reporter --}}
+                                                    {{-- @foreach ($reporters as $reporter)
+                                                        <option value="{{ $reporter->id }}"
+                                                            @if (
+                                                                $reporter->id == $maintenance->id_saas_staff_reporter ||
+                                                                    old('maintenance_reporter') == $maintenance->id_saas_staff_reporter) {{ 'selected' }} @endif>
+                                                            {{ $reporter->first_name }} {{ $reporter->last_name }}
+                                                        </option>
+                                                    @endforeach --}}
+
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- reporter-->
+
+                                        {{-- <div class="form-group row ">
+
+                                            <label
+                                                class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.reporter') }}:</label>
                                             <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
                                                 <select name="maintenance_reporter" id="maintenance_reporter"
                                                     class="form-control select ">
@@ -224,7 +272,10 @@
 
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> --}}
+
+
+
 
                                     </div>
 
@@ -404,9 +455,7 @@
 
                                                                     <div class="input-group col-xs-12 col-sm-10 col-md-10 col-lg-10">
 
-                                                                        <textarea class="form-control" rows="4" name="file_description" id="file_description" >
-                                                                        {{ old('file_description') }}
-                                                                        </textarea>
+                                                                        <textarea class="form-control" rows="4" name="file_description" id="file_description" >{{ old('file_description') }}</textarea>
                                                                     </div>
 
                                                         </div>
@@ -723,7 +772,7 @@
                     operation += '<a href="/maintenance/attachment/' + id_maintenance_job_document +
                         '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
                         // '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
-                       
+
                      operation += '<a href="/maintenance/files/' + document_name +'" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" title="Show Document" ><i class="fa-solid fa-eye "></i></a>';
 
 
@@ -1065,6 +1114,49 @@
 
 
         /////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////
+        function loadUserAgents(){
+
+            var spinHandle = loadingOverlay.activate();
+            business_contractor = $('#business_contractor').val();
+
+            send( '/maintenance/business_contractor/user_agents',  {
+                business_contractor :business_contractor,
+            }, 'handleLoadUserAgents', []);
+
+        }
+        ///////////////////////////////////////////////////////
+        function handleLoadUserAgents()
+        {
+            let message = return_value.message;
+            let res = return_value.code;
+            let user_list = return_value.result;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                $("#err_msg_box_assign_maintenance").css('display' , 'block');
+
+            }
+
+            else{
+
+                $('#user_agent').find('option').not(':first').remove();
+                user_list.forEach(item => {
+                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                    $('#user_agent').append(new Option(item_name ,item.id));
+                });
+
+
+            }
+            // $('#assignMaintenanceModal').modal('show');
+
+
+            loadingOverlay.cancelAll();
+
+        }
+
     </script>
 
 @endsection

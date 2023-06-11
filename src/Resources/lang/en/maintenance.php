@@ -109,6 +109,15 @@ return [
     'maintenance_file_uploaded_successfully'=>'You have successfully uploaded the file.',
     'maintenance_file_is_empty'=>'File input is empty please upload a file.',
 
-    
+
+
+
+    'business_contractor'=>'Business Contractor',
+    'select_business_contractor'=>'Select Business/Contractor',
+    'user_agent'=>'User Agent',
+    'people_assignee'=>'People & Assignee',
+    'select_user_agent'=>'Select User/Agent',
+
+
 
 ];

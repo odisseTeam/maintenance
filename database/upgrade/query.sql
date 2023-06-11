@@ -116,6 +116,13 @@ INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method
 VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1),
  (null,'maintenance.mgt.resident_reporter','/maintenance/mgt/resident_reporter','post',null,null,1);
 
+
+
+
+INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+VALUES (null,'contractor.tasks.get','/maintenance/contractor/tasks/{id_contractor}','post',null,null,1);
+
+
 -- Add base data to initialize package
 INSERT INTO public.maintenance_job_category_ref
 (job_category_code, job_category_name, job_category_icon, maintenance_job_category_ref_active)
