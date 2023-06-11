@@ -59,6 +59,7 @@ class ApiMaintenanceDetailController extends Controller
         // }
             Log::info("Call API :: MaintenanceDetailController - getMaintenanceListDetail function");
 
+            Log::info(print_r($request->all(), true));
 
         $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->
         join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->

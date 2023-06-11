@@ -447,7 +447,7 @@
 
     <!-- Modal -->
     <div class="modal fade" id="listModal" tabindex="-1" role="dialog" aria-labelledby="listModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" style="max-width: 60%;">
+        <div class="modal-dialog modal-lg" style="max-width: 80%; width: 80%">
             <div class="modal-content">
                 <div class="modal-header">
 
@@ -466,7 +466,7 @@
                         </div>
 
                         <div class="box">
-                            <div class="box-body table-responsive no-padding">
+                            <div class="box-body table-responsive">
 
                                 <div>
 

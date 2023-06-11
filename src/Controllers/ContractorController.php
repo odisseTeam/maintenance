@@ -632,9 +632,9 @@ class ContractorController extends Controller
             $contractor_skills = ContractorSkill::where('id_contractor' , $request->contractor)->where('contractor_skill_active' ,1 )->get();
 
             if(count($contractor_skills)>0){
-                //update password
+                //update contractor skills
                 foreach($contractor_skills as $contractor_skill){
-                    if(!in_array($contractor_skill->id_contractor_skill_ref , $request->skills)){
+                    if($request->skills == null or !in_array($contractor_skill->id_contractor_skill_ref , $request->skills)){
                         //we have to delete old skills are not in skills array
                         $contractor_skill->update([
                             'contractor_skill_active'=>0
@@ -644,24 +644,25 @@ class ContractorController extends Controller
 
                 }
 
-                foreach($request->skills as $skill){
-                    $contractor_skill = ContractorSkill::where('id_contractor' , $request->contractor)->where('id_contractor_skill_ref' ,$skill )->first();
-                    if($contractor_skill){
-                        $contractor_skill->update([
-                            'contractor_skill_active'=>1,
-                        ]);
-                    }
-                    else{
-                        $contractor_skill = new ContractorSkill([
-                            'id_contractor_skill_ref'=>$skill,
-                            'id_contractor'=>$request->contractor,
-                            'contractor_skill_active'=>1,
-                        ]);
-                        $contractor_skill->save();
-                    }
+                if( $request->skills != null)
+                    foreach($request->skills as $skill){
+                        $contractor_skill = ContractorSkill::where('id_contractor' , $request->contractor)->where('id_contractor_skill_ref' ,$skill )->first();
+                        if($contractor_skill){
+                            $contractor_skill->update([
+                                'contractor_skill_active'=>1,
+                            ]);
+                        }
+                        else{
+                            $contractor_skill = new ContractorSkill([
+                                'id_contractor_skill_ref'=>$skill,
+                                'id_contractor'=>$request->contractor,
+                                'contractor_skill_active'=>1,
+                            ]);
+                            $contractor_skill->save();
+                        }
 
 
-                }
+                    }
 
 
             }
@@ -762,7 +763,7 @@ class ContractorController extends Controller
             if(count($contractor_locations)>0){
                 //update password
                 foreach($contractor_locations as $contractor_location){
-                    if(!in_array($contractor_location->id_contractor_location_ref , $request->locations)){
+                    if( $request->locations == null or !in_array($contractor_location->id_contractor_location_ref , $request->locations)){
                         //we have to delete old skills are not in skills array
                         $contractor_location->update([
                             'contractor_location_active'=>0
@@ -772,24 +773,25 @@ class ContractorController extends Controller
 
                 }
 
-                foreach($request->locations as $location){
-                    $contractor_location = ContractorLocation::where('id_contractor' , $request->contractor)->where('id_contractor_location_ref' ,$location )->first();
-                    if($contractor_location){
-                        $contractor_location->update([
-                            'contractor_location_active'=>1,
-                        ]);
-                    }
-                    else{
-                        $contractor_location = new ContractorLocation([
-                            'id_contractor_location_ref'=>$location,
-                            'id_contractor'=>$request->contractor,
-                            'contractor_location_active'=>1,
-                        ]);
-                        $contractor_location->save();
-                    }
+                if($request->locations != null )
+                    foreach($request->locations as $location){
+                        $contractor_location = ContractorLocation::where('id_contractor' , $request->contractor)->where('id_contractor_location_ref' ,$location )->first();
+                        if($contractor_location){
+                            $contractor_location->update([
+                                'contractor_location_active'=>1,
+                            ]);
+                        }
+                        else{
+                            $contractor_location = new ContractorLocation([
+                                'id_contractor_location_ref'=>$location,
+                                'id_contractor'=>$request->contractor,
+                                'contractor_location_active'=>1,
+                            ]);
+                            $contractor_location->save();
+                        }
 
 
-                }
+                    }
 
 
             }
