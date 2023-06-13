@@ -305,3 +305,4 @@ update roles set permissions = '{"portal":true,"report_widgets":true,"profile":t
 
 
 update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true}' where slug = 'super_admin';
+

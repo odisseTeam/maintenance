@@ -26,6 +26,7 @@ use Spatie\LaravelRay\Commands\PublishConfigCommand;
 use Validator;
 use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalContractorManager;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 
 class ContractorController extends Controller
 {
@@ -354,12 +355,70 @@ class ContractorController extends Controller
 
 
 
+
+
+
+
+            // get selected User/agent
+            $mjsh = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$request->maintenance )->
+            whereNull('staff_end_date_time')->
+            where('maintenance_job_staff_history_active' , 1)->get();
+
+
+            if(count($mjsh) >1){
+
+
+                return response()->json(
+                    [
+                    'code' => ActionStatusConstants::FAILURE,
+                    'message' => trans('maintenance::maintenance.maintenance_have_multiple_assignee_please_fix_it'),
+                    ]);
+
+            }
+            $selected_user_agent = null;
+            $selected_contractor = null;
+            $selected_business = null;
+            $users = null;
+            $agents = null;
+
+            if(count($mjsh) == 1){
+                $selected_user_agent = $mjsh[0]->id_maintenance_assignee;
+                $contractor_agent = ContractorAgent::where('id_user' , $selected_user_agent)->
+                                 where('contractor_agent_active' , 1)->first();
+
+                $users = User::where('users_active' , 1)->where('is_deleted' , 0)->
+                                 join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
+                                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
+
+                if($contractor_agent){
+                    $selected_contractor = Contractor::find($contractor_agent->id_contractor);
+                    $agents = Contractor::where('contractor.id_contractor' , $selected_contractor->id_contractor)->
+                    join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
+                    join('users','users.id','contractor_agent.id_user')->get();
+
+                }
+                else{
+                    $selected_business = SaasClientBusiness::where('saas_client_business.id_saas_client_business' ,'>' ,0)->
+                                         join('users' , 'users.id_saas_client_business' , 'saas_client_business.id_saas_client_business')->
+                                         where('users.id' , $selected_user_agent)->first();
+
+                }
+
+            }
+
+
+
+
         return response()->json(
             [
               'code' => ActionStatusConstants::SUCCESS,
               'contractors'=>$contractors,
               'businesses'=>$businesses,
-
+              'selected_user_agent'=>$selected_user_agent,
+              'selected_contractor'=>$selected_contractor,
+              'selected_business'=>$selected_business,
+              'users'=>$users,
+              'agents'=>$agents,
               'message' => trans('maintenance::contractor.your_contractors_returned'),
             ]);
 

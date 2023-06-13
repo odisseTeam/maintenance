@@ -1075,6 +1075,7 @@
             $('#search_title').val('');
             $('#search_start_date').val('');
             $('#search_end_date').val('');
+            $('#search_assignee').val('');
 
             searchAgain();
 
@@ -1115,6 +1116,11 @@
             let res = return_value.code;
             let business_list = return_value.businesses;
             let contractor_list = return_value.contractors;
+            let users = return_value.users;
+            let agents = return_value.agents;
+            let selected_contractor = return_value.selected_contractor;
+            let selected_business = return_value.selected_business;
+            let selected_user_agent = return_value.selected_user_agent;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1133,6 +1139,44 @@
                 contractor_list.forEach(item => {
                     $('#business_contractor').append(new Option(item.name ,'C'+item.id_contractor));
                 });
+
+
+
+
+
+
+
+                if(users){
+                    users.forEach(item => {
+                    var item_name = item.first_name +' '+item.last_name;
+                    var item_id = item.id ;
+                    $('#user_agent').append(new Option(item_name ,item_id));
+                });
+                }
+
+
+
+
+                if(agents){
+                    agents.forEach(item => {
+                    var item_name = item.email;
+                    var item_id = item.id ;
+                    $('#user_agent').append(new Option(item_name ,item_id));
+                });
+                }
+
+
+
+                if(selected_contractor){
+                    $('#business_contractor').val('C'+selected_contractor.id_contractor);
+                }
+                else if(selected_business){
+                    $('#business_contractor').val('B'+selected_business.id_saas_client_business);
+                }
+                if(selected_user_agent){
+                    $('#user_agent').val(selected_user_agent);
+                }
+
 
 
             }

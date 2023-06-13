@@ -1035,6 +1035,23 @@ class MaintenanceController extends Controller
 
                 //   }
               }
+              else{
+                //remove active assignee
+                //check if this task is assigned to another person
+                $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance_old_data->id_maintenance_job )->
+                whereNull('staff_end_date_time')->
+                where('maintenance_job_staff_history_active' , 1)->get();
+
+                if(count($check2)>0){
+                    foreach($check2  as $assign_staf_obj){
+                        $assign_staf_obj->update([
+                            'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        ]);
+                    }
+
+                }
+
+              }
               //check if maintenance priority has been changed
               if($maintenance_old_data->id_maintenance_job_priority != $request->priority) {
 

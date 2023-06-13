@@ -102,10 +102,11 @@ class MaintenanceDashboardController extends Controller
 
         if( $request->has('assignee') and $request->assignee != null ){
             $maintenances = $maintenances->
-            leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
-            leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
-            leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            join('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+            join('contractor_agent', 'maintenance_job_staff_history.id_maintenance_assignee' , 'contractor_agent.id_user')->
+            join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
             $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
+
         }
         else{
             //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
@@ -134,32 +135,19 @@ class MaintenanceDashboardController extends Controller
 
         if( $request->has('end_date') and $request->end_date != null )
             $maintenances = $maintenances
-                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
-                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
-
-
-
-        // $maintenaces = $maintenances->distinct()
-        // ->select(
-        //     'maintenance_job.*' ,
-        //     'maintenance_job_category_ref.*' ,
-        //     'maintenance_job_status_ref.*' ,
-        //     'maintenance_job_priority_ref.*',
-        //     'users.*',
-        //     'maintenance_job_sla.*',
-        //     'maintenance_job_sla_ref.*',
-        //     'maintenance_job_sla_ref.*',
-        //     'resident.*'
-        // );
+                ->where('maintenance_job.job_finish_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_finish_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
 
 
         if( $request->has('assignee') and $request->assignee != null ){
+            $maintenances = $maintenances->whereNull('staff_end_date_time');
             $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
         }
         else{
             $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident');
         }
 
+        Log::debug($maintenances->toSql());
 
 
 
@@ -347,7 +335,7 @@ class MaintenanceDashboardController extends Controller
             return response()->json(
                 [
                 'code' => ActionStatusConstants::FAILURE,
-                'message' => $validator,
+                'message' => $validator->errors(),
                 ]);
 
         }

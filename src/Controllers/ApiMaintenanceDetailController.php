@@ -21,6 +21,7 @@ use Odisse\Maintenance\Models\Contractor;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+use Odisse\Maintenance\Models\ContractorAgent;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use stdClass;
 use Validator;
@@ -70,15 +71,14 @@ class ApiMaintenanceDetailController extends Controller
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
         leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
 
-
-        // $maintenaces = $maintenances->select('maintenance_job.*' , 'maintenance_job_category_ref.*' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' , 'users.*' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' ,'resident.resident_first_name' , 'resident.resident_last_name');
-
         if( $request->has('assignee') and $request->assignee != null ){
             $maintenances = $maintenances->
-            leftjoin('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
-            leftjoin('contractor_agent', 'maintenance_job_staff_history.id_maintenance_staff' , 'contractor_agent.id_user')->
-            leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            join('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+            join('contractor_agent', 'maintenance_job_staff_history.id_maintenance_assignee' , 'contractor_agent.id_user')->
+            join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
             $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
+
+            Log::debug($maintenances->toSql());
         }
         else{
             //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
@@ -104,15 +104,14 @@ class ApiMaintenanceDetailController extends Controller
                 ->where('maintenance_job.job_start_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 00:00:00'))
                 ->where('maintenance_job.job_start_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->start_date)->format('Y-m-d 23:59:59'));
 
-
         if( $request->has('end_date') and $request->end_date != null )
             $maintenances = $maintenances
-                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
-                ->where('maintenance_job.job_finish_date_time','=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
-
+                ->where('maintenance_job.job_finish_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_finish_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->end_date)->format('Y-m-d 23:59:59'));
 
 
         if( $request->has('assignee') and $request->assignee != null ){
+            $maintenances = $maintenances->whereNull('staff_end_date_time');
             $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
         }
         else{
@@ -452,6 +451,59 @@ class ApiMaintenanceDetailController extends Controller
 
 
 
+            // get selected User/agent
+            $mjsh = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$request->maintenance )->
+            whereNull('staff_end_date_time')->
+            where('maintenance_job_staff_history_active' , 1)->get();
+
+
+            if(count($mjsh) >1){
+
+
+                return response()->json(
+                    [
+                    'code' => ActionStatusConstants::FAILURE,
+                    'message' => trans('maintenance::maintenance.maintenance_have_multiple_assignee_please_fix_it'),
+                    ]);
+
+            }
+            $selected_user_agent = null;
+            $selected_contractor = null;
+            $selected_business = null;
+            $users = null;
+            $agents = null;
+
+            if(count($mjsh) == 1){
+                $selected_user_agent = $mjsh[0]->id_maintenance_assignee;
+                $contractor_agent = ContractorAgent::where('id_user' , $selected_user_agent)->
+                                 where('contractor_agent_active' , 1)->first();
+
+                $users = User::where('users_active' , 1)->where('is_deleted' , 0)->
+                                 join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
+                                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
+
+                if($contractor_agent){
+                    $selected_contractor = Contractor::find($contractor_agent->id_contractor);
+                    $agents = Contractor::where('contractor.id_contractor' , $selected_contractor->id_contractor)->
+                    join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
+                    join('users','users.id','contractor_agent.id_user')->get();
+
+                }
+                else{
+                    $selected_business = SaasClientBusiness::where('saas_client_business.id_saas_client_business' ,'>' ,0)->
+                                         join('users' , 'users.id_saas_client_business' , 'saas_client_business.id_saas_client_business')->
+                                         where('users.id' , $selected_user_agent)->first();
+
+                }
+
+            }
+
+
+
+
+
+
+
 
 
 
@@ -468,6 +520,11 @@ class ApiMaintenanceDetailController extends Controller
             $status = APIStatusConstants::BAD_REQUEST;
             $businesses=null;
             $contractors=null;
+            $selected_user_agent=null;
+            $selected_contractor=null;
+            $selected_business=null;
+            $users=null;
+            $agents=null;
 
 
         }
@@ -478,6 +535,11 @@ class ApiMaintenanceDetailController extends Controller
                 'message'   => $message,
                 'businesses'  => $businesses,
                 'contractors'  => $contractors,
+                'selected_user_agent'=>$selected_user_agent,
+                'selected_contractor'=>$selected_contractor,
+                'selected_business'=>$selected_business,
+                'users'=>$users,
+                'agents'=>$agents,
             ]
         );
     }

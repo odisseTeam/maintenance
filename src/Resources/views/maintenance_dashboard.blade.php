@@ -1036,6 +1036,7 @@
             $('#search_title').val('');
             $('#search_start_date').val('');
             $('#search_end_date').val('');
+            $('#search_assignee').val('');
 
             searchAgain();
 
@@ -1072,6 +1073,11 @@
             let res = return_value.code;
             let contractors = return_value.contractors;
             let businesses = return_value.businesses;
+            let users = return_value.users;
+            let agents = return_value.agents;
+            let selected_contractor = return_value.selected_contractor;
+            let selected_business = return_value.selected_business;
+            let selected_user_agent = return_value.selected_user_agent;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1084,6 +1090,7 @@
             else{
 
                 $('#business_contractor').find('option').not(':first').remove();
+                $('#user_agent').find('option').not(':first').remove();
                 businesses.forEach(item => {
                     var item_name = item.business_name ;
                     var item_id = 'B'+item.id_saas_client_business ;
@@ -1094,6 +1101,43 @@
                     var item_id = 'C'+item.id_contractor ;
                     $('#business_contractor').append(new Option(item_name ,item_id));
                 });
+
+
+
+
+
+                if(users){
+                    users.forEach(item => {
+                    var item_name = item.first_name +' '+item.last_name;
+                    var item_id = item.id ;
+                    $('#user_agent').append(new Option(item_name ,item_id));
+                });
+                }
+
+
+
+
+                if(agents){
+                    agents.forEach(item => {
+                    var item_name = item.email;
+                    var item_id = item.id ;
+                    $('#user_agent').append(new Option(item_name ,item_id));
+                });
+                }
+
+
+
+                if(selected_contractor){
+                    $('#business_contractor').val('C'+selected_contractor.id_contractor);
+                }
+                else if(selected_business){
+                    $('#business_contractor').val('B'+selected_business.id_saas_client_business);
+                }
+                if(selected_user_agent){
+                    $('#user_agent').val(selected_user_agent);
+                }
+
+
 
 
             }
@@ -1167,11 +1211,20 @@
             let res = return_value.code;
             let user_list = return_value.result;
             loadingOverlay.cancelAll();
+            var textmessage = message;
 
 
             if(res == "failure"){
 
-                $("#ajx_err_msg_assign_maintenance").html(message);
+                if(typeof message === 'object'){
+
+                    textmessage = "";
+                    Object.keys(message).forEach(function(k) {
+                        textmessage+= message[k];
+                    });
+                }
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
                 $("#err_msg_box_assign_maintenance").css('display' , 'block');
                 $("#assign_maintenance_btn").removeAttr('disabled');
 
@@ -1208,6 +1261,8 @@
         function startMaintenance(){
             var spinHandle = loadingOverlay.activate();
             $("#start_maintenance_btn").attr('disabled','disabled');
+            $("#err_msg_box_start").css('display' , 'none');
+
 
 
             let started_maintenance = $( '#started_maintenance' ).val();
@@ -1279,6 +1334,8 @@
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let end_date_time = $( '#end_datetimepicker input' ).val();
             $("#end_maintenance_btn").attr('disabled','disabled');
+            $("#err_msg_box_end").css('display' , 'none');
+
 
 
             send( '/maintenance/end/'+ended_maintenance,  {

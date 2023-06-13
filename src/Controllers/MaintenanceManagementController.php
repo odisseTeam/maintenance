@@ -107,6 +107,13 @@ class MaintenanceManagementController extends Controller
 
                     $params =[
                         'business'=>$request->business,
+                        'category'=>$request->category,
+                        'priority'=>$request->priority,
+                        'status'=>$request->status,
+                        'title'=>$request->title,
+                        'start_date'=>$request->start_date,
+                        'end_date'=>$request->end_date,
+                        'assignee'=>$request->assignee,
                     ];
 
 
@@ -121,7 +128,6 @@ class MaintenanceManagementController extends Controller
 
 
         }
-
 
 
         return response()->json(
@@ -250,6 +256,11 @@ class MaintenanceManagementController extends Controller
                   'message' => $responseObj->message,
                   'businesses' => $responseObj->businesses,
                   'contractors' => $responseObj->contractors,
+                  'selected_user_agent'=>$responseObj->selected_user_agent,
+                  'selected_contractor'=>$responseObj->selected_contractor,
+                  'selected_business'=>$responseObj->selected_business,
+                  'users'=>$responseObj->users,
+                  'agents'=>$responseObj->agents,
                 ]);
         }
         else{
@@ -259,6 +270,11 @@ class MaintenanceManagementController extends Controller
                   'message' => $responseObj->message,
                   'businesses' => $responseObj->businesses,
                   'contractors' => $responseObj->contractors,
+                  'selected_user_agent'=>$responseObj->selected_user_agent,
+                  'selected_contractor'=>$responseObj->selected_contractor,
+                  'selected_business'=>$responseObj->selected_business,
+                  'users'=>$responseObj->users,
+                  'agents'=>$responseObj->agents,
                 ]);
 
         }
