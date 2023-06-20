@@ -44,6 +44,9 @@ return [
     'task_end_date'=>'Task End Date',
     'contractor_task_list'=>'Contractor Task List',
     'close'=>'Close',
+    'attachments'=>'Attachments',
+    'note'=>'Note',
+    'generate_password'=>'Generate Password',
 
 
 
@@ -69,6 +72,7 @@ return [
     'login_agent_settings'=>'Login Agent Settings',
     'confirm_password'=>'Confirm Password',
     'confirm_password_placeholder'=>'Please Enter Password Again',
+    'are_you_sure_to_delete_contractor_document'=>'Are you sure to delete this Contractor document?',
 
 
 
@@ -96,5 +100,15 @@ return [
     'your_selected_contractor_does_not_deleted'=>'Your selected contractor does not deleted!',
     'contractor_has_active_tasks'=>'Contractor has active task!',
     'contractor_tasks_returned'=>'Contractor tasks returned!',
+    'contractor_attachment_list'=>'Contractor Attachments List',
+    'delete_contractor_document_modal'=>'Delete Contractor Document Modal',
+    'contractor_document_deleted_succssfully'=>'Contractor Document Deleted Succssfully',
+    'contractor_document_did_not_deleted'=>'Contractor Document Did Not Deleted Succssfully',
+    'contractor_file_uploaded_successfully'=>'Contractor Document Uploaded Succssfully',
+    'contractor_file_did_not_uploaded_successfully'=>'Contractor Document Did Not Uploaded Succssfully',
+    'contractor_document'=>'Contractor Document',
+    'contractor_documents'=>'Contractor Documents'
+
+
 
 ];

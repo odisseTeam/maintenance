@@ -39,6 +39,25 @@ Route::middleware(['web','ProxyCAS'])->group(
         });
 
 
+        Route::get('/contractor/files/{filename}', function($filename){
+
+
+
+            $path = storage_path('../../systemfiles/contractor_files/uploaded_files/' . $filename);
+
+
+
+            if (!file_exists($path)) {
+                abort(404);
+            }
+
+            $file = file_get_contents($path);
+
+            return response($file, 200)->header('Content-Type', mime_content_type($path));
+
+        });
+
+
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware']], function(){
 
            Route::get('/management', [MaintenanceManagementController::class,'showManagementPage'])->name('maintenance_management');
@@ -54,6 +73,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
            Route::post('/mgt/new/save', [MaintenanceManagementController::class,'createMaintenance']);
            Route::post('/mgt/resident_reporter', [MaintenanceController::class,'getLocationResidents']);
+           Route::post('/mgt/contractor_skill/contractors', [MaintenanceManagementController::class,'ajaxGetContractorsWithSkill']);
 
         });
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware', 'settingsLoader']],function () {
@@ -125,7 +145,19 @@ Route::middleware(['web','ProxyCAS'])->group(
            //load active tasks of contractor
            Route::post('/contractor/tasks/{id_contractor}', [ContractorController::class,'ajaxGetContractorTasks']);
 
+           //get contractor based skill
+           Route::post('/contractor_skill/contractors' , [ContractorController::class,'ajaxGetContractorsWithSkill']);
 
+
+            //get  attachments of contractor
+            Route::post('/contractor/attachments/{id_contractor}', [ContractorController::class,'ajaxGetContractorAttachments']);
+
+           //delete  attachment of a contractor
+           Route::post('/contractor_document/delete', [ContractorController::class,'deleteContractorAttachment']);
+
+           Route::get('/contractor_attachment/{id_attachment}/download', [ContractorController::class,'downloadAttachment']);
+
+           Route::post('/contractor_file/upload', [ContractorController::class,'uploadAttachment']);
 
 
         });

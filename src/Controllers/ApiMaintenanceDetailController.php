@@ -22,6 +22,7 @@ use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Odisse\Maintenance\Models\ContractorAgent;
+use Odisse\Maintenance\Models\ContractorSkillRef;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use stdClass;
 use Validator;
@@ -32,6 +33,138 @@ class ApiMaintenanceDetailController extends Controller
 {
 
     use MaintenanceOperation;
+
+
+
+    public function getContractorsWithSkill(Request $request){
+
+
+        try{
+
+        $maintenanceId = $request->maintenance;
+
+
+        if($request->contractor_skill){
+
+            //get all the conductors are in maintenance location
+
+            $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+                join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
+                join('room' , 'maintainable.maintenable_id' , 'room.id_room')->
+                join('property' , 'room.id_property' , 'property.id_property')->
+                join('city' , 'property.id_city' , 'city.id_city')->
+                join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+                join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+                join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+                })->
+                join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->whereIn('contractor_skill.id_contractor_skill_ref' , $request->contractor_skill)->
+                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->
+                select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+                join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
+                join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
+                join('city' , 'property.id_city' , 'city.id_city')->
+                join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+                join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+                join('contractor_location_ref', function ($join) {
+                    $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                    $join->on('contractor_location_ref.location', '=', 'city.name');
+                })->
+                join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->whereIn('contractor_skill.id_contractor_skill_ref' , $request->contractor_skill)->
+                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->
+                select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            //dd($property_contractors);
+
+            $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+        }
+        else{
+            //get all the conductors are in maintenance location
+
+            $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
+            join('room' , 'maintainable.maintenable_id' , 'room.id_room')->
+            join('property' , 'room.id_property' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+            $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+            $join->on('contractor_location_ref.location', '=', 'city.name');
+        })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+        $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
+            join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+            })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            //dd($property_contractors);
+
+            $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+
+        }
+
+
+        $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
+
+
+        return response()->json(
+            [
+            'status' => APIStatusConstants::OK,
+            'message' => trans('maintenance::contractor.contractor_agent_info_returned'),
+            'contractors' =>$contractors,
+            'businesses' =>$businesses,
+            ]);
+
+        }catch(\Exception $e){
+
+            Log::error($e->getMessage());
+            return response()->json([
+                'status' =>APIStatusConstants::BAD_REQUEST,
+                'message'=>$e->getMessage(),
+                'contractors' =>[],
+                'businesses'=>[],
+            ]);
+
+        }
+
+
+    }
+
+
+
+    public function getMaintenanceMgtRefData(){
+
+        $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
+        $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
+        $priorities = MaintenanceJobPriorityRef::where('maintenance_job_priority_ref_active' , 1 )->get();
+        $categories = MaintenanceJobCategoryRef::where('maintenance_job_category_ref_active' , 1 )->get();
+
+
+        $status = APIStatusConstants::OK;
+        $message = trans('maintenance::maintenance_mgt.maintenance_ref_data_loaded_successfully');
+
+
+        return response()->json(
+            [
+                'status' => $status,
+                'message'   => $message,
+                'skills'  => $skills,
+                'statuses'  => $statuses,
+                'priorities'  => $priorities,
+                'categories'  => $categories,
+            ]
+        );
+    }
 
 
 
@@ -570,6 +703,8 @@ class ApiMaintenanceDetailController extends Controller
         // }
             Log::info("Call API :: ApiMaintenanceDetailController - getUserAgents function");
 
+            $contractor = null;
+
 
             $business_contractor = $request->business_contractor;
             $result=[];
@@ -588,6 +723,8 @@ class ApiMaintenanceDetailController extends Controller
                 join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                 join('users','users.id','contractor_agent.id_user')->get();
                 $result = $agents;
+                $contractor = Contractor::find(substr($business_contractor, 1));
+
             }
 
 
@@ -610,7 +747,6 @@ class ApiMaintenanceDetailController extends Controller
             $status = APIStatusConstants::BAD_REQUEST;
             $agents=null;
 
-
         }
 
         return response()->json(
@@ -618,6 +754,7 @@ class ApiMaintenanceDetailController extends Controller
                 'status' => $status,
                 'message'   => $message,
                 'agents'  => $result,
+                'contractor'  => $contractor,
             ]
         );
     }

@@ -15,7 +15,7 @@ return [
     'jobs_category'  =>  'Job Category',
     'from_date'  =>  'From Date',
     'till_date'  =>  'Till Date',
-    'search'  =>  'SEARCH',
+    'search'  =>  'Search',
 
     'jobs'  => 'Jobs',
 
@@ -112,11 +112,15 @@ return [
 
 
 
-    'business_contractor'=>'Business Contractor',
+    'business_contractor'=>'Business/Contractor',
     'select_business_contractor'=>'Select Business/Contractor',
-    'user_agent'=>'User Agent',
+    'user_agent'=>'User/Agent',
     'people_assignee'=>'People & Assignee',
     'select_user_agent'=>'Select User/Agent',
+    'contractor_skill'=>'Contractor Skill',
+    'select_contractor_skill'=>'Select Contractor Skill',
+    'contractor_note'=>'Contractor Note',
+
 
 
 

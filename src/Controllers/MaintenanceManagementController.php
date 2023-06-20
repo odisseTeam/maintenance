@@ -25,6 +25,7 @@ use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use Odisse\Maintenance\Models\MaintenanceLog as ModelsMaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+use Odisse\Maintenance\Models\ContractorSkillRef;
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
@@ -53,9 +54,33 @@ class MaintenanceManagementController extends Controller
 
 
         $businesses = config('maintenances.businesses_name');
-        $categories = MaintenanceJobCategoryRef::where('maintenance_job_category_ref_active' , 1)->get();
-        $priorities = MaintenanceJobPriorityRef::where('maintenance_job_priority_ref_active' , 1)->get();
-        $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
+        $business = $businesses[0];
+
+        $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';
+
+
+        $response = Http::post($url,[]);
+
+        $responseObj = json_decode($response->body());
+
+        if($responseObj){
+
+            $categories = $responseObj->categories;
+            $priorities = $responseObj->priorities;
+            $statuses = $responseObj->statuses;
+            $skills = $responseObj->skills;
+
+        }
+        else{
+
+        $categories = [];
+        $priorities = [];
+        $statuses = [];
+        $skills = [];
+
+
+        }
+
 
         $maintenance_users = User::where('users_active' , 1)->
         join('role_users','role_users.user_id','users.id')->
@@ -76,6 +101,7 @@ class MaintenanceManagementController extends Controller
                         'contractors'=>$contractors,
                         'maintenance_users'=>$maintenance_users,
                         'contractor_agents'=>$contractor_agents,
+                        'skills'=>$skills,
 
                     ]
                 );
@@ -326,6 +352,7 @@ class MaintenanceManagementController extends Controller
                   'code' => 'success',
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
+                  'contractor' =>$responseObj->contractor
                 ]);
         }
         else{
@@ -334,6 +361,7 @@ class MaintenanceManagementController extends Controller
                   'code' => 'failure',
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
+                  'contractor' =>$responseObj->contractor,
                 ]);
 
         }
@@ -661,11 +689,39 @@ class MaintenanceManagementController extends Controller
 
 
         $user = Sentinel::getUser();
+
+        $labels = [];
+
         $selected_businesses =  $request->businesses; //explode(",", $request->businesses);
 
 
         //get labels
-        $labels = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active',1)->pluck('job_status_name');
+
+        $businesses = config('maintenances.businesses_name');
+        $business = $businesses[0];
+
+        $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';
+
+
+        $response = Http::post($url,[]);
+
+        $responseObj = json_decode($response->body());
+
+        if($responseObj){
+            $statuses = $responseObj->statuses;
+        }
+        else{
+
+        $statuses = [];
+
+
+        }
+
+        foreach($statuses as $status){
+            $labels[] = $status->job_status_name;
+
+        }
+
 
         $datasets=[];
             $businesses = config('maintenances.businesses_name');
@@ -846,6 +902,78 @@ class MaintenanceManagementController extends Controller
         }
 
         return redirect('/maintenance/mgt/create')->with(['success' => 'maintenance created']);
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    public function ajaxGetContractorsWithSkill(Request $request){
+
+
+
+        $user = Sentinel::getUser();
+        $staff_user = User::find($user->id);
+
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        if( $request->has('business') and $request->business != null ){
+
+
+            //get maintenances of specific business
+
+            $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if($business['id_saas_client_business'] == $request->business){
+
+                    $url =$business['maintenance_api_url'].'/api/contractor_skill/contractors';
+
+                   // dd($request->all());
+
+                    $params =[
+                        'maintenance'=>$request->maintenance,
+                        'business'=>$request->business,
+                        'contractor_skill'=>$request->contractor_skill,
+                        'staff_user'=>$staff_user->email
+                    ];
+
+
+
+                    $response = Http::post($url,$params);
+
+                    $responseObj = json_decode($response->body());
+
+                    //dd($responseObj);
+
+                }
+            }
+
+
+
+        }
+        else{
+            //get maintenance of all businesses
+        }
+
+        if($responseObj->status == 200){
+            return response()->json(
+                [
+                  'code' => 'success',
+                  'message' => $responseObj->message,
+                  'businesses' => $responseObj->businesses,
+                  'contractors' => $responseObj->contractors,
+                ]);
+        }
+        else{
+            return response()->json(
+                [
+                  'code' => 'failure',
+                  'message' => $responseObj->message,
+                  'businesses' => $responseObj->businesses,
+                  'contractors' => $responseObj->contractors,
+                ]);
+
+        }
+
 
     }
 

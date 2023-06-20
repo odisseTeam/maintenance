@@ -18,13 +18,14 @@ class CreateHistoricalContractorTable extends Migration
             $table->integer('id_contractor')->index('fk_historical_contractor_contractor1_idx');
             $table->integer('id_saas_client_business');
             $table->string('name');
-            $table->string('short_name');
+            $table->string('short_name')->nullable;
             $table->string('vat_number')->nullable();
             $table->string('tel_number1')->nullable();
             $table->string('tel_number2')->nullable();
             $table->string('address_line1')->nullable();
             $table->string('address_line2')->nullable();
             $table->string('address_line3')->nullable();
+            $table->text('note')->nullable();
             $table->tinyInteger('contractor_active');
             $table->integer('edited_by');
             $table->date('history_valid_from')->nullable();

@@ -28,6 +28,7 @@ use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
 use Spatie\LaravelRay\Commands\PublishConfigCommand;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+use Odisse\Maintenance\Models\ContractorSkillRef;
 use Validator;
 
 class MaintenanceDashboardController extends Controller
@@ -62,6 +63,9 @@ class MaintenanceDashboardController extends Controller
         $contractor_agents = [];
 
         $contractors = Contractor::where('contractor_active' , 1)->get();
+
+        $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
+
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_dashboard');
 
 
@@ -76,6 +80,7 @@ class MaintenanceDashboardController extends Controller
                         'contractors'=>$contractors,
                         'maintenance_users'=>$maintenance_users,
                         'contractor_agents'=>$contractor_agents,
+                        'skills'=>$skills,
                         'wiki_link'=>$wiki_link,
 
                     ]
@@ -261,6 +266,8 @@ class MaintenanceDashboardController extends Controller
         Log::info("In maintenance package, MaintenanceDashboardController- ajaxLoadUserAgents function " . " try to load User & Agents  ------- by user " . $user->first_name . " " . $user->last_name);
 
         try{
+
+            $contractor = null;
             $business_contractor = $request->business_contractor;
             $result=[];
             if($business_contractor && $business_contractor[0] == "B"){
@@ -278,6 +285,7 @@ class MaintenanceDashboardController extends Controller
                 join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                 join('users','users.id','contractor_agent.id_user')->get();
                 $result = $agents;
+                $contractor = Contractor::find(substr($business_contractor, 1));
             }
 
 
@@ -287,6 +295,7 @@ class MaintenanceDashboardController extends Controller
               'code' => ActionStatusConstants::SUCCESS,
               'message' => trans('maintenance::contractor.load_users_agents_was_successful'),
               'result' => $result,
+              'contractor' => $contractor,
             ]);
 
         }
@@ -299,6 +308,7 @@ class MaintenanceDashboardController extends Controller
                 [
                   'code' => ActionStatusConstants::FAILURE,
                   'result'=>[],
+                  'contractor'=>null,
                   'message' => $e->getMessage(),//trans('maintenance::dashboard.load_users_agents_was_not_successful'),
                 ]);
 

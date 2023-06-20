@@ -528,7 +528,122 @@
         </div>
     </div>
 
+ <!-- Modal -->
+    <div class="modal fade" id="contractorAttachmentModal" tabindex="-1" role="dialog" aria-labelledby="contractorAttachmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 80%; width: 80%">
+            <div class="modal-content">
+                <div class="modal-header">
 
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="contractorAttachmentModalLabel">{{trans('maintenance::contractor.contractor_attachment_list')}}</h4>
+                </div>
+
+
+                <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="err_msg_box_list" style="display: none">
+                            <div id="ajx_err_msg_list"></div>
+                        </div>
+                        <div class="alert alert-success alert-dismissible" id="suc_msg_box_list" style="display: none">
+                            <div id="ajx_suc_msg_list"></div>
+                        </div>
+
+                        <div class="box">
+                            <div class="box-body table-responsive">
+
+                                <div>
+
+
+                                    <!-- list-->
+
+                                    <table id="contractor_attachment_table" class="table table-bordered table-hover dataTable text-center" style="width:100%!important;">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>{{ __('maintenance::maintenance.document_name') }}</th>
+                                                <th>{{ __('maintenance::maintenance.document_extention') }}</th>
+                                                <th>{{ __('maintenance::maintenance.description') }}</th>
+                                                <th>{{ __('maintenance::maintenance.operation') }}</th>
+                                            </tr>
+                                        </thead>
+
+
+                                        <tbody id="contractor_attachment_body_tbl">
+
+
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>{{ __('maintenance::maintenance.document_name') }}</th>
+                                                <th>{{ __('maintenance::maintenance.document_extention') }}</th>
+                                                <th>{{ __('maintenance::maintenance.description') }}</th>
+                                                <th>{{ __('maintenance::maintenance.operation') }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                </div>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"  data-dismiss="modal">{{trans('maintenance::contractor.close')}}</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- delete contractor document Modal -->
+    <div class="modal fade" id="deleteContractorDocumentModal" tabindex="-1" role="dialog"
+        aria-labelledby="deleteContractorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                            class="sr-only">{{ __('general.close') }}</span></button>
+
+                    <h4 class="modal-title" id="deleteContractorDocumentModallabel">
+                        {{ __('maintenance::contractor.delete_contractor_document_modal') }}</h4>
+
+                </div>
+                <div class="form-horizontal" id="note_mgt_form" novalidate="novalidate">
+
+                    <div class="alert alert-danger alert-dismissible" id="delete_contractor_document_err_msg_box"
+                        style="display: none;">
+                        <div id="delete_contractor_document_ajx_err_msg"></div>
+                    </div>
+                    <div class="alert alert-success alert-dismissible" id="delete_contractor_document_success_msg_box"
+                        style="display: none;">
+                        <div id="delete_contractor_document_ajx_success_msg"></div>
+                    </div>
+                    <div class="modal-body">
+
+                        <h4>{{ __('maintenance::contractor.are_you_sure_to_delete_contractor_document') }}</h4>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="close_btn" class="btn btn-warning"
+                            data-dismiss="modal">{{ __('general.close') }}</button>
+                        <button type="button" class="btn btn-danger"
+                            id="btn_operate_delete">{{ __('general.yes') }}</button>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 @endsection
 
@@ -606,7 +721,7 @@
 
                     var id_contractor = contractor_list[k]["id_contractor"];
                     var name = contractor_list[k]["name"];
-                    var short_name = contractor_list[k]["short_name"];
+                    var short_name = contractor_list[k]["short_name"]?contractor_list[k]["short_name"]:'-';
                     var vat_number = contractor_list[k]["vat_number"]?contractor_list[k]["vat_number"]:'-';
                     var tel_number1 = contractor_list[k]["tel_number1"]?contractor_list[k]["tel_number1"]:'-';
                     var tel_number2 = contractor_list[k]["tel_number2"]?contractor_list[k]["tel_number2"]:'-';
@@ -630,6 +745,10 @@
 
 
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Task List" onclick="showListModal('+id_contractor+')">'+
+                        '<i class="fa fa-solid fa-list"></i>'+
+                        '</button>'+
+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Document List" onclick="showContractorAttachmentModal('+id_contractor+')">'+
                         '<i class="fa fa-solid fa-list"></i>'+
                         '</button>'+
 
@@ -1253,6 +1372,161 @@
             loadingOverlay.cancelAll();
 
         }
+        ////////////////////////////////////////////////////
+        function showContractorAttachmentModal(id_contractor){
+
+
+
+            var spinHandle = loadingOverlay.activate();
+
+            send( '/maintenance/contractor/attachments/'+id_contractor,  {
+            }, 'handleShowContractorAttachmentModal', [id_contractor]);
+
+
+        }
+            /////////////////////////////////////////////////////
+              function handleShowContractorAttachmentModal(id_contractor){
+
+
+                let attachments = return_value.attachments;
+                let res = return_value.code;
+                let message = return_value.message;
+                if(res == "failure"){
+
+                    $('#contractor_attachment_table').DataTable().clear().destroy();
+
+                    x=message;
+                    if(typeof message == "object"){
+                        x="";
+                        //var messages = get_object_vars(message);
+                        var messages2 = Object.values(message);
+                        for(var i=0;i<messages2.length;i++){
+                            x=x+messages2[i];
+                        }
+
+                    }
+
+
+                }
+                else if(attachments != null && attachments !="undefined"){
+
+                    var htmlValue = "";
+                    Object.keys(attachments).forEach(function(k){
+
+                        var counter = 1+parseInt(k);
+
+
+                        counter = 1 + parseInt(k);
+
+                        var id_contractor_document = attachments[k]["id_contractor_document"];
+                        var document_name = attachments[k]["document_name"];
+                        var document_extention = attachments[k]["document_extention"];
+                        var description = attachments[k]["description"];
+
+                        var operation =
+                        '<a data-toggle="tooltip" title="Delete Contractor Document" class="btn btn-danger allign-btn"  data-original-title="Delete Contractor Document" onclick="deleteContractorDocument(' +
+                        id_contractor_document + ')" >' +
+                        '<i class="fa-solid fa-trash" ></i> </a>';
+
+                        operation += '<a href="/maintenance/contractor_attachment/' + id_contractor_document +
+                        '/download" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" ><i class="fa-solid fa-download"></i></a>';
+
+                     operation += '<a href="/contractor/files/' + document_name +'" style="margin-left:10px" class="btn btn-primary allign-btn" target="blank" title="Show Document" ><i class="fa-solid fa-eye "></i></a>';
+
+
+
+
+                     htmlValue += "<tr><td>" + counter + "</td><td>" + document_name + "</td><td>" +
+                        document_extention +
+                        "</td><td>" + description + "</td><td>" + operation + "</td></tr>";
+
+
+                    });
+
+
+
+                    $('#contractor_attachment_table').DataTable().clear().destroy();
+                    $('#contractor_attachment_table #contractor_attachment_body_tbl').html('');
+                    $('#contractor_attachment_table #contractor_attachment_body_tbl').append(htmlValue);
+
+                //datatable
+                var table = $('#contractor_attachment_table').DataTable({
+                    'paging'      : true,
+                    'lengthChange': true,
+                    'searching'   : true,
+                    'ordering'    : true,
+                    'info'        : true,
+                    'autoWidth'   : true,
+                    "aoColumnDefs": [
+
+                        { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4] },{ "width": "20%", "targets":4 }
+                    ]
+                });
+
+
+                }
+
+
+
+
+                $('#contractorAttachmentModal').modal('show');
+                loadingOverlay.cancelAll();
+
+            }
+        ////////////////////////////////////////////////////////////
+        function deleteContractorDocument(id_contractor_document) {
+
+            $("#delete_contractor_document_ajx_err_msg").html('');
+            $("#delete_contractor_document_err_msg_box").css('display', 'none');
+
+            $("#delete_contractor_document_ajx_success_msg").html('');
+            $("#delete_contractor_document_success_msg_box").css('display', 'none');
+            //action
+            $("#btn_operate_delete").prop('onclick', null);
+            $('#btn_operate_delete').attr('onClick', 'submitDeleteContractorDocument(' + id_contractor_document +
+                ');');
+            //showModal
+            $('#deleteContractorDocumentModal').modal('show');
+        }
+/////////////////////////////////////////////////////////////////
+
+        function submitDeleteContractorDocument(id_contractor_document){
+            // let maintenance_id = $('#id_maintenance').val();
+
+            send('/maintenance/contractor_document/delete', {
+
+                id_contractor_document: id_contractor_document,
+                // maintenance_id: maintenance_id,
+            }, 'handleDisableContractorDocument', []);
+        }
+/////////////////////////////////////////////////
+
+
+        function handleDisableContractorDocument() {
+
+            let message = return_value.message;
+            let res = return_value.code;
+            let id_contractor = return_value.id_contractor;
+
+
+            if (res == "failure") {
+
+                $("#delete_contractor_document_ajx_err_msg").html(message);
+                $("#delete_contractor_document_err_msg_box").css('display', 'block');
+            } else {
+                $("#delete_contractor_document_ajx_success_msg").html(message);
+                $("#delete_contractor_document_success_msg_box").css('display', 'block');
+
+                setTimeout(function() {
+                    $('#deleteContractorDocumentModal').modal('hide')
+                }, 4000);
+
+                showContractorAttachmentModal(id_contractor);
+
+            }
+
+
+}
         /////////////////////////////////////////////////////////
         function changeContractorLocation(){
             var spinHandle = loadingOverlay.activate();

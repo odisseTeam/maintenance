@@ -11,6 +11,7 @@ return[
     'simple_attribue_product' => true,
     'maintenance_file_path' => '../../systemfiles/maintenance_files/',
 
+    'contractor_file_path' => '../../systemfiles/contractor_files/',
 
     'businesses_name'=>[
         [

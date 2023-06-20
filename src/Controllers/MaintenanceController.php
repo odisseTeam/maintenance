@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Http;
 use Sentinel;
 use Illuminate\Support\Facades\Validator;
 use Odisse\Maintenance\Models\ContractorAgent;
+use Odisse\Maintenance\Models\ContractorSkillRef;
 
 class MaintenanceController extends Controller
 {
@@ -339,38 +340,43 @@ class MaintenanceController extends Controller
 
               $files = $request->files;
 
+              $object = new MaintenanceJob();
+
+              $file_description = $request->file_description;
+
+              $this->uploadFile($files,$object,$file_description,$maintenance_job);
 
 
-            foreach($files as $upload_file) {
-                foreach($upload_file as $file) {
+            // foreach($files as $upload_file) {
+            //     foreach($upload_file as $file) {
 
 
-                $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
+            //     $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
 
-                // File extension
-                $extension = $file->getClientOriginalExtension();
-
-
-                  $file_description = $request->file_description;
-
-                  $file->move($path, $fileName);
+            //     // File extension
+            //     $extension = $file->getClientOriginalExtension();
 
 
+            //       $file_description = $request->file_description;
+
+            //       $file->move($path, $fileName);
 
 
-                  //save documents of maintenance job
-                  $maintenance_job_document = new MaintenanceJobDocument();
-                  $maintenance_job_document->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                  $maintenance_job_document->document_name = $fileName;
-                  $maintenance_job_document->document_address = $path;
-                  $maintenance_job_document->document_extention = $extension;
-                  $maintenance_job_document->description = $file_description;
-                  $maintenance_job_document->maintenance_job_document_active = 1;
 
 
-                  $maintenance_job_document->save();
-               }
-            }
+            //       //save documents of maintenance job
+            //       $maintenance_job_document = new MaintenanceJobDocument();
+            //       $maintenance_job_document->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+            //       $maintenance_job_document->document_name = $fileName;
+            //       $maintenance_job_document->document_address = $path;
+            //       $maintenance_job_document->document_extention = $extension;
+            //       $maintenance_job_document->description = $file_description;
+            //       $maintenance_job_document->maintenance_job_document_active = 1;
+
+
+            //       $maintenance_job_document->save();
+            //    }
+            // }
 
               $log_note = $user->first_name . " " . $user->last_name." created a new maintenance titled : ".$maintenance_job->maintenance_job_title ;
 
@@ -674,11 +680,6 @@ class MaintenanceController extends Controller
                 $join->on('contractor_location_ref.location', '=', 'city.name');
             })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
 
-            //   join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->where('contractor_location_ref.contractor_location_ref_active' , 1)->
-            //   where('contractor_location_ref.location' , 'city.name');//->select('contractor.*')->get()->toArray();
-
-            //   dd($room_contractors->toSql());
-
             $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
               join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
               join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
@@ -772,13 +773,8 @@ class MaintenanceController extends Controller
 
             }
 
-            //dd($mjsh[0]->id_maintenance_assignee);
-
-
-
-
-
-              $locations = $this->getMaintainables();
+            $locations = $this->getMaintainables();
+            $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
 
 
             $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_detail');
@@ -810,6 +806,7 @@ class MaintenanceController extends Controller
 		        'selected_business'=>$selected_business,
 		        'users'=>$users,
 		        'agents'=>$agents,
+		        'skills'=>$skills,
 		        'wiki_link'=>$wiki_link,
 
 
@@ -1318,8 +1315,13 @@ class MaintenanceController extends Controller
               $file = $maintenance_job_document->document_address."/".$maintenance_job_document->document_name;
               unlink($file);
 
-              //delete maintenance document
-              MaintenanceJobDocument::where('id_maintenance_job_document', $id_maintenance_document)->delete();
+
+            //delete maintenance document
+            $maintenance_job_document->update([
+                'maintenance_job_document_active'=>0,
+            ]);
+
+            //   MaintenanceJobDocument::where('id_maintenance_job_document', $id_maintenance_document)->delete();
 
 
 

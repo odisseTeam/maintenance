@@ -17,6 +17,10 @@ use Illuminate\Support\Carbon;
 use Odisse\Maintenance\Models\MaintenanceJob;
 use Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants;
 use App\SLP\Formatter\SystemDateFormats;
+use Odisse\Maintenance\Models\ContractorDocument;
+use Odisse\Maintenance\Models\MaintenanceJobDocument;
+use Odisse\Maintenance\Models\Contractor;
+
 use Exception;
 
 trait MaintenanceDetails{
@@ -103,4 +107,76 @@ trait MaintenanceDetails{
 
 
     }
+
+    private function uploadFile($files,$object,$file_description,$object_model){
+
+        // dd($files);
+
+        foreach($files as $upload_file) {
+            foreach($upload_file as $file) {
+
+
+            $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
+
+            // dd($fileName);
+
+            // File extension
+            $extension = $file->getClientOriginalExtension();
+
+
+        
+
+              if($object instanceof Contractor){
+
+                    $contractor_file_path = config('maintenances.contractor_file_path');
+
+                        $path = $contractor_file_path . 'uploaded_files/' ;
+                        if (!\File::exists($path)) {
+                            \File::makeDirectory($path, 0755, true);
+                        }
+
+                        $file->move($path, $fileName);
+
+
+                    //save documents of contractor 
+                    $contractor_document = new ContractorDocument();
+                    $contractor_document->id_contractor =  $object_model->id_contractor;
+                    $contractor_document->document_name = $fileName;
+                    $contractor_document->document_address = $path;
+                    $contractor_document->document_extention = $extension;
+                    $contractor_document->description = $file_description;
+    
+    
+                    $contractor_document->save();
+
+
+              }else if($object instanceof MaintenanceJob){
+
+
+                    $maintenance_file_path = config('maintenances.maintenance_file_path');
+
+                    $path = $maintenance_file_path . 'uploaded_files/' ;
+                    if (!\File::exists($path)) {
+                        \File::makeDirectory($path, 0755, true);
+                    }
+
+                    $file->move($path, $fileName);
+
+
+                    //save documents of maintenance job
+                    $maintenance_job_document = new MaintenanceJobDocument();
+                    $maintenance_job_document->id_maintenance_job =  $object_model->id_maintenance_job;
+                    $maintenance_job_document->document_name = $fileName;
+                    $maintenance_job_document->document_address = $path;
+                    $maintenance_job_document->document_extention = $extension;
+                    $maintenance_job_document->description = $file_description;
+                    $maintenance_job_document->maintenance_job_document_active = 1;
+
+
+                    $maintenance_job_document->save();
+              }
+           }
+        }
+    }
+
 }

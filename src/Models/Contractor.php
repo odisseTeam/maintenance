@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $address_line1
  * @property string $address_line2
  * @property string $address_line3
+ * @property string $note
  * @property int $contractor_active
  *
  *
@@ -59,6 +60,7 @@ class Contractor extends Model
         'address_line1',
         'address_line2',
         'address_line3',
+        'note',
 		'contractor_active',
 	];
 

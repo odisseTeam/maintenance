@@ -27,11 +27,16 @@ use Validator;
 use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalContractorManager;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
+use Odisse\Maintenance\App\Traits\MaintenanceDetails;
+use Odisse\Maintenance\Models\ContractorDocument;
+use Illuminate\Support\Carbon;
+
 
 class ContractorController extends Controller
 {
 
     use MaintenanceOperation;
+    use MaintenanceDetails;
 
 
 
@@ -134,7 +139,7 @@ class ContractorController extends Controller
         $validator = Validator::make($request->all(), [
 
             'name' => 'required|string',
-            'short_name' => 'required|string',
+            'short_name' => 'nullable|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8',
             'vat_number' => 'nullable|string',
@@ -143,6 +148,7 @@ class ContractorController extends Controller
             'address_line1' => 'nullable',
             'address_line2' => 'nullable',
             'address_line3' => 'nullable',
+            'note' => 'nullable|string',
 
         ]);
 
@@ -167,6 +173,7 @@ class ContractorController extends Controller
                 'address_line1'=>$request->address_line1,
                 'address_line2'=>$request->address_line2,
                 'address_line3'=>$request->address_line3,
+                'note'=>$request->note,
                 'contractor_active'=>1,
             ]);
             $contractor->save();
@@ -202,6 +209,21 @@ class ContractorController extends Controller
 
 
 
+            $files = $request->files;
+
+
+
+            $object = new Contractor();
+
+
+            $file_description = $request->file_description;
+
+
+            $this->uploadFile($files,$object,$file_description,$contractor);
+
+
+
+
             DB::commit();
             return redirect()->route('contractor_management_page')->with(ActionStatusConstants::SUCCESS, trans('maintenance::contractor.new_contractor_created'));
 
@@ -229,13 +251,14 @@ class ContractorController extends Controller
         $validator = Validator::make($request->all(), [
 
             'name' => 'required|string',
-            'short_name' => 'required|string',
+            'short_name' => 'nullable|string',
             'vat_number' => 'nullable|string',
             'tel_number1' => 'nullable|uk_phone',
             'tel_number2' => 'nullable|uk_phone',
             'address_line1' => 'nullable',
             'address_line2' => 'nullable',
             'address_line3' => 'nullable',
+            'note' => 'nullable|string',
 
         ]);
 
@@ -261,6 +284,7 @@ class ContractorController extends Controller
                 'address_line1'=>$request->address_line1,
                 'address_line2'=>$request->address_line2,
                 'address_line3'=>$request->address_line3,
+                'note'=>$request->note,
             ]);
 
 
@@ -791,6 +815,98 @@ class ContractorController extends Controller
 
 
 
+    public function ajaxGetContractorsWithSkill(Request $request){
+
+        $maintenanceId = $request->maintenance_id;
+
+
+        if($request->contractor_skill){
+
+            //get all the conductors are in maintenance location
+
+            $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+                join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
+                join('room' , 'maintainable.maintenable_id' , 'room.id_room')->
+                join('property' , 'room.id_property' , 'property.id_property')->
+                join('city' , 'property.id_city' , 'city.id_city')->
+                join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+                join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+                join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+                })->
+                join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->whereIn('contractor_skill.id_contractor_skill_ref' , $request->contractor_skill)->
+                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->
+                select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+                join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
+                join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
+                join('city' , 'property.id_city' , 'city.id_city')->
+                join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+                join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+                join('contractor_location_ref', function ($join) {
+                    $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                    $join->on('contractor_location_ref.location', '=', 'city.name');
+                })->
+                join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->whereIn('contractor_skill.id_contractor_skill_ref' , $request->contractor_skill)->
+                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->
+                select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            //dd($property_contractors);
+
+            $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+        }
+        else{
+            //get all the conductors are in maintenance location
+
+            $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
+            join('room' , 'maintainable.maintenable_id' , 'room.id_room')->
+            join('property' , 'room.id_property' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+            $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+            $join->on('contractor_location_ref.location', '=', 'city.name');
+        })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+        $property_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $maintenanceId)->
+            join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Property')->
+            join('property' , 'maintainable.maintenable_id' , 'property.id_property')->
+            join('city' , 'property.id_city' , 'city.id_city')->
+            join('contractor' , 'maintenance_job.id_saas_client_business' , 'contractor.id_saas_client_business')->where('contractor_active' , 1)->
+            join ('contractor_location' , 'contractor.id_contractor' , 'contractor_location.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
+            join('contractor_location_ref', function ($join) {
+                $join->on('contractor_location.id_contractor_location_ref', '=', 'contractor_location_ref.id_contractor_location_ref');
+                $join->on('contractor_location_ref.location', '=', 'city.name');
+            })->select('contractor.*')->where('contractor_location_ref.contractor_location_ref_active' , 1)->get()->toArray();
+
+            //dd($property_contractors);
+
+            $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
+
+        }
+
+
+        $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
+
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::contractor.contractor_agent_info_returned'),
+            'contractors' =>$contractors,
+            'businesses' =>$businesses,
+            ]);
+
+
+    }
+
+
+
+
     public function ajaxChangeContractorLocations(Request $request)
     {
 
@@ -901,7 +1017,6 @@ class ContractorController extends Controller
 
 
 
-
     public function ajaxGetContractorTasks(Request $request , $id_contractor){
 
         $user = Sentinel::getUser();
@@ -941,8 +1056,198 @@ class ContractorController extends Controller
 
     }
 
+    public function ajaxGetContractorAttachments(Request $request , $id_contractor){
+
+        $user = Sentinel::getUser();
 
 
+        //get contractor taks
+        $attachments = ContractorDocument::where('id_contractor',$id_contractor)->where('contractor_document_active',1)->get();
+
+
+        return response()->json(
+            [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message' => trans('maintenance::contractor.contractor_tasks_returned'),
+            'attachments' =>$attachments,
+            ]);
+
+
+    }
+
+
+    public function deleteContractorAttachment(Request $request)
+    {
+
+        $user = Sentinel::getUser();
+
+
+
+        Log::info(" in ContractorController- deleteContractorAttachment function " . " try to delete  Contractor document  ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+        try {
+            DB::beginTransaction();
+
+            $id_contractor_document = $request->id_contractor_document;
+
+
+            $contractor_document = ContractorDocument::findOrFail($id_contractor_document);
+
+            $id_contractor = $contractor_document->id_contractor;
+
+            $file = $contractor_document->document_address."/".$contractor_document->document_name;
+
+            unlink($file);
+
+            //delete maintenance document
+            $contractor_document = ContractorDocument::findOrfail($id_contractor_document);
+
+            $contractor_document->update([
+                'contractor_document_active'=>0,
+            ]);
+
+
+            DB::commit();
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::SUCCESS,
+
+                  'id_contractor' => $id_contractor,
+
+                  'message' => trans('maintenance::contractor.contractor_document_deleted_succssfully'),
+                ]
+            );
+        } catch (\Exception $e) {
+
+
+            Log::error(" in ContractorController - deleteContractorAttachment function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+            Log::error($e->getMessage());
+
+            DB::rollBack();
+
+            return response()->json([
+                'code' => ActionStatusConstants::FAILURE,
+                'message' => trans('maintenance::contractor.contractor_document_did_not_deleted'),
+            ]);
+
+        }
+
+    }
+
+    public function downloadAttachment($id_attachment)
+    {
+        //get data of booking document
+        $user = Sentinel::getUser();
+
+
+        $contractor_document = ContractorDocument::findOrFail($id_attachment);
+
+
+            //get file name + the extension
+            $file_name = $contractor_document->document_name;
+
+            //calculate relative path for the file
+            $file_path = $contractor_document->document_address . $file_name;
+
+            Log::info("in ContractorController- downloadDocument function " . " try to download  documents of a contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+            //download file, use public path to calculate absolute path of the file
+            return response()->download(public_path($file_path), $file_name);
+
+
+
+
+    }
+
+    public function uploadAttachment(Request $request)
+    {
+
+
+
+        $user = Sentinel::getUser();
+
+
+        $validator = Validator::make($request->all(), [
+            'attachments'        => 'array|required',
+            'attachments.*' => 'required|mimes:doc,docx,jpg,odt,jpeg,pdf,PNG,png,zip,rar|max:2048',
+          ]);
+
+          if ($validator->fails()) {
+
+            Log::error("in ContractorAttachmentController- uploadAttachment function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+            return redirect('/maintenance/contractor/'.$request->id_contractor)
+            ->with('error',trans('maintenance::maintenance.maintenance_file_is_empty'));
+        }
+
+
+
+        $contractor = Contractor::findOrFail($request->id_contractor);
+
+
+        $all_attachments = "";
+
+        $files = [];
+        if ($request->file('attachments')){
+            foreach($request->file('attachments') as $file)
+            {
+                try {
+
+                    $now = Carbon::create('now');
+
+                    $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
+
+                    Log::info("store file ". $fileName);
+                    // File extension
+                    $extension = $file->getClientOriginalExtension();
+
+                    //make a new directory for uploaded documents
+                    $contractor_file_path = config('maintenances.contractor_file_path');
+                    Log::info("store maintenance_file_path ". $contractor_file_path);
+
+                    $path = $contractor_file_path . 'uploaded_files/' ;
+                    if (!\File::exists($path)) {
+                        \File::makeDirectory($path, 0755, true);
+                    }
+
+
+                    //save file in the directory
+                    $file->move($path, $fileName);
+
+
+                    $contractor_document = new ContractorDocument();
+                    $contractor_document->id_contractor =  $contractor->id_contractor;
+                    $contractor_document->document_name = $fileName;
+                    $contractor_document->document_address = $path;
+                    $contractor_document->document_extention = $extension;
+                    $contractor_document->description = $request->file_description;
+                    $contractor_document->contractor_document_active = 1;
+
+
+                    $contractor_document->save();
+
+
+
+
+
+                }
+                catch(Exception $e){
+                    dd($e->getMessage());
+                }
+
+            }
+
+
+        }
+
+        return redirect('/maintenance/contractor/'.$request->id_contractor)
+                ->with('success',trans('maintenance::contractor.contractor_file_uploaded_successfully'));
+
+    }
 
 }
 
