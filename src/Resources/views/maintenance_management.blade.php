@@ -913,13 +913,27 @@
                     $('#business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
                     });
                 }
-
                 if(contractor_list){
-                    contractor_list.forEach(item => {
-                    var item_name = item['name'];
-                    $('#business_contractor').append(new Option(item_name ,'C'+item['id_contractor']));
+
+                    Object.keys(contractor_list).forEach(function(key) {
+
+                        console.log(key);
+                        var item_name = contractor_list[key]['name'] ;
+                        var item_id = 'C'+contractor_list[key]['id_contractor'] ;
+                        $('#business_contractor').append(new Option(item_name ,item_id));
                     });
+
                 }
+
+                // if(contractor_list){
+
+
+
+                //     contractor_list.forEach(item => {
+                //     var item_name = item['name'];
+                //     $('#business_contractor').append(new Option(item_name ,'C'+item['id_contractor']));
+                //     });
+                // }
 
 
 
@@ -1326,9 +1340,20 @@
                     var item_name = item.business_name;
                     $('#business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
                 });
-                contractor_list.forEach(item => {
-                    $('#business_contractor').append(new Option(item.name ,'C'+item.id_contractor));
-                });
+
+                if(contractor_list){
+
+                    Object.keys(contractor_list).forEach(function(key) {
+
+                        console.log(key);
+                        var item_name = contractor_list[key]['name'] ;
+                        var item_id = 'C'+contractor_list[key]['id_contractor'] ;
+                        $('#business_contractor').append(new Option(item_name ,item_id));
+                    });
+                }
+                // contractor_list.forEach(item => {
+                //     $('#business_contractor').append(new Option(item.name ,'C'+item.id_contractor));
+                // });
 
 
 
@@ -1339,7 +1364,7 @@
                 if(users){
                     users.forEach(item => {
                     var item_name = item.first_name +' '+item.last_name;
-                    var item_id = item.id ;
+                    var item_id = item.user_id ;
                     $('#user_agent').append(new Option(item_name ,item_id));
                 });
                 }
@@ -1399,6 +1424,7 @@
             let res = return_value.code;
             let user_list = return_value.agents;
             let contractor = return_value.contractor;
+            let user_type = return_value.user_type;
 
 
             if(res == "failure"){
@@ -1444,10 +1470,20 @@
                 }
 
 
-                user_list.forEach(item => {
+                if(user_type == 'user'){
+                    user_list.forEach(item => {
+                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                    $('#user_agent').append(new Option(item_name ,item.user_id));
+                });
+
+                }
+                else{
+                    user_list.forEach(item => {
                     var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
                     $('#user_agent').append(new Option(item_name ,item.id));
                 });
+
+                }
 
 
             }

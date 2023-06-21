@@ -416,8 +416,8 @@
                                                     <option value="">{{trans('maintenance::maintenance.select_user_agent')}}</option>
                                                     @if($users)
                                                         @foreach ($users as $user)
-                                                            <option value="{{ $user->id}}"
-                                                                @if (isset($selected_user_agent) && $user->id == $selected_user_agent) {{ 'selected' }} @endif>
+                                                            <option value="{{ $user->user_id}}"
+                                                                @if (isset($selected_user_agent) && $user->user_id == $selected_user_agent) {{ 'selected' }} @endif>
                                                                 @if(isset($user->first_name) || isset($user->last_name)){{ $user->first_name  }} {{$user->last_name}}
                                                                 @else{{$user->email}}@endif
                                                             </option>
@@ -776,7 +776,7 @@
             $("#contractor_tel_number1").val('');
             $("#contractor_short_name").val('');
 
-            
+
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1268,6 +1268,7 @@
             let res = return_value.code;
             let user_list = return_value.result;
             let contractor = return_value.contractor;
+            let user_type = return_value.user_type;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1311,10 +1312,21 @@
                     $('#user_agent').append(new Option('Select User/Agent' ,''));
                 }
 
-                user_list.forEach(item => {
+                if(user_type == 'user'){
+                    user_list.forEach(item => {
+                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                    $('#user_agent').append(new Option(item_name ,item.user_id));
+                });
+
+                }
+                else{
+                    user_list.forEach(item => {
                     var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
                     $('#user_agent').append(new Option(item_name ,item.id));
                 });
+
+                }
+
 
 
 

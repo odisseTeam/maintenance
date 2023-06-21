@@ -277,6 +277,7 @@ class MaintenanceDashboardController extends Controller
                 join('role_users','role_users.user_id','users.id')->where('role_users_active' , 1)->
                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
                 $result = $users;
+                $user_type="user";
             }
             elseif($business_contractor && $business_contractor[0] == "C"){
 
@@ -285,6 +286,7 @@ class MaintenanceDashboardController extends Controller
                 join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                 join('users','users.id','contractor_agent.id_user')->get();
                 $result = $agents;
+                $user_type = "agent";
                 $contractor = Contractor::find(substr($business_contractor, 1));
             }
 
@@ -295,6 +297,7 @@ class MaintenanceDashboardController extends Controller
               'code' => ActionStatusConstants::SUCCESS,
               'message' => trans('maintenance::contractor.load_users_agents_was_successful'),
               'result' => $result,
+              'user_type' => $user_type,
               'contractor' => $contractor,
             ]);
 

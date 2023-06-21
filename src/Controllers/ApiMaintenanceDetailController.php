@@ -704,6 +704,7 @@ class ApiMaintenanceDetailController extends Controller
             Log::info("Call API :: ApiMaintenanceDetailController - getUserAgents function");
 
             $contractor = null;
+            $user_type = null;
 
 
             $business_contractor = $request->business_contractor;
@@ -715,6 +716,7 @@ class ApiMaintenanceDetailController extends Controller
                 join('role_users','role_users.user_id','users.id')->
                 join('roles','roles.id','role_users.role_id')->where('roles.name','Maintenance')->get();
                 $result = $users;
+                $user_type="user";
             }
             elseif($business_contractor && $business_contractor[0] == "C"){
 
@@ -723,6 +725,7 @@ class ApiMaintenanceDetailController extends Controller
                 join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                 join('users','users.id','contractor_agent.id_user')->get();
                 $result = $agents;
+                $user_type = "agent";
                 $contractor = Contractor::find(substr($business_contractor, 1));
 
             }
@@ -755,6 +758,7 @@ class ApiMaintenanceDetailController extends Controller
                 'message'   => $message,
                 'agents'  => $result,
                 'contractor'  => $contractor,
+                'user_type' => $user_type,
             ]
         );
     }

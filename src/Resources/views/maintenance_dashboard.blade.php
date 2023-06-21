@@ -1266,16 +1266,28 @@
 
                 $('#business_contractor').find('option').not(':first').remove();
                 $('#user_agent').find('option').not(':first').remove();
-                businesses.forEach(item => {
-                    var item_name = item.business_name ;
-                    var item_id = 'B'+item.id_saas_client_business ;
-                    $('#business_contractor').append(new Option(item_name ,item_id));
-                });
-                contractors.forEach(item => {
-                    var item_name = item.name ;
-                    var item_id = 'C'+item.id_contractor ;
-                    $('#business_contractor').append(new Option(item_name ,item_id));
-                });
+                if(businesses){
+                    businesses.forEach(item => {
+                        var item_name = item.business_name ;
+                        var item_id = 'B'+item.id_saas_client_business ;
+                        $('#business_contractor').append(new Option(item_name ,item_id));
+                    });
+                }
+                if(contractors){
+
+                    Object.keys(contractors).forEach(function(key) {
+
+						console.log(key);
+						var item_name = contractors[key]['name'] ;
+                        var item_id = 'C'+contractors[key]['id_contractor'] ;
+						$('#business_contractor').append(new Option(item_name ,item_id));
+					});
+                    // contractors.forEach(item => {
+                    //     var item_name = item.name ;
+                    //     var item_id = 'C'+item.id_contractor ;
+                    //     $('#business_contractor').append(new Option(item_name ,item_id));
+                    // });
+                }
 
 
 
@@ -1284,7 +1296,7 @@
                 if(users){
                     users.forEach(item => {
                     var item_name = item.first_name +' '+item.last_name;
-                    var item_id = item.id ;
+                    var item_id = item.user_id ;
                     $('#user_agent').append(new Option(item_name ,item_id));
                 });
                 }
@@ -1340,6 +1352,7 @@
             let res = return_value.code;
             let user_list = return_value.result;
             let contractor = return_value.contractor;
+            let user_type = return_value.user_type;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1383,10 +1396,20 @@
                     $('#user_agent').append(new Option('Select User/Agent' ,''));
                 }
 
-                user_list.forEach(item => {
+                if(user_type == 'user'){
+                    user_list.forEach(item => {
+                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                    $('#user_agent').append(new Option(item_name ,item.user_id));
+                });
+
+                }
+                else{
+                    user_list.forEach(item => {
                     var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
                     $('#user_agent').append(new Option(item_name ,item.id));
                 });
+
+                }
 
 
             }

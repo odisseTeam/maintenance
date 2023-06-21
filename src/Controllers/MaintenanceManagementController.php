@@ -352,7 +352,8 @@ class MaintenanceManagementController extends Controller
                   'code' => 'success',
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
-                  'contractor' =>$responseObj->contractor
+                  'contractor' =>$responseObj->contractor,
+                  'user_type' =>$responseObj->user_type
                 ]);
         }
         else{
@@ -362,6 +363,7 @@ class MaintenanceManagementController extends Controller
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
                   'contractor' =>$responseObj->contractor,
+                  'user_type' =>$responseObj->user_type
                 ]);
 
         }

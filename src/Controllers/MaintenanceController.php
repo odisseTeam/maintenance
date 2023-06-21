@@ -1250,7 +1250,7 @@ class MaintenanceController extends Controller
 
 
           //get all documents of a maintenance job
-          $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job', $request->maintenance_id)->get();
+          $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job', $request->maintenance_id)->where('maintenance_job_document_active' , 1)->get();
 
 
           return response()->json(
