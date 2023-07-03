@@ -126,13 +126,15 @@ class MaintenanceManagementController extends Controller
             //get maintenances of specific business
 
             $businesses = config('maintenances.businesses_name');
+            //dd($businesses);
             foreach($businesses as $business){
-                if($business['id_saas_client_business'] == $request->business){
+                if(in_array($business['id_saas_client_business'] , $request->business)){
+                    //dd($request->business);
 
                     $url =$business['maintenance_api_url'].'/api/maintenancelist_details';
 
                     $params =[
-                        'business'=>$request->business,
+                        'business'=>$business['id_saas_client_business'],
                         'category'=>$request->category,
                         'priority'=>$request->priority,
                         'status'=>$request->status,
@@ -147,8 +149,13 @@ class MaintenanceManagementController extends Controller
                     $response = Http::post($url,$params);
 
                     $responseObj = json_decode($response->body());
+                    //dd($responseObj);
+                    $maintenances = array_merge($responseObj->maintenances , $maintenances);
+
 
                 }
+
+
             }
 
 
@@ -156,10 +163,11 @@ class MaintenanceManagementController extends Controller
         }
 
 
+
         return response()->json(
             [
             'code' => 'success',
-            'maintenances'=>$responseObj->maintenances,
+            'maintenances'=>$maintenances,
 
             'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
             ]);
@@ -700,6 +708,9 @@ class MaintenanceManagementController extends Controller
         //get labels
 
         $businesses = config('maintenances.businesses_name');
+
+
+
         $business = $businesses[0];
 
         $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';

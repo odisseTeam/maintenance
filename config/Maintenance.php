@@ -23,13 +23,13 @@ return[
         [
             "id_saas_client_business"=>2,
             'business_name'=>'ASC',
-            'maintenance_api_url'=> env('ASC_MAINTENANCE_API', 'https://living.odisse.local'),
+            'maintenance_api_url'=> env('ASC_MAINTENANCE_API', 'https://asc.odisse.local'),
         ],
 
         [
             "id_saas_client_business"=>3,
             'business_name'=>'ELC',
-            'maintenance_api_url'=> env('ELC_MAINTENANCE_API', 'https://living.odisse.local'),
+            'maintenance_api_url'=> env('ELC_MAINTENANCE_API', 'https://elc.odisse.local'),
 
         ],
         // 'Living',

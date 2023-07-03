@@ -1,3 +1,80 @@
+-- -- routes related to create maintenance page
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.create_page','/maintenance/create/page','get',null,null,1,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.upload_file','/maintenance/upload/file','post',null,null,1,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.maintenance_title','/maintenance/find/maintenance_title','post',null,null,1,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.save_new','/maintenance/new/save','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1,1);
+
+-- --routes related to maintenance detail page
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.detail.edit','/maintenance/detail/edit','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.get.documents','/maintenance/documents/get','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.delete.maintenance_document','/maintenance/maintenance_document/delete','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.get.timeline','/maintenance/timeline/get','post',null,null,1,1);
+
+
+
+
+-- -- route related to room page (api from package)
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.api.get_maintenance_list_history','/maintenance/api/maintenancelist_history','post',null,null,1,1);
+
+
+
+
+-- -- route related to room page (api from package)
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.api.get_maintenance_list_history','/maintenance/api/maintenancelist_history','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+
+
+
+-- -- route related to room page (api from package)
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.api.get_maintenance_list_history','/maintenance/api/maintenancelist_history','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.attachment.upload','/maintenance/attachment/upload','post',null,null,1,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
+
+
+
+
+
+
+
+
+
+
+
 
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
 --     VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1);
@@ -188,6 +265,7 @@ VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachmen
 -- (1, 1, 25, '30', '3000', 1),
 -- (1, 1, 26, '30', '3000', 1),
 -- (1, 1, 27, '30', '3000', 1),
+-- (1, 1, 28, '30', '3000', 1),
 -- (1, 1, null, '30', '3000', 1),
 -- (1, 2, 1, '30', '3000', 1),
 -- (1, 2, 2, '30', '3000', 1),
@@ -215,6 +293,7 @@ VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachmen
 -- (1, 2, 25, '30', '3000', 1),
 -- (1, 2, 26, '30', '3000', 1),
 -- (1, 2, 27, '30', '3000', 1),
+-- (1, 2, 28, '30', '3000', 1),
 -- (1, 2, null, '30', '3000', 1),
 -- (1, 3, 1, '30', '3000', 1),
 -- (1, 3, 2, '30', '3000', 1),
@@ -242,6 +321,7 @@ VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachmen
 -- (1, 3, 25, '30', '3000', 1),
 -- (1, 3, 26, '30', '3000', 1),
 -- (1, 3, 27, '30', '3000', 1),
+-- (1, 3, 28, '30', '3000', 1),
 -- (1, 3, null, '30', '3000', 1),
 -- (1, 4, 1, '30', '3000', 1),
 -- (1, 4, 1, '30', '3000', 1),
@@ -270,6 +350,7 @@ VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachmen
 -- (1, 4, 25, '30', '3000', 1),
 -- (1, 4, 26, '30', '3000', 1),
 -- (1, 4, 27, '30', '3000', 1),
+-- (1, 4, 28, '30', '3000', 1),
 -- (1, 4, null, '30', '3000', 1);
 
 
@@ -287,7 +368,7 @@ INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method
 VALUES (null,'mgt.contractor.search_skill','/maintenance/mgt/contractor_skill/contractors','post',null,null,1);
 
 
--- comment this
+-- -- comment this
 -- INSERT INTO public.contractor_skill_ref
 -- (skill_name, contractor_skill_ref_active)VALUES
 -- ('Handyman Services', 1),
@@ -308,7 +389,7 @@ VALUES (null,'mgt.contractor.search_skill','/maintenance/mgt/contractor_skill/co
 -- ('Carpet Cleaning Services', 1),
 -- ('Drainage Services', 1);
 
--- comment this
+-- -- comment this
 -- INSERT INTO public.contractor_location_ref
 -- (location, contractor_location_ref_active)VALUES
 -- ('Hampshire', 1),

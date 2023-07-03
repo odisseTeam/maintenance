@@ -22,7 +22,7 @@
         }
 
         .select2-container{
-            min-width: 345px!important;
+            min-width: 202px!important;
         }
 
 
@@ -98,7 +98,7 @@
                                                                     <div class="row">
                                                                         @foreach($businesses as $business)
                                                                             <div class="border-checkbox-group border-checkbox-group-danger col-md-3">
-                                                                                <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@else{{'disabled'}}@endif>
+                                                                                <input  class="border-checkbox selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@endif>
 
                                                                                 <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
                                                                             </div>
@@ -129,7 +129,7 @@
                                                                     <div class="row">
                                                                         @foreach($businesses as $business)
                                                                             <div class="border-checkbox-group border-checkbox-group-danger col-md-3">
-                                                                                <input  class="border-checkbox sla_selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@else{{'disabled'}}@endif>
+                                                                                <input  class="border-checkbox sla_selected_business" type="checkbox"  value="{{$business['id_saas_client_business']}}" @if($business['id_saas_client_business'] == 1){{'checked'}}@endif>
 
                                                                                 <label class="form-label border-checkbox-label">{{$business['business_name']}}</label>
                                                                             </div>
@@ -200,7 +200,7 @@
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                                            <select class="form-control pull-right" id="search_business" name="search_business" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                                            <select class="form-control pull-right select2" id="search_business" name="search_business[]" multiple="multiple"  onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
                                                                                 {{-- <option value="">
                                                                                     {{__('maintenance::dashboard.business')}}
                                                                                 </option> --}}
@@ -856,7 +856,7 @@
                 "format": "DD-MM-YYYY hh:mm",
             });
 
-            loadMaintenances();
+            //loadMaintenances();
             prepareMaintenanceStatusChartData();
             prepareMaintenanceSlaChartData();
 

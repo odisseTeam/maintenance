@@ -1,6 +1,6 @@
 <?php
 
-namespace Odisse\Maintenance\Traits;
+namespace Odisse\Maintenance\App\Traits;
 
 use App\SLP\Enum\BookingStatusConstants;
 use App\SLP\Formatter\SystemDateFormats;
