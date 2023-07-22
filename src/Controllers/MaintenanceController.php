@@ -26,6 +26,7 @@ use App\SLP\Formatter\SystemDateFormats;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Illuminate\Http\Request;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 
 
 use App\Models\SaasClientBusiness;
@@ -53,6 +54,7 @@ class MaintenanceController extends Controller
 {
     use MaintenanceDetails;
     use MaintenanceTimelineDetails;
+    use MaintenanceOperation;
 
     public function testFunc()
     {
@@ -347,36 +349,7 @@ class MaintenanceController extends Controller
               $this->uploadFile($files,$object,$file_description,$maintenance_job);
 
 
-            // foreach($files as $upload_file) {
-            //     foreach($upload_file as $file) {
 
-
-            //     $fileName = date('Y-m-d').'_'.$file->getClientOriginalName();
-
-            //     // File extension
-            //     $extension = $file->getClientOriginalExtension();
-
-
-            //       $file_description = $request->file_description;
-
-            //       $file->move($path, $fileName);
-
-
-
-
-            //       //save documents of maintenance job
-            //       $maintenance_job_document = new MaintenanceJobDocument();
-            //       $maintenance_job_document->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-            //       $maintenance_job_document->document_name = $fileName;
-            //       $maintenance_job_document->document_address = $path;
-            //       $maintenance_job_document->document_extention = $extension;
-            //       $maintenance_job_document->description = $file_description;
-            //       $maintenance_job_document->maintenance_job_document_active = 1;
-
-
-            //       $maintenance_job_document->save();
-            //    }
-            // }
 
               $log_note = $user->first_name . " " . $user->last_name." created a new maintenance titled : ".$maintenance_job->maintenance_job_title ;
 
@@ -445,6 +418,12 @@ class MaintenanceController extends Controller
                               }
 
                           }
+
+
+
+                          //change room_maintenance_status field of room
+                          $maintenance_status = MaintenanceJobStatusRef::find($maintenance_job->id_maintenance_job_status);
+                          $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable_id);
 
 
                           break;
@@ -603,7 +582,7 @@ class MaintenanceController extends Controller
               );
 
           } catch (\Exception $e) {
-              Log::error("in TemplatesController- listTemplates function list templates " . " by user "
+              Log::error("in MaintenanceController- ajaxGetResidentReporter function " . " by user "
                   . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
               return response()->json([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful')]);
@@ -913,20 +892,6 @@ class MaintenanceController extends Controller
 
               }
 
-              //check if maintenance reporter has been changed
-            //   if($maintenance_old_data->id_saas_staff_reporter != $request->maintenance_reporter) {
-
-            //       // edit reporter of maintenance job
-            //       $maintenance_old_data->update([
-            //         'id_saas_staff_reporter' => $request->maintenance_reporter
-            //             ]);
-
-            //       $staff_reporter = User::findOrFail($request->maintenance_reporter);
-
-            //       $note = $note. " " . $user->first_name . " " . $user->last_name." changed maintenance reporter to ".$staff_reporter->first_name." ".$staff_reporter->last_name;
-
-            //   }
-
               //check if maintenance staff has been changed
               if($request->user_agent != null) {
 
@@ -985,52 +950,7 @@ class MaintenanceController extends Controller
 
                 }
 
-                //   if($maintenance_detail_old_data->id_staff != $request->maintenance_assignee) {
 
-                //       // edit staff of maintenance job detail
-
-                //       $maintenance_detail_old_data->update([
-                //         'id_staff' => $request->maintenance_assignee
-                //         ]);
-
-                //         Log::info("old data updated");
-                //       //get data of maintenance staff history
-                //       $previous_maintenance_job_staff_history = MaintenanceJobStaffHistory::where('id_maintenance_job', '=', $id_maintenance)
-                //       ->where('staff_end_date_time', null)->get();
-
-                //       //update data of maintenance status history
-                //       if(sizeof($previous_maintenance_job_staff_history) > 0 ) {
-                //             $previous_maintenance_job_staff_history = $previous_maintenance_job_staff_history[0];
-                //           $previous_maintenance_job_staff_history->update([
-                //                 'staff_end_date_time' => $now->format(SystemDateFormats::getDateTimeFormat())
-                //             ]);
-
-                //         Log::info("prev job staff history updated");
-
-                //       }
-
-                //       //make a new history for maintenance staff history
-                //       $maintenance_job_staff_history = new MaintenanceJobStaffHistory();
-                //       $maintenance_job_staff_history->id_maintenance_job =  $id_maintenance;
-                //       $maintenance_job_staff_history->id_maintenance_staff =  $user->id;
-                //       $maintenance_job_staff_history->id_maintenance_assignee =  $request->maintenance_assignee;
-                //       $maintenance_job_staff_history->staff_assign_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                //       $maintenance_job_staff_history->staff_start_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                //       $maintenance_job_staff_history->staff_end_date_time = null;
-                //       $maintenance_job_staff_history->maintenance_job_staff_history_active = 1;
-
-                //       $maintenance_job_staff_history->save();
-
-                //     Log::info("job staff hist saved");
-
-                //       $new_staff = Contractor::findOrFail($request->maintenance_assignee);
-
-
-                //     Log::info("after find or fail");
-                //       $note = $note. " " .$user->first_name . " " . $user->last_name." changed maintenance staff to ".$new_staff->name;
-
-
-                //   }
               }
               else{
                 //remove active assignee
@@ -1157,6 +1077,18 @@ class MaintenanceController extends Controller
                               $maintainable->maintenable_type = 'App\Models\Rooms';
 
                               $maintainable->save();
+
+
+                          //change room_maintenance_status field of room
+                          $maintenance = MaintenanceJob::find($id_maintenance);
+                          $maintenance_status = MaintenanceJobStatusRef::find($maintenance->id_maintenance_job_status);
+                          $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable_id);
+
+
+
+
+
+
                               break;
 
                           case Str::contains($location, 'Property'):

@@ -16,6 +16,7 @@ return [
     'from_date'  =>  'From Date',
     'till_date'  =>  'Till Date',
     'search'  =>  'Search',
+    'you_have_to_first_define_template'  =>  'You have to first define template',
 
     'jobs'  => 'Jobs',
 

@@ -107,8 +107,22 @@ return [
     'contractor_file_uploaded_successfully'=>'Contractor Document Uploaded Succssfully',
     'contractor_file_did_not_uploaded_successfully'=>'Contractor Document Did Not Uploaded Succssfully',
     'contractor_document'=>'Contractor Document',
-    'contractor_documents'=>'Contractor Documents'
-
+    'contractor_documents'=>'Contractor Documents',
+    'contractor_management'=>'Contractor Management',
+    'attachment_description'=>'Contractor Description',
+    'send_contractor_email_modal'=>'Send Email To Contractor',
+    'select_fields_to_attach'=>'Select Files To Attach',
+    'additional_comments'=>'Additional Comments',
+    'this_job_has_no_contractor'=>'This Job Has No Contractor',
+    'select_notes_to_attach'=>'Select Notes to Be Attached',
+    'maintenance_template'=>'Maintenance Template',
+    'back'=>'Back',
+    'email_attachments_list'=>'Attachments List',
+    'email_notes_list'=>'Notes List',
+    'preview_email_content'=>'Preview Email Content',
+    'additional_comment'=>'Additional Comment',
+    'preview_email_content_modal'=>'Preview Email Content Modal',
+    'send_email'=>'Send Email'
 
 
 ];

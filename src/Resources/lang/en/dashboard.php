@@ -20,6 +20,7 @@ return [
     'widget_place'=>'Widget Place',
     'start_maintenance'=>'Start Maintenance',
     'select_start_date_of_job'=>'Select start date of Maintenance job',
+    'create_email_template'=>'Create Email',
 
 
 
@@ -65,6 +66,13 @@ return [
 
     'create' => 'Create Maintenance',
     'create_job' => 'Create New Job',
+
+
+    //contractor management
+    'skills' => 'Skills',
+    'locations' => 'Locations',
+
+    'contractor_name' => 'Contractor Name',
 
 
 ];

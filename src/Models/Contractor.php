@@ -44,6 +44,8 @@ class Contractor extends Model
     // protected $guarded = [];
 
 	protected $casts = [
+    
+    'id_saas_client_business' => 'int',
 
 	'contractor_active' => 'int',
 	];

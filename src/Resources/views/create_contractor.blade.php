@@ -270,7 +270,7 @@
 
                                             <!-- Attachments Description-->
                                             <div class="form-group row">
-                                                <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right" style="margin-top:10px;">{{trans('maintenance::contractor.attachments')}}:</label>
+                                                <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right" style="margin-top:10px;">{{trans('maintenance::contractor.attachment_description')}}:</label>
                                                 <div class="col-xs-10 col-sm-10 col-md-10">
                                                     <div class="input-group col-xs-10 col-sm-10 col-md-10">
 

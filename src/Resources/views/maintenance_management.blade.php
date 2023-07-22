@@ -809,6 +809,13 @@
                                 </div>
 
 
+                                
+                                      
+
+
+
+
+
 
 
 
@@ -1080,7 +1087,6 @@
             end_date = $('#search_end_date').val();
             assignee = $('#search_assignee').val();
 
-
             send( '/maintenance/mgt_maintenances_list',  {
                 business :business,
                 category :category,
@@ -1096,6 +1102,8 @@
         ///////////////////////////////////////////////////////
 
         function handleMaintenanceTableBody(){
+
+
 
             let maintenance_list = return_value.maintenances;
             let res = return_value.code;

@@ -1061,9 +1061,9 @@ class ContractorController extends Controller
         $user = Sentinel::getUser();
 
 
-        //get contractor taks
+        //get contractor attachments
         $attachments = ContractorDocument::where('id_contractor',$id_contractor)->where('contractor_document_active',1)->get();
-
+      
 
         return response()->json(
             [

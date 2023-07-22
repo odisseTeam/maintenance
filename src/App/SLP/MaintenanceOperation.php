@@ -1,6 +1,7 @@
 <?php
 namespace Odisse\Maintenance\App\SLP;
 
+use App\Models\Room;
 use App\SLP\Com\Configuration\SaasClientBusinessConfiguration;
 use App\SLP\Formatter\SystemDateFormats;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalMaintenanceManager;
+use Odisse\Maintenance\Models\Maintainable;
 
 /**
  * Created by PhpStorm.
@@ -75,6 +77,19 @@ trait MaintenanceOperation
                     'maintenance_job_status_history_active'    =>  1,
                 ]);
                 $maintenance_status_history->save();
+
+
+
+                //get all locations of maintenance
+                $maintainables = Maintainable::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->where('maintainable_active' , 1)->where('maintenable_type' , 'LIKE',"%Room%")->get();
+                foreach($maintainables as $maintainable){
+
+                    //change room_maintenance_status field of room
+                    $maintenance_status = MaintenanceJobStatusRef::find($maintenance->id_maintenance_job_status);
+                    $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable->maintenable_id);
+
+
+                }
 
                 DB::commit();
 
@@ -153,13 +168,11 @@ trait MaintenanceOperation
 
                 ]);
                 $maintenance_log->save();
-                Log::info("e3");
 
                 $old_maintenance_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job' , $maintenance->id_maintenance_job )->whereNull('maintenance_status_end_date_time')->first();
                 $old_maintenance_status_history->update([
                     'maintenance_status_end_date_time'  =>  $now->format(SystemDateFormats::getDateTimeFormat()),
                 ]);
-                Log::info("e4");
 
                 $maintenance_status_history = new MaintenanceJobStatusHistory([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
@@ -169,6 +182,20 @@ trait MaintenanceOperation
                     'maintenance_job_status_history_active'    =>  1,
                 ]);
                 $maintenance_status_history->save();
+
+
+
+                //get all locations of maintenance
+                $maintainables = Maintainable::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->where('maintainable_active' , 1)->where('maintenable_type' , 'LIKE',"%Room%")->get();
+                foreach($maintainables as $maintainable){
+
+                    //change room_maintenance_status field of room
+                    $maintenance_status = MaintenanceJobStatusRef::find($maintenance->id_maintenance_job_status);
+                    $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable->maintenable_id);
+
+
+                }
+
 
                 DB::commit();
 
@@ -317,6 +344,31 @@ trait MaintenanceOperation
 
         return false;
 
+    }
+
+
+    private function changeRoomMaintenanceStatus($maintenance_status_code , $room_id){
+
+        //dd($maintenance_status_code ."***". $room_id);
+        //get room info
+        $room = Room::find($room_id);
+        if($room){
+
+            if($maintenance_status_code == "CLOS"){
+
+                $room->update([
+                    'room_maintenance_status' => 1
+                ]);
+
+            }
+            else if($maintenance_status_code == "OPUN" ){
+
+                $room->update([
+                    'room_maintenance_status' => 0
+                ]);
+
+            }
+        }
     }
 
 

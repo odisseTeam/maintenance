@@ -792,7 +792,79 @@
         </div>
     </div>
 
+    <!-- Modal -->
+              <!-- send email to contractor  -->
+            <div class="modal fade" id="sendContractorEmailModal" tabindex="-1" role="dialog"
+                                                aria-labelledby="sendContractorEmailModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
 
+                                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                                                    class="sr-only">{{ __('general.close') }}</span></button>
+
+                                                            <h3 class="modal-title" id="sendContractorEmailModallabel">
+                                                                {{ __('maintenance::contractor.send_contractor_email_modal') }}</h3>
+
+                                                                
+
+                                                        </div>
+
+                                                            
+                                                            <div class="modal-body">
+                                                                <div class="alert alert-danger alert-dismissible" id="send_contractor_email_err_msg_box"
+                                                                        style="display: none;">
+                                                                        <div id="send_contractor_email_ajx_err_msg"></div>
+                                                                    </div>
+                                                                    <div class="alert alert-success alert-dismissible" id="send_contractor_email_success_msg_box"
+                                                                        style="display: none;">
+                                                                        <div id="send_contractor_email_ajx_success_msg"></div>
+                                                                    </div>
+
+
+                                        
+                                                                    <form method="POST" action="/maintenance/contractor/send/email">
+
+                                                                       @csrf
+                                                                        <div class="box">
+                                                                            <div class="box-body">
+
+                                                                                    <div class="col-md-11">
+
+                                                                                        <h4>{{ __('maintenance::contractor.select_fields_to_attach') }}</h4>
+
+                                                                                        <input type="hidden" name="id_contractor" id="hidden_id_contractor" >
+                                                                                        <div id="contractor_job_attachments"></div>
+
+                                                                                        <div class="form-group ">
+                                                                                            <label for="exampleFormControlTextarea1">{{ __('maintenance::contractor.additional_comments') }} :</label>
+                                                                                            <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
+                                                                                        </div>
+                                                                                    </div>
+                                                                            
+
+                                                                            </div>
+                                                                            <div class="box-footer">
+                                                                                <button type="submit" class="btn btn-primary"
+                                                                                    style="float:right;min-width:55px" >{{ __('general.yes') }}</button>
+                                                                                <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
+                                                                                    data-dismiss="modal">{{ __('general.close') }}</button>
+                                                                            
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </form>
+                                                               
+                                                            
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                               
+                                                            </div>
+
+                                                    </div>
+                                                </div>
+            </div>
 
     </section>
 
@@ -1094,6 +1166,11 @@
                         '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>'+
 
+                        '<a href="/maintenance/create/email_temp/' + id_maintenance_job + '"  target="_blank" data-toggle="tooltip"  title="Send Email To Contractor" >'+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" >'+
+                        '<i class="fa-solid fa-envelope"></i>'+
+                        '</button></a>'+
+
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-trash"></i>'+
                         '</button>';
@@ -1125,7 +1202,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] },{ "width": "20%", "targets": 11 }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] },{ "width": "25%", "targets": 11 }
                 ]
             });
 
@@ -1151,7 +1228,72 @@
             loadingOverlay.cancelAll();
 
         }
+       /////////////////////////////////////////////////////
+        function sendEmailToContractorModal(id_maintenance_job){
 
+                send( '/maintenance/contractor/job_document/'+id_maintenance_job,  {
+                }, 'handleShowContractorJobDocumentsModal', [id_maintenance_job]);
+
+
+            }
+        //////////////////////////////////////////////////////
+        function handleShowContractorJobDocumentsModal(){
+
+
+                let contractor_job_documents = return_value.contractor_job_documents;
+                let res = return_value.code;
+                let message = return_value.message;
+
+
+                if(res == "failure"){
+
+                var textmessage = message;
+
+                alert(textmessage);
+
+                //     $("#send_contractor_email_ajx_err_msg").html(textmessage);
+                //    $("#send_contractor_email_err_msg_box").css('display' , 'block');
+                //    $('#sendContractorEmailModal').modal('show');
+
+                }else{
+
+
+                    if((contractor_job_documents != null) && (contractor_job_documents !="undefined")){
+                    
+                        
+                        var htmlValue = "";
+                        Object.keys(contractor_job_documents).forEach(function(k){
+
+                            var counter = 1+parseInt(k);
+
+
+                            var doc_name = contractor_job_documents[k]["document_name"];
+                            var doc_id = contractor_job_documents[k]["id_maintenance_job_document"];
+                            var id_contractor = contractor_job_documents[k]["id_contractor"];
+
+                        
+
+                        
+
+                            htmlValue= htmlValue +' <input type="checkbox" id="'+ doc_id +'" name="'+ doc_name +'" ><label for="'+doc_name+'">'+doc_name+'</label></br>';
+
+                            $('#hidden_id_contractor').val(id_contractor);
+                            $('#hidden_id_contractor').attr('value',id_contractor);
+
+                        
+                            $('#contractor_job_attachments').html('');
+                            $('#contractor_job_attachments').append(htmlValue);
+
+                        });
+
+      
+                            $('#sendContractorEmailModal').modal('show');
+
+
+                    }
+
+                }
+        }           
 
         ///////////////////////////////////////////////////////
 
