@@ -809,8 +809,8 @@
                                 </div>
 
 
-                                
-                                      
+
+
 
 
 
@@ -1136,6 +1136,7 @@
                     var id_maintenance_job = maintenance_list[k]["id_maintenance_job"];
                     var category = maintenance_list[k]["job_category_name"];
                     var m_url = maintenance_list[k]["m_url"];
+                    var mail_url = maintenance_list[k]["mail_url"];
                     var id_business = maintenance_list[k]["id_business"];
                     var business_name = maintenance_list[k]["business_name"];
                     var title = maintenance_list[k]["maintenance_job_title"];
@@ -1161,6 +1162,10 @@
                         '</a>'+
                         '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business + ',' + id_maintenance_job+')"> '+
                         '<i class="fa fa-solid fa-stop"></i>'+
+                        '</a>'+
+
+                        '<a href="' + mail_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" title="Send Email To Contractor" >'+
+                        '<i class="fa fa-solid fa-envelope"></i>'+
                         '</a>'+
 
 

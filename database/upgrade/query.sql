@@ -209,8 +209,8 @@
 -- ('STRC', 'Structural', '-', 1),
 -- ('MISC', 'Misc', '-', 1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{id_contractor}','post',null,null,1);
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{id_contractor}','post',null,null,1);
 
 
 -- INSERT INTO public.maintenance_job_priority_ref
@@ -229,11 +229,11 @@ VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{
 -- ('CLOS', 'Closed', '-', 1);
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'contractor.attachment.delete','/maintenance/contractor_document/delete','post',null,null,1);
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachment.delete','/maintenance/contractor_document/delete','post',null,null,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachment/{id_attachment}/download','get',null,null,1);
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachment/{id_attachment}/download','get',null,null,1);
 
 
 --comment this
@@ -353,13 +353,19 @@ VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachmen
 -- (1, 4, 28, '30', '3000', 1),
 -- (1, 4, null, '30', '3000', 1);
 
+-- INSERT INTO public.contractor_location_ref (location,contractor_location_ref_active) VALUES
+--	('Woolston',1),
+--	('Eastleigh',1),
+--	('West End',1),
+--	('Hailsham',1);
+	
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1);
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1);
 
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'contractor.search_skill','/maintenance/contractor_skill/contractors','post',null,null,1);
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.search_skill','/maintenance/contractor_skill/contractors','post',null,null,1);
 
 
 -- contractor management in portall

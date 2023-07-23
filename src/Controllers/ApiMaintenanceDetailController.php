@@ -276,6 +276,7 @@ class ApiMaintenanceDetailController extends Controller
             unset($maintenance->permissions);
 
             $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
+            $maintenance->mail_url = env('APP_URL').'/maintenance/create/email_temp/'. $maintenance->id_maintenance_job;
 
             $remain_time = $this->calculateSlaRemainTime($request->business , $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 

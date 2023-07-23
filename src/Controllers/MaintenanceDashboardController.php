@@ -107,7 +107,7 @@ class MaintenanceDashboardController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in MaintenanceDashboardController- ajaxLoadMaintenances function " . " try to load maintenances data  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info(" In maintenance package, MaintenanceDashboardController- ajaxLoadMaintenances function " . " try to load maintenances data  ------- by user " . $user->first_name . " " . $user->last_name);
 
         $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('maintenance_job.id_saas_client_business' , $user->id_saas_client_business)->
         join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
@@ -165,7 +165,7 @@ class MaintenanceDashboardController extends Controller
             $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident');
         }
 
-        Log::debug($maintenances->toSql());
+        Log::debug('In maintenance package, MaintenanceDashboardController- ajaxLoadMaintenances function' . $maintenances->toSql());
 
 
 
@@ -248,7 +248,7 @@ class MaintenanceDashboardController extends Controller
         } catch (\Exception $e) {
 
 
-            Log::error($e->getMessage());
+            Log::error('In maintenance package, MaintenanceDashboardController- ajaxDeleteMaintenance function' . $e->getMessage());
             DB::rollback();
 
 
@@ -318,7 +318,7 @@ class MaintenanceDashboardController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error('In maintenance package, MaintenanceDashboardController- ajaxLoadUserAgents function' . $e->getMessage());
 
             return response()->json(
                 [
@@ -450,7 +450,7 @@ class MaintenanceDashboardController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error('In maintenance package, MaintenanceDashboardController- ajaxAssignMaintenanceToUser function' . $e->getMessage());
             DB::rollback();
 
 
@@ -684,7 +684,7 @@ class MaintenanceDashboardController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info("in MaintenanceDashboardController- getContractorJobDocuments function " . " try to get  documents of a contractor job:" . " ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package, MaintenanceDashboardController- getContractorJobDocuments function " . " try to get  documents of a contractor job:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
         try{
                 //get contractor of maintenance job
@@ -730,7 +730,7 @@ class MaintenanceDashboardController extends Controller
             }catch(\Exception $e){
 
 
-                Log::error($e->getMessage());
+                Log::error('In maintenance package, MaintenanceDashboardController- getContractorJobDocuments function : '.$e->getMessage());
 
                 return response()->json(
                     [
@@ -750,7 +750,7 @@ class MaintenanceDashboardController extends Controller
         $user = Sentinel::getUser();
 
         try {
-                    Log::info("in MaintenanceDashboardController- createEmailTemplateForContractor function " . " try to go page for create template  email :" . " ------- by user " . $user->first_name . " " . $user->last_name);
+                    Log::info("In maintenance package, MaintenanceDashboardController- createEmailTemplateForContractor function " . " try to go page for create template  email :" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
                     $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_dashboard');
 
@@ -856,7 +856,7 @@ class MaintenanceDashboardController extends Controller
                 catch(\Exception $e){
 
 
-                    Log::error($e->getMessage());
+                    Log::error('In maintenance package, MaintenanceDashboardController- createEmailTemplateForContractor' . $e->getMessage());
 
                     return redirect()->route('maintenance_dashboard')->with('error', $e->getMessage());
 
@@ -913,7 +913,7 @@ class MaintenanceDashboardController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error('In maintenance package, MaintenanceDashboardController- previewEmailContent function'. $e->getMessage());
 
             return response()->json(
                 [
@@ -937,7 +937,7 @@ class MaintenanceDashboardController extends Controller
 
             DB::beginTransaction();
 
-                Log::info("in MaintenanceDashboardController- sendEmailToContractor function " . " try to send email to contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
+                Log::info("In maintenance package, MaintenanceDashboardController- sendEmailToContractor function " . " try to send email to contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
                 $contractor_email = ContractorAgent::join('users','users.id','contractor_agent.id_user')->where('contractor_agent.id_contractor',$request->id_contractor)->select('users.email')->first();
 
@@ -983,21 +983,26 @@ class MaintenanceDashboardController extends Controller
                 $i=1;
                 $message_attachment_uri = '';
 
+                $files = [];
+                
                 foreach($attached_files as $attached_file){
 
 
-                    $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
+                    // $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
 
-                    $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
+                    $files[] = public_path($path. $attached_file->document_name);
 
-                    $i++;
+                    // $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
+
+                    // $i++;
 
                     }
 
 
                 }
 
-                $final_message_attachment_uri = '{'. $message_attachment_uri.'}';
+                // $final_message_attachment_uri = '{'. $message_attachment_uri.'}';
+                $final_message_attachment_uri = json_encode($files);
 
                 $final_email_text = $final_email_text . $attached_files_list;
 
@@ -1011,6 +1016,9 @@ class MaintenanceDashboardController extends Controller
                     //    $comms_job_queue->id_event_list_saas = 26;
                     //    $comms_job_queue->id_saas_client_business = $user->id_saas_client_business;
                     //    $comms_job_queue->id_saas_client_business ->save();
+
+
+                    $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
 
 
                     $comms_job_queue_detail = new CommsJobQueueDetailSaas();
@@ -1030,7 +1038,7 @@ class MaintenanceDashboardController extends Controller
                 } catch (\Exception $e) {
 
 
-                    Log::error($e->getMessage());
+                    Log::error('In maintenance package, MaintenanceDashboardController- sendEmailToContractor function' . $e->getMessage());
                     DB::rollback();
 
 

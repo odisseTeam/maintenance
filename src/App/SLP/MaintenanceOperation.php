@@ -349,7 +349,6 @@ trait MaintenanceOperation
 
     private function changeRoomMaintenanceStatus($maintenance_status_code , $room_id){
 
-        //dd($maintenance_status_code ."***". $room_id);
         //get room info
         $room = Room::find($room_id);
         if($room){

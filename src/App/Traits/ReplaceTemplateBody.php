@@ -117,7 +117,7 @@ trait ReplaceTemplateBody{
 
                         $property = Property::find($maintenance_location->maintenable_id);
                         $legal_company = LegalCompany::find($property->id_legal_company);
-                        $company_logo ="<img src='.config('app.url', 'http://localhost').'" . '/img/logos/' . $legal_company->logo."\><br>";
+                        $company_logo ="<img src='".config('app.url', 'http://localhost')."'" . '/img/logos/' . $legal_company->logo."\><br>";
 
 
 
@@ -146,8 +146,11 @@ trait ReplaceTemplateBody{
                     if($maintenance_location->maintenable_type == 'App\Models\Rooms'){
                         $room = Room::find($maintenance_location->maintenable_id);
                         $property = Property::find($room->id_property);
-                        $legal_company = LegalCompany::find($property->id_legal_company);
-                        $company_logo ="<img src='.config('app.url', 'http://localhost').'" . '/img/logos/' . $legal_company->logo."\><br>";
+                        $legal_company = $property->id_legal_company ?? LegalCompany::find($property->id_legal_company);
+                        
+                        $company_logo = "<br />";
+                        if( $legal_company)
+                            $company_logo ="<img src='.config('app.url', 'http://localhost').'" . '/img/logos/' . $legal_company->logo."\><br>";
 
 
 
@@ -411,9 +414,8 @@ trait ReplaceTemplateBody{
         } catch (\Exception $e) {
             Log::error("in ReplaceTemplateBody trait- replaceMaintenanceTemplateVariables function get template body  " . " by user "
                . $e->getMessage());
-            return redirect()->back()->with([ActionStatusConstants::ERROR => trans('maintenance.template_body_was_not_replaced_successfully')])
-                ->withInput();
-
+            Log::info($e->getLine());
+            return null;
         }
 
     }
