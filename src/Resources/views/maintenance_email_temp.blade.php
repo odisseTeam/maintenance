@@ -85,7 +85,7 @@
 
     @endif
 
- 
+
 
 
 
@@ -99,10 +99,10 @@
             <div class="box-body">
 
 
-               
+
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12">
-                        
+
 
                         <form method="POST" action="/maintenance/contractor/send/email">
 
@@ -115,7 +115,7 @@
                                             <h4>{{ __('maintenance::contractor.maintenance_template') }}</h4>
 
                                             <input type="hidden" name="html_maintenance_temp" id="html_maintenance_temp" value="{{$template_message_body}}" >
-                                            
+
                                             <div id="maintenance_template"></div>
 
 
@@ -132,8 +132,8 @@
 
                                             <h4>{{ __('maintenance::contractor.select_fields_to_attach') }}</h4>
 
-                                            <input type="hidden" name="id_contractor" id="hidden_id_contractor"  value="{{$contractor_job_attachments[0]->id_contractor}}">
-                                            <input type="hidden" name="id_maintenance_job" id="hidden_id_maintenance_job" value="{{$contractor_job_attachments[0]->id_maintenance_job}}" >
+                                            <input type="hidden" name="id_contractor" id="hidden_id_contractor"  value="@if(isset($contractor)){{$contractor->id_contractor}}@endif">
+                                            <input type="hidden" name="id_maintenance_job" id="hidden_id_maintenance_job" value="@if(isset($contractor)){{$contractor->id_maintenance_job}}@endif" >
 
 
                                             @foreach($contractor_job_attachments as $contractor_job_attachment)
@@ -145,25 +145,24 @@
 
                                             <div class="form-group row">
                                                 <label class="col-xs-2 col-sm-2 col-md-2 control-label text-left" for="exampleFormControlTextarea1">{{ __('maintenance::contractor.additional_comments') }} :</label>
-                                                
+
                                                 <div class="input-group col-xs-8 col-sm-8 col-md-8">
 
                                                     <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
-                                            
+
                                                 </div>
                                              </div>
                                         </div>
-                                
+
 
                                 </div>
                                 <div class="box-footer">
-                                    <button type="submit" class="btn btn-primary"
-                                        style="float:right;min-width:55px"  >{{ __('maintenance::contractor.send_email') }}</button>
-                                        <button type="button" class="btn btn-primary"
-                                        style="float:right;min-width:55px;margin-right:5px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
-                                    <a href="/maintenance/dashboard" ><button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
+                                    <button type="submit" class="btn btn-primary" style="float:right;min-width:55px"  >{{ __('maintenance::contractor.send_email') }}</button>
+                                    <button type="submit" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
+                                    <button type="button" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
+                                    <a href="/maintenance/dashboard" ><button style="float:right;margin-right:2px" type="button" id="close_btn" class="btn btn-warning"
                                         >{{ __('maintenance::contractor.back') }}</button></a>
-                                
+
 
                                 </div>
                             </div>
@@ -176,7 +175,7 @@
                     </div>
                 </div>
 
-            
+
 
             </div>
 
@@ -195,11 +194,11 @@
                                                             <h3 class="modal-title" id="previewEmailContentModallabel">
                                                                 {{ __('maintenance::contractor.preview_email_content_modal') }}</h3>
 
-                                                                
+
 
                                                         </div>
 
-                                                            
+
                                                             <div class="modal-body">
                                                                 <div class="alert alert-danger alert-dismissible" id="preview_email_content_err_msg_box"
                                                                         style="display: none;">
@@ -211,7 +210,7 @@
                                                                     </div>
 
 
-                                        
+
                                                                         <div class="box">
                                                                             <div class="box-body">
 
@@ -233,30 +232,30 @@
                                                                                         <div id="email_notes_list" name="email_notes_list" ></div>
 
 
-                                                                                       
+
 
                                                                                     </div>
 
                                                                                     <div id="email_content" name="email_content">
 
                                                                                     </div>
-                                                                            
+
 
                                                                             </div>
                                                                             <div class="box-footer">
-                                                                                
+
                                                                                 <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
                                                                                     data-dismiss="modal">{{ __('general.close') }}</button>
-                                                                            
+
 
                                                                             </div>
                                                                         </div>
 
-                                                               
-                                                            
+
+
                                                             </div>
                                                             <div class="modal-footer">
-                                                               
+
                                                             </div>
 
                                                     </div>
@@ -269,7 +268,7 @@
 @endsection
 
 @section('script')
-   
+
     <script src="{{ asset('resources/modalLoading/modalLoading.min.js') }}"></script>
 
  <script>
@@ -294,7 +293,7 @@
                 notes_output.push(note_checkbox.value);
             });
 
-            console.log(notes_output);
+            // console.log(notes_output);
 
             let files_checkboxes= document.querySelectorAll('input[name="job_attachments[]"]:checked');
             let job_attachments_output= [];
@@ -309,7 +308,7 @@
 
             // var email_html_text = document.getElementById('maintenance_template').getAttribute('value');
 
-            console.log(email_html_text);
+            // console.log(email_html_text);
 
             send('/maintenance/contractor_email/preview', {
                 id_maintenance_job: id_maintenance_job,
@@ -335,8 +334,9 @@
 
             console.log(additional_comment);
 
+
             if(maintenance_job_attachments != null && maintenance_job_attachments !="undefined"){
-              
+
                 var htmlDocumentValue = "";
                 Object.keys(maintenance_job_attachments).forEach(function(k){
 
@@ -344,7 +344,7 @@
 
 
                     var maintenance_doc_name = maintenance_job_attachments[k]["document_name"];
-                    
+
 
                     htmlDocumentValue= htmlDocumentValue +"<tr><td>"+maintenance_doc_name+"</td></tr>";
 
@@ -353,11 +353,11 @@
 
                 $('#email_attachments_list').html('');
                 $('#email_attachments_list').append(htmlDocumentValue);
-           
+
             }
 
             if(notes != null && notes !="undefined"){
-              
+
               var htmlNoteValue = "";
               Object.keys(notes).forEach(function(k){
 
@@ -365,7 +365,7 @@
 
 
                   var maintenance_log_note = notes[k]["log_note"];
-                  
+
 
                   htmlNoteValue= htmlNoteValue +"<tr><td>"+maintenance_log_note+"</td></tr>";
 
@@ -374,16 +374,17 @@
 
               $('#email_notes_list ').html('');
                 $('#email_notes_list ').append(htmlNoteValue);
-           
-         
-            }
 
-            $('#maintenance_template_body ').html('');
-            $('#maintenance_template_body ').append(maintenance_template_body);
+
+            }
+            console.log(maintenance_template_body);
+
+            $('#maintenance_template_body').html('');
+            $('#maintenance_template_body').append(maintenance_template_body);
 
             $('#additional_comment ').html('');
             $('#additional_comment ').append(additional_comment);
-           
+
             $('#previewEmailContentModal').modal('show');
 
 

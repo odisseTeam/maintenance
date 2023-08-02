@@ -63,11 +63,14 @@ class MaintenanceJob extends Model
 		'id_maintenance_job_category',
 		'id_maintenance_job_priority',
 		'id_maintenance_job_status',
+		'order_number',
 		'maintenance_job_title',
 		'maintenance_job_description',
 		'id_resident_reporter',
 		'job_start_date_time',
 		'job_report_date_time',
+        'commencement_date',
+        'complete_date',
 		'job_finish_date_time',
         'maintenance_job_active'
 	];
@@ -123,6 +126,42 @@ class MaintenanceJob extends Model
             $this->attributes['job_finish_date_time'] = null;
         else
             $this->attributes['job_finish_date_time'] = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $value)->format('Y-m-d H:i:s');
+    }
+
+
+    // accessors for convert date formats
+    public function getCommencementDateAttribute($value)
+    {
+        if( $value == null )
+            return null;
+        else
+            return Carbon::parse($value)->format(SystemDateFormats::getDateFormat());
+    }
+
+    public function setCommencementDateAttribute($value)
+    {
+        if( $value == null )
+            $this->attributes['commencement_date'] = null;
+        else
+            $this->attributes['commencement_date'] = Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $value)->format('Y-m-d');
+    }
+
+
+    // accessors for convert date formats
+    public function getCompleteDateAttribute($value)
+    {
+        if( $value == null )
+            return null;
+        else
+            return Carbon::parse($value)->format(SystemDateFormats::getDateFormat());
+    }
+
+    public function setCompleteDateAttribute($value)
+    {
+        if( $value == null )
+            $this->attributes['complete_date'] = null;
+        else
+            $this->attributes['complete_date'] = Carbon::createFromFormat(SystemDateFormats::getDateFormat(), $value)->format('Y-m-d');
     }
 
 

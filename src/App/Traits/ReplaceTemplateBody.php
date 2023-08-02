@@ -36,6 +36,7 @@ trait ReplaceTemplateBody{
 
             $template_body = $template_body;
 
+
             // $id_maintenance_job = $request['id_maintenance_job'];
 
             // $id_contractor = $request['id_contractor'];
@@ -45,11 +46,21 @@ trait ReplaceTemplateBody{
 
 
             //get the contractor info
-            $contractor = Contractor::findOrFail($id_contractor);
+            $contractor = Contractor::where('id_contractor',$id_contractor)->where('contractor_active',1)->first();
 
 
 
-            // dd($maintenance);
+
+
+            if(str_contains($template_body,'%%DATE%%')){
+
+                $now = Carbon::createFromDate('now');
+
+                //replace the variable code with the accurate value of it in this booking
+                $template_body = str_replace('%%DATE%%', $now->format(SystemDateFormats::getDateFormat()), $template_body);
+
+
+            }
 
 
             if(str_contains($template_body,'%%MAINTENANCE_TITLE%%')){
@@ -75,25 +86,7 @@ trait ReplaceTemplateBody{
 
 
                 if($maintenance) {
-                    $maintenance_category = MaintenanceJobCategoryRef::find($maintenance->id_maintenance_job);
-                    $maintenance_category_name = $maintenance_category->job_category_name;
 
-                    //replace the variable code with the accurate value of it in this booking
-                    $template_body = str_replace('%%MAINTENANCE_CATEGORY%%', $maintenance_category_name, $template_body);
-                }else{
-                    $template_body = str_replace('%%MAINTENANCE_CATEGORY%%', '', $template_body);
-
-                }
-
-            }
-
-
-
-
-            if(str_contains($template_body,'%%MAINTENANCE_CATEGORY%%')){
-
-
-                if($maintenance) {
                     $maintenance_category = MaintenanceJobCategoryRef::find($maintenance->id_maintenance_job_category);
                     $maintenance_category_name = $maintenance_category->job_category_name;
 
@@ -107,17 +100,39 @@ trait ReplaceTemplateBody{
             }
 
 
+
+
+            if(str_contains($template_body,'%%ORDER_NUMBER%%')){
+
+
+                if($maintenance) {
+                    $order_number = $maintenance->order_number;
+
+                    //replace the variable code with the accurate value of it in this booking
+                    $template_body = str_replace('%%ORDER_NUMBER%%', $order_number, $template_body);
+                }else{
+                    $template_body = str_replace('%%ORDER_NUMBER%%', '', $template_body);
+
+                }
+
+            }
+
+
             if($maintenance){
 
 
                 $maintenance_location = Maintainable::where('id_maintenance_job' , $maintenance->id_maintenance_job)->where('maintainable_active' , 1)->first();
+
+
                 if($maintenance_location){
+
 
                     if($maintenance_location->maintenable_type == 'App\Models\Property'){
 
                         $property = Property::find($maintenance_location->maintenable_id);
+
                         $legal_company = LegalCompany::find($property->id_legal_company);
-                        $company_logo ="<img src='".config('app.url', 'http://localhost')."'" . '/img/logos/' . $legal_company->logo."\><br>";
+                        $company_logo ="<img style='width:50px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
 
 
 
@@ -134,7 +149,19 @@ trait ReplaceTemplateBody{
                         if(str_contains($template_body,'%%LEGAL_COMPANY_LOGO%%')){
 
 
-                                $template_body = str_replace('%%LEGAL_COMPANY_LOGO%%', $company_logo, $template_body);
+                            $template_body = str_replace('%%LEGAL_COMPANY_LOGO%%', $company_logo, $template_body);
+
+                        }
+
+
+
+
+                        if(str_contains($template_body,'%%LEGAL_COMPANY_NAME%%')){
+
+                            $legal_company_name = $legal_company->name;
+
+
+                            $template_body = str_replace('%%LEGAL_COMPANY_NAME%%', $legal_company_name, $template_body);
 
                         }
 
@@ -144,15 +171,38 @@ trait ReplaceTemplateBody{
 
                     }
                     if($maintenance_location->maintenable_type == 'App\Models\Rooms'){
+
+
                         $room = Room::find($maintenance_location->maintenable_id);
+
+
                         $property = Property::find($room->id_property);
-                        $legal_company = $property->id_legal_company ?? LegalCompany::find($property->id_legal_company);
-                        
-                        $company_logo = "<br />";
-                        if( $legal_company)
-                            $company_logo ="<img src='.config('app.url', 'http://localhost').'" . '/img/logos/' . $legal_company->logo."\><br>";
+
+                        if($property->id_legal_company){
+
+                            $legal_company = LegalCompany::find($property->id_legal_company);
 
 
+                            $company_logo = "<br />";
+                            if( $legal_company)
+                                $company_logo ="<img style='width:50px;' src='".config('app.url', 'http://localhost') . $legal_company->logo."'"."\><br>";
+
+
+                                if(str_contains($template_body,'%%LEGAL_COMPANY_LOGO%%')){
+
+
+                                    $template_body = str_replace('%%LEGAL_COMPANY_LOGO%%', $company_logo, $template_body);
+
+                            }
+                        }else{
+                            if(str_contains($template_body,'%%LEGAL_COMPANY_LOGO%%')){
+
+
+                                $template_body = str_replace('%%LEGAL_COMPANY_LOGO%%', '', $template_body);
+
+                        }
+
+                        }
 
                         if(str_contains($template_body,'%%MAINTENANCE_LOCATION%%')){
 
@@ -162,23 +212,19 @@ trait ReplaceTemplateBody{
 
 
                         }
+                        if(str_contains($template_body,'%%LEGAL_COMPANY_NAME%%')){
+
+                            $legal_company_name = $legal_company->name;
 
 
-                        if(str_contains($template_body,'%%LEGAL_COMPANY_LOGO%%')){
-
-
-                                $template_body = str_replace('%%LEGAL_COMPANY_LOGO%%', $company_logo, $template_body);
+                            $template_body = str_replace('%%LEGAL_COMPANY_NAME%%', $legal_company_name, $template_body);
 
                         }
-
-
-
 
 
                     }
                 }
             }
-
 
 
 
@@ -256,6 +302,54 @@ trait ReplaceTemplateBody{
                     $template_body = str_replace('%%JOB_START_DATE_TIME%%', $job_start_date_time, $template_body);
                 }else{
                     $template_body = str_replace('%%JOB_START_DATE_TIME%%', '', $template_body);
+
+                }
+
+            }
+
+
+            if(str_contains($template_body,'%%COMMENCEMENT_DATE%%')){
+
+
+                if($maintenance) {
+                    $commencement_date =  $maintenance->commencement_date;
+
+                    //replace the variable code with the accurate value of it in this booking
+                    $template_body = str_replace('%%COMMENCEMENT_DATE%%', $commencement_date, $template_body);
+                }else{
+                    $template_body = str_replace('%%COMMENCEMENT_DATE%%', '', $template_body);
+
+                }
+
+            }
+
+
+            if(str_contains($template_body,'%%COMPLETE_DATE%%')){
+
+
+                if($maintenance) {
+                    $complete_date =  $maintenance->complete_date;
+
+                    //replace the variable code with the accurate value of it in this booking
+                    $template_body = str_replace('%%COMPLETE_DATE%%', $complete_date, $template_body);
+                }else{
+                    $template_body = str_replace('%%COMPLETE_DATE%%', '', $template_body);
+
+                }
+
+            }
+
+
+            if(str_contains($template_body,'%%MAINTENANCE_DETAIL%%')){
+
+
+                if($maintenance) {
+                    $detail =  $maintenance->maintenance_job_description;
+
+                    //replace the variable code with the accurate value of it in this booking
+                    $template_body = str_replace('%%MAINTENANCE_DETAIL%%', $detail, $template_body);
+                }else{
+                    $template_body = str_replace('%%MAINTENANCE_DETAIL%%', '', $template_body);
 
                 }
 
@@ -404,12 +498,9 @@ trait ReplaceTemplateBody{
 
 
 
-
-
-
-
-
             return $template_body;
+
+
 
         } catch (\Exception $e) {
             Log::error("in ReplaceTemplateBody trait- replaceMaintenanceTemplateVariables function get template body  " . " by user "

@@ -109,11 +109,13 @@ class MaintenanceDashboardController extends Controller
 
         Log::info(" In maintenance package, MaintenanceDashboardController- ajaxLoadMaintenances function " . " try to load maintenances data  ------- by user " . $user->first_name . " " . $user->last_name);
 
+        $select_str="";
+
         $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('maintenance_job.id_saas_client_business' , $user->id_saas_client_business)->
         join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
         join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
         join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
-        join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
+        join('users as u1' , 'u1.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
         leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
@@ -125,10 +127,30 @@ class MaintenanceDashboardController extends Controller
             join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
             $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
 
+            $maintenances = $maintenances->select('maintenance_job_staff_history.*' ,'contractor_agent.*' , 'contractor.name AS contractor_name' ,'maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
         }
         else{
+            $maintenances = $maintenances->
+            leftjoin('maintenance_job_staff_history', function($join) {
+                $join->on('maintenance_job.id_maintenance_job', 'maintenance_job_staff_history.id_maintenance_job')
+                ->where('maintenance_job_staff_history.maintenance_job_staff_history_active' , 1);
+              })->
+            leftjoin('users AS u2', 'maintenance_job_staff_history.id_maintenance_assignee' , 'u2.id')->
+            leftjoin('contractor_agent', 'contractor_agent.id_user' , 'u2.id')->
+            leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            // join('contractor_agent', 'maintenance_job_staff_history.id_maintenance_assignee' , 'contractor_agent.id_user')->
+            // join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            // $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
+
             //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+
+            $maintenances = $maintenances->select('contractor.name AS contractor_name','maintenance_job_staff_history.*' , 'u2.first_name AS assignee_first_name' ,'u2.last_name AS assignee_last_name','u2.email AS assignee_email','maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
         }
+
+
+        //dd($maintenances->toSql());
 
 
         if( $request->has('business') and $request->business != null )
@@ -158,20 +180,21 @@ class MaintenanceDashboardController extends Controller
 
 
         if( $request->has('assignee') and $request->assignee != null ){
-            $maintenances = $maintenances->whereNull('staff_end_date_time');
-            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
+            $maintenances = $maintenances->whereNull('staff_end_date_time')->where('is_last_one' , 1);
         }
         else{
-            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident');
+            $maintenances = $maintenances->where('is_last_one' , 1)->orWhereNull('is_last_one');
         }
 
         Log::debug('In maintenance package, MaintenanceDashboardController- ajaxLoadMaintenances function' . $maintenances->toSql());
 
 
 
+        //dd($maintenances->toSql());
         $maintenances = $maintenances->get();
 
         foreach($maintenances as $maintenance){
+            //$remain_time = null;
 
             $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
@@ -185,6 +208,8 @@ class MaintenanceDashboardController extends Controller
             }
 
         }
+
+
 
 
 
@@ -366,104 +391,9 @@ class MaintenanceDashboardController extends Controller
 
         }
 
-        try{
-            DB::beginTransaction();
 
-
-            $now = Carbon::createFromDate('now');
-
-            $maintenance = MaintenanceJob::find($request->maintenance);
-
-            //check this task assigned to this user already
-            $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-                                                where('id_maintenance_assignee' , $request->user)->
-                                                whereNull('staff_end_date_time')->
-                                                where('maintenance_job_staff_history_active' , 1)->get();
-            if(count($check)==0 ){
-
-                //check if this task is assigned to another person
-                $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-                whereNull('staff_end_date_time')->
-                where('maintenance_job_staff_history_active' , 1)->get();
-
-                if(count($check2)>0){
-                    foreach($check2  as $assign_staf_obj){
-                        $assign_staf_obj->update([
-                            'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                        ]);
-                    }
-
-                }
-
-
-                //insert into maintenance_job_staff table
-                $maintenance_staff = new MaintenanceJobStaffHistory([
-                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_maintenance_staff'    =>  $user->id,
-                    'id_maintenance_assignee'    =>  $request->user,
-                    'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'maintenance_job_staff_history_active'  =>  1,
-
-                ]);
-                $maintenance_staff->save();
-
-
-
-                //insert into maintenance_job_staff table
-                $maintenance_log = new MaintenanceLog([
-                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_staff'    =>  $user->id,
-                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
-
-                ]);
-                $maintenance_log->save();
-
-
-
-                DB::commit();
-
-                return response()->json(
-                    [
-                    'code' => ActionStatusConstants::SUCCESS,
-                    'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_successful'),
-                    ]);
-
-            }else{
-
-                DB::rollback();
-
-                return response()->json(
-                    [
-                    'code' => ActionStatusConstants::FAILURE,
-                    'message' => trans('maintenance::dashboard.maintenance_assigned_to_this_user_already'),
-                    ]);
-
-
-            }
-
-
-
-
-        }
-        catch(\Exception $e){
-
-
-            Log::error('In maintenance package, MaintenanceDashboardController- ajaxAssignMaintenanceToUser function' . $e->getMessage());
-            DB::rollback();
-
-
-            return response()->json(
-                [
-                  'code' => ActionStatusConstants::FAILURE,
-                  'result'=>[],
-                  'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
-                ]);
-
-
-        }
-
+        $response = $this->assignJobToUser($request->maintenance , $request->user ,$user->id );
+        return response()->json($response);
 
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -758,37 +688,26 @@ class MaintenanceDashboardController extends Controller
                     $contractor = MaintenanceJob::join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
                     join('contractor_agent' , 'contractor_agent.id_user' , 'maintenance_job_staff_history.id_maintenance_assignee')->
                     join('contractor' , 'contractor.id_contractor' , 'contractor_agent.id_contractor')->
-                    where('maintenance_job.id_maintenance_job',$id_maintenance_job)->get();
-
-                    $contractor = $contractor->toArray();
+                    where('maintenance_job.id_maintenance_job',$id_maintenance_job)->first();
 
                     if($contractor) {
 
 
-                            $contractor = $contractor[0];
-                            $id_contractor = $contractor['id_contractor'];
+                        //$contractor = $contractor[0];
+                        $id_contractor = $contractor->id_contractor;
 
-                            //get contractor job documents
-                            $contractor_job_documents = MaintenanceJobDocument::join('maintenance_job','maintenance_job.id_maintenance_job','maintenance_job_document.id_maintenance_job')->
-                            join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
-                            join('contractor_agent' , 'contractor_agent.id_user' , 'maintenance_job_staff_history.id_maintenance_assignee')->
-                            join('contractor' , 'contractor.id_contractor' , 'contractor_agent.id_contractor')->
-                            join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
-                            join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
-                            where('maintenance_job_document.maintenance_job_document_active',1)->
-                            where('contractor.id_contractor' , $id_contractor)->get();
+                        //get contractor job documents
+                        $contractor_job_documents = MaintenanceJobDocument::join('maintenance_job','maintenance_job.id_maintenance_job','maintenance_job_document.id_maintenance_job')->
+                        join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
+                        join('contractor_agent' , 'contractor_agent.id_user' , 'maintenance_job_staff_history.id_maintenance_assignee')->
+                        join('contractor' , 'contractor.id_contractor' , 'contractor_agent.id_contractor')->
+                        join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+                        join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
+                        where('maintenance_job_document.maintenance_job_document_active',1)->
+                        where('contractor.id_contractor' , $id_contractor)->get();
 
-                            //get all notes of a job document
-                            $notes =  MaintenanceLog::where('id_maintenance_job',$id_maintenance_job)->get();
-
-
-                            //get template for maintenance
-                        //      $template = Template::where('template_active',1)
-                        //     ->where(function($template)  {
-                        //         $template->where('template_category_name','maintenance')
-                        //               ->orWhere('template_sub_category_name','maintenance sent to contractor');
-                        //    })->orderBy('id_template', 'desc')
-                        //    ->first();
+                        //get all notes of a job document
+                        $notes =  MaintenanceLog::where('id_maintenance_job',$id_maintenance_job)->get();
 
                         $template = Template::join('template_category','template_category.id_template_category','template.id_template_category')
                         ->leftjoin('template_sub_category','template_sub_category.id_template_sub_category','template.id_template_sub_category')
@@ -798,71 +717,62 @@ class MaintenanceDashboardController extends Controller
                         })->orderBy('id_template', 'desc')
                         ->first();
 
-                            $maintenance_location = Maintainable::where('id_maintenance_job',$id_maintenance_job)->first();
+                        $maintenance_location = Maintainable::where('id_maintenance_job',$id_maintenance_job)->first();
 
-                            // dd($maintenance_location);
-                            if($maintenance_location->maintenable_type == MaintainableTypeConstants::Room){
+                        // dd($maintenance_location);
+                        if($maintenance_location->maintenable_type == MaintainableTypeConstants::Room){
 
+                            $legal_company = LegalCompany::join('property','property.id_legal_company','legal_company.id_legal_company')
+                            ->join('room','room.id_property','property.id_property')
+                            ->where('room.id_room',$maintenance_location->maintenable_id)
+                            ->first();
 
-                                $legal_company = LegalCompany::join('property','property.id_legal_company','legal_company.id_legal_company')
-                                ->join('room','room.id_property','property.id_property')
-                                ->where('room.id_room',$maintenance_location->maintenable_id)
-                                ->first();
+                        }elseif($maintenance_location->maintenable_type == MaintainableTypeConstants::Property){
 
+                            $legal_company = LegalCompany::join('property','property.id_legal_company','legal_company.id_legal_company')
+                            ->where('property.id_property',$maintenance_location->maintenable_id)
+                            ->first();
 
-                            }elseif($maintenance_location->maintenable_type == MaintainableTypeConstants::Property){
+                        }
 
-                                $legal_company = LegalCompany::join('property','property.id_legal_company','legal_company.id_legal_company')
-                                ->where('property.id_property',$maintenance_location->maintenable_id)
-                                ->first();
+                        if(!$template){
 
-                            }
-
-                            if(!$template){
-
-                                return redirect()->route('maintenance_dashboard')->with('error', trans('maintenance::maintenance.you_have_to_first_define_template'));;
+                            return redirect()->route('maintenance_dashboard')->with('error', trans('maintenance::maintenance.you_have_to_first_define_template'));;
 
 
-                            }
+                        }
 
 
-                            return view('maintenance::maintenance_email_temp',
-                            [
+                        return view('maintenance::maintenance_email_temp',
+                        [
 
 
-                                'contractor_job_attachments' =>$contractor_job_documents,
-                                'template_message_body' =>$template->template_message_body,
-                                'notes' =>$notes,
-                                'code' => ActionStatusConstants::SUCCESS,
-                                'wiki_link'=>$wiki_link,
-                                'legal_company'=>$legal_company,
+                            'contractor' =>$contractor,
+                            'contractor_job_attachments' =>$contractor_job_documents,
+                            'template_message_body' =>$template->template_message_body,
+                            'notes' =>$notes,
+                            'code' => ActionStatusConstants::SUCCESS,
+                            'wiki_link'=>$wiki_link,
+                            'legal_company'=>$legal_company,
 
-                            ]
-                            );
+                        ]);
 
 
 
                     }
                     else {
 
-
-
                         return redirect()->route('maintenance_dashboard')->with('error', trans('maintenance::contractor.this_job_has_no_contractor'));;
-
-
 
                     }
             }
-                catch(\Exception $e){
+            catch(\Exception $e){
 
+                Log::error('In maintenance package, MaintenanceDashboardController- createEmailTemplateForContractor' . $e->getMessage());
 
-                    Log::error('In maintenance package, MaintenanceDashboardController- createEmailTemplateForContractor' . $e->getMessage());
+                return redirect()->route('maintenance_dashboard')->with('error', $e->getMessage());
 
-                    return redirect()->route('maintenance_dashboard')->with('error', $e->getMessage());
-
-
-
-                }
+            }
     }
 
 
@@ -932,7 +842,6 @@ class MaintenanceDashboardController extends Controller
 
 
         try {
-
             $user = Sentinel::getUser();
 
             DB::beginTransaction();
@@ -972,37 +881,39 @@ class MaintenanceDashboardController extends Controller
                 $message_attachment_uri = "";
 
                 if($request->job_attachments){
-                $attached_files = $request->job_attachments;
+                    $attached_files = $request->job_attachments;
 
-                $attached_files = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$attached_files)->get();
+                    $attached_files = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$attached_files)->get();
 
-                $maintenance_file_path = config('maintenances.maintenance_file_path');
+                    $maintenance_file_path = config('maintenances.maintenance_file_path');
 
-                $path = $maintenance_file_path . 'uploaded_files/' ;
+                    $path = $maintenance_file_path . 'uploaded_files/' ;
 
-                $i=1;
-                $message_attachment_uri = '';
+                    $i=1;
+                    $message_attachment_uri = '';
 
-                $files = [];
-                
-                foreach($attached_files as $attached_file){
+                    $files = [];
+
+                        foreach($attached_files as $attached_file){
 
 
-                    // $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
+                            // $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
 
-                    $files[] = public_path($path. $attached_file->document_name);
+                            $files[] = public_path($path. $attached_file->document_name);
 
-                    // $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
+                            // $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
 
-                    // $i++;
+                            // $i++;
 
-                    }
+                            }
+                            $final_message_attachment_uri = json_encode($files);
 
+
+                }else{
+
+                    $final_message_attachment_uri = null;
 
                 }
-
-                // $final_message_attachment_uri = '{'. $message_attachment_uri.'}';
-                $final_message_attachment_uri = json_encode($files);
 
                 $final_email_text = $final_email_text . $attached_files_list;
 
@@ -1011,34 +922,45 @@ class MaintenanceDashboardController extends Controller
 
                 $final_email_text = $final_email_text . $comment;
 
-                    //    $comms_job_queue = new CommsJobQueueSaas();
-                    //    $comms_job_queue->id_saas_client_business = $user->id_saas_client_business;
-                    //    $comms_job_queue->id_event_list_saas = 26;
-                    //    $comms_job_queue->id_saas_client_business = $user->id_saas_client_business;
-                    //    $comms_job_queue->id_saas_client_business ->save();
+                $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
 
 
-                    $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
+                $comms_job_queue_detail = new CommsJobQueueDetailSaas();
+                //    $comms_job_queue_detail->id_comms_job_queue_saas = $comms_job_queue->id_comms_job_queue_saas;
+                $comms_job_queue_detail->id_comms_message_type_ref = TemplateTypeConstants::Email;
+                $comms_job_queue_detail->message_to = $contractor_email->email;
+                $comms_job_queue_detail->message_body = $final_email_text;
+                $comms_job_queue_detail->message_attachment_uri = $final_message_attachment_uri;
+
+                $comms_job_queue_detail->save();
 
 
-                    $comms_job_queue_detail = new CommsJobQueueDetailSaas();
-                    //    $comms_job_queue_detail->id_comms_job_queue_saas = $comms_job_queue->id_comms_job_queue_saas;
-                    $comms_job_queue_detail->id_comms_message_type_ref = TemplateTypeConstants::Email;
-                    $comms_job_queue_detail->message_to = $contractor_email->email;
-                    $comms_job_queue_detail->message_body = $final_email_text;
-                    $comms_job_queue_detail->message_attachment_uri = $final_message_attachment_uri;
 
-                    $comms_job_queue_detail->save();
 
-                    DB::commit();
+                //add final comment to maintenance_log table
 
-                    return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('success', 'Email Will Be Sent In One Minute');
+                if($comment){
+                    $now = Carbon::createFromDate('now');
+                    $maintenance_log = new MaintenanceLog([
+                        'id_maintenance_job'    =>  $request->id_maintenance_job,
+                        'id_staff'    =>  $user->id,
+                        'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'log_note'  =>  trans('maintenance::dashboard.comment_by_user_when_send_email').' : '.$comment ,
+
+                    ]);
+                    $maintenance_log->save();
+                }
+
+
+                DB::commit();
+
+                return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('success', 'Email Will Be Sent In One Minute');
 
 
                 } catch (\Exception $e) {
 
 
-                    Log::error('In maintenance package, MaintenanceDashboardController- sendEmailToContractor function' . $e->getMessage());
+                    Log::error('In maintenance package, MaintenanceDashboardController- sendEmailToContractor function ' . $e->getMessage());
                     DB::rollback();
 
 

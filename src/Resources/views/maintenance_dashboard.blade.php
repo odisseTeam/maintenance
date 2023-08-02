@@ -400,6 +400,7 @@
                                         <th>{{__('maintenance::dashboard.task_end_date')}}</th>
                                         <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
                                         <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
                                         <th>{{__('maintenance::dashboard.operation')}}</th>
 
 
@@ -424,6 +425,7 @@
                                         <th>{{__('maintenance::dashboard.task_end_date')}}</th>
                                         <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
                                         <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                        <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
                                         <th>{{__('maintenance::dashboard.operation')}}</th>
                                     </tr>
                                     </tfoot>
@@ -806,11 +808,11 @@
                                                             <h3 class="modal-title" id="sendContractorEmailModallabel">
                                                                 {{ __('maintenance::contractor.send_contractor_email_modal') }}</h3>
 
-                                                                
+
 
                                                         </div>
 
-                                                            
+
                                                             <div class="modal-body">
                                                                 <div class="alert alert-danger alert-dismissible" id="send_contractor_email_err_msg_box"
                                                                         style="display: none;">
@@ -822,7 +824,7 @@
                                                                     </div>
 
 
-                                        
+
                                                                     <form method="POST" action="/maintenance/contractor/send/email">
 
                                                                        @csrf
@@ -841,7 +843,7 @@
                                                                                             <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
                                                                                         </div>
                                                                                     </div>
-                                                                            
+
 
                                                                             </div>
                                                                             <div class="box-footer">
@@ -849,17 +851,17 @@
                                                                                     style="float:right;min-width:55px" >{{ __('general.yes') }}</button>
                                                                                 <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
                                                                                     data-dismiss="modal">{{ __('general.close') }}</button>
-                                                                            
+
 
                                                                             </div>
                                                                         </div>
 
                                                                     </form>
-                                                               
-                                                            
+
+
                                                             </div>
                                                             <div class="modal-footer">
-                                                               
+
                                                             </div>
 
                                                     </div>
@@ -1147,7 +1149,8 @@
                     var job_report_date_time = maintenance_list[k]["job_report_date_time"];
                     var job_start_date_time = maintenance_list[k]["job_start_date_time"]?maintenance_list[k]["job_start_date_time"]:'-';
                     var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finish_date_time"]:'-';
-                    var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
+                    var staff_reporter = maintenance_list[k]["staff_first_name"]+' '+maintenance_list[k]["staff_last_name"];
+                    var assignee = maintenance_list[k]["assignee_first_name"]?(maintenance_list[k]["assignee_first_name"]+' '+maintenance_list[k]["assignee_last_name"]):(maintenance_list[k]['contractor_name']?maintenance_list[k]['contractor_name']:'-');
                     // var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
                     var resident_reporter = maintenance_list[k]["resident_first_name"] ?  maintenance_list[k]["resident_first_name"] + ' ' + maintenance_list[k]["resident_surname"] : "N/A";
 
@@ -1177,7 +1180,7 @@
 
 
                     htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+category+"</td><td>"+title+"</td><td>"+sla+"</td><td>"
-                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+operation+"</td></tr>";
+                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+assignee+"</td><td>"+operation+"</td></tr>";
 
 
                 });
@@ -1202,7 +1205,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11] },{ "width": "25%", "targets": 11 }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] },{ "width": "25%", "targets": 12 }
                 ]
             });
 
@@ -1259,8 +1262,8 @@
 
 
                     if((contractor_job_documents != null) && (contractor_job_documents !="undefined")){
-                    
-                        
+
+
                         var htmlValue = "";
                         Object.keys(contractor_job_documents).forEach(function(k){
 
@@ -1271,29 +1274,29 @@
                             var doc_id = contractor_job_documents[k]["id_maintenance_job_document"];
                             var id_contractor = contractor_job_documents[k]["id_contractor"];
 
-                        
 
-                        
+
+
 
                             htmlValue= htmlValue +' <input type="checkbox" id="'+ doc_id +'" name="'+ doc_name +'" ><label for="'+doc_name+'">'+doc_name+'</label></br>';
 
                             $('#hidden_id_contractor').val(id_contractor);
                             $('#hidden_id_contractor').attr('value',id_contractor);
 
-                        
+
                             $('#contractor_job_attachments').html('');
                             $('#contractor_job_attachments').append(htmlValue);
 
                         });
 
-      
+
                             $('#sendContractorEmailModal').modal('show');
 
 
                     }
 
                 }
-        }           
+        }
 
         ///////////////////////////////////////////////////////
 

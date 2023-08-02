@@ -358,7 +358,7 @@
 --	('Eastleigh',1),
 --	('West End',1),
 --	('Hailsham',1);
-	
+
 
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
 -- VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1);
@@ -427,10 +427,10 @@ VALUES (null,'maintenance.contractor_email.preview','/maintenance/contractor_ema
 
 
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true}' where slug = 'admin';
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true,"maintenance.contractor.get.job_document":true,"maintenance.create.email_temp":true,"maintenance.contractor.send.email":true,"maintenance.contractor_email.preview":true}' where slug = 'admin';
 
 
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true}' where slug = 'super_admin';
+update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true,"maintenance.contractor.get.job_document":true,"maintenance.create.email_temp":true,"maintenance.contractor.send.email":true,"maintenance.contractor_email.preview":true}' where slug = 'super_admin';
 
 
 
@@ -496,6 +496,7 @@ insert into system_variable_category_ref(id_system_variable_category_ref , varia
 
 insert into system_variable_ref(id_system_variable_category_ref , variable_name , friendly_name , variable_code , variable_description , code_visible , system_variable_ref_active) values
 (8 , 'MAINTENANCE_TITLE' ,'MAINTENANCE_TITLE' , '%%MAINTENANCE_TITLE%%' ,'',1,1),
+(8 , 'MAINTENANCE_DETAIL' ,'MAINTENANCE_DETAIL' , '%%MAINTENANCE_DETAIL%%' ,'',1,1),
 (8 , 'MAINTENANCE_CATEGORY' ,'MAINTENANCE_CATEGORY' , '%%MAINTENANCE_CATEGORY%%' ,'',1,1),
 (8 , 'MAINTENANCE_LOCATION' ,'MAINTENANCE_LOCATION' , '%%MAINTENANCE_LOCATION%%' ,'',1,1),
 (8 , 'MAINTENANCE_PRIORITY' ,'MAINTENANCE_PRIORITY' , '%%MAINTENANCE_PRIORITY%%' ,'',1,1),
@@ -504,13 +505,24 @@ insert into system_variable_ref(id_system_variable_category_ref , variable_name 
 (8 , 'JOB_START_DATE_TIME' ,'JOB_START_DATE_TIME' , '%%JOB_START_DATE_TIME%%' ,'',1,1),
 (8 , 'JOB_FINISH_DATE_TIME' ,'JOB_FINISH_DATE_TIME' , '%%JOB_FINISH_DATE_TIME%%' ,'',1,1),
 (8 , 'LEGAL_COMPANY_LOGO' ,'LEGAL_COMPANY_LOGO' , '%%LEGAL_COMPANY_LOGO%%' ,'',1,1),
+(8 , 'LEGAL_COMPANY_NAME' ,'LEGAL_COMPANY_NAME' , '%%LEGAL_COMPANY_NAME%%' ,'',1,1),
+(8 , 'LEGAL_COMPANY_SHORT_NAME' ,'LEGAL_COMPANY_SHORT_NAME' , '%%LEGAL_COMPANY_SHORT_NAME%%' ,'',1,1),
+(8 , 'ORDER_NUMBER' ,'ORDER_NUMBER' , '%%ORDER_NUMBER%%' ,'',1,1),
 (8 , 'CONTRACTOR_NAME' ,'CONTRACTOR_NAME' , '%%CONTRACTOR_NAME%%' ,'',1,1),
 (8 , 'CONTRACTOR_SHORT_NAME' ,'CONTRACTOR_SHORT_NAME' , '%%CONTRACTOR_SHORT_NAME%%' ,'',1,1),
 (8 , 'CONTRACTOR_VAT_NUMBER' ,'CONTRACTOR_VAT_NUMBER' , '%%CONTRACTOR_VAT_NUMBER%%' ,'',1,1),
 (8 , 'CONTRACTOR_TEL_NUMBER1' ,'CONTRACTOR_TEL_NUMBER1' , '%%CONTRACTOR_TEL_NUMBER1%%' ,'',1,1),
 (8 , 'CONTRACTOR_TEL_NUMBER2' ,'CONTRACTOR_TEL_NUMBER2' , '%%CONTRACTOR_TEL_NUMBER2%%' ,'',1,1),
 (8 , 'CONTRACTOR_ADDRESS' ,'CONTRACTOR_ADDRESS' , '%%CONTRACTOR_ADDRESS%%' ,'',1,1),
+(8 , 'COMMENCEMENT_DATE' ,'COMMENCEMENT_DATE' , '%%COMMENCEMENT_DATE%%' ,'',1,1),
+(8 , 'COMPLETE_DATE' ,'COMPLETE_DATE' , '%%COMPLETE_DATE%%' ,'',1,1),
 (8 , 'CONTRACTOR_NOTE' ,'CONTRACTOR_NOTE' , '%%CONTRACTOR_NOTE%%' ,'',1,1);
+
+
+
+update template set '<h3><b>Work Instruction</b></h3><p><b>Works issued on behalf of %%LEGAL_COMPANY_NAME%%</b></p><p>%%LEGAL_COMPANY_LOGO%%</p><br><br><br><p>Order Number: %%ORDER_NUMBER%%</p><p>Date: %%DATE%%</p>
+<p>Contact: Emma Weston</p><p>Direct Dial: 07741300764</p><p>Email:  emma.weston@sdrgroup.co.uk</p><br><div style="margin:10px auto; text-align: center; border:solid #222222 2px;"><span><b>Please address invoice to:</b></span><br> <span>In Chorus Ltd, 48 Malling Street, Lewes, BN7 2RH </span><br><span><b>Quote order no:</b> xxxx and email to: emma.weston@sdrgroup.co.uk  </span></div><br><br><p>Site Address:</p><p>Commencement: %%COMMENCEMENT_DATE%%</p><p>Oaklea</p><p>29 Oak Road</p><p>Complete By: %%COMPLETE_DATE%%</p><p>Woolston</p><p>Southampton</p><p>SO19 9BQ</p><br><br><p><b>%%MAINTENANCE_TITLE%%</b></p><p><b>%%MAINTENANCE_DETAIL%%</b></p><p>Please can you attend the above-mentioned site and carry out and EICR. Attached for reference is the previous report. </p><p>Known Hazards and Health and Safety: </p><p>The contractor should ensure that all works relating to this works order are carried out in accordance with Health and Safety Policies and, where applicable the provisions of the Construction and Design Management Regulations 2015. Asbestos surveys are kept onsite, and a digital copy can be sent upon request. Should you have any concerns regarding this instruction, please raise them with us before commencing works.</p><br><br><br>'
+where id_template_category = 
 
 
 

@@ -41,7 +41,7 @@ class MaintenanceJobStaffHistory extends Model
 		'id_maintenance_staff' => 'int',
 		'id_maintenance_assignee' => 'int',
 		'maintenance_job_staff_history_active' => 'int',
-		
+
 	];
 
 
@@ -53,6 +53,7 @@ class MaintenanceJobStaffHistory extends Model
 		'staff_assign_date_time',
 		'staff_start_date_time',
 		'staff_end_date_time',
+		'is_last_one',
 		'maintenance_job_staff_history_active',
 	];
 

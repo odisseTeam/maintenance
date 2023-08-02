@@ -403,6 +403,7 @@
                                                                 <th>{{__('maintenance::dashboard.task_end_date')}}</th>
                                                                 <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
                                                                 <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
                                                                 <th>{{__('maintenance::dashboard.operation')}}</th>
 
 
@@ -428,6 +429,7 @@
                                                                 <th>{{__('maintenance::dashboard.task_end_date')}}</th>
                                                                 <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
                                                                 <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
+                                                                <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
                                                                 <th>{{__('maintenance::dashboard.operation')}}</th>
                                                             </tr>
                                                             </tfoot>
@@ -1146,8 +1148,9 @@
                     var job_report_date_time = maintenance_list[k]["job_report_date_time"];
                     var job_start_date_time = maintenance_list[k]["job_start_date_time"]?maintenance_list[k]["job_start_date_time"]:'-';
                     var job_finished_date_time = maintenance_list[k]["job_finish_date_time"]?maintenance_list[k]["job_finish_date_time"]:'-';
-                    var staff_reporter = maintenance_list[k]["first_name"]+' '+maintenance_list[k]["last_name"];
+                    var staff_reporter = maintenance_list[k]["staff_first_name"]+' '+maintenance_list[k]["staff_last_name"];
                     var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
+                    var assignee = maintenance_list[k]["assignee_first_name"]?(maintenance_list[k]["assignee_first_name"]+' '+maintenance_list[k]["assignee_last_name"]):(maintenance_list[k]['contractor_name']?maintenance_list[k]['contractor_name']:'-');
 
                     var operation = '<a href="' + m_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i>' +
@@ -1176,7 +1179,7 @@
 
 
                     htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+business_name+"</td><td>"+category+"</td><td>"+title+"</td><td>"+sla+"</td><td>"
-                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+operation+"</td></tr>";
+                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+assignee+"</td><td>"+operation+"</td></tr>";
 
 
                 });
@@ -1201,7 +1204,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] },{ "width": "20%", "targets": 12 }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12,13] },{ "width": "20%", "targets": 13 }
                 ]
             });
 

@@ -199,10 +199,13 @@ class ApiMaintenanceDetailController extends Controller
         join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
         join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
         join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
-        join('users' , 'users.id' , 'maintenance_job.id_saas_staff_reporter')->
+        join('users as u1' , 'u1.id' , 'maintenance_job.id_saas_staff_reporter')->
         join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
         join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
         leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
+
+
+
 
         if( $request->has('assignee') and $request->assignee != null ){
             $maintenances = $maintenances->
@@ -211,11 +214,36 @@ class ApiMaintenanceDetailController extends Controller
             join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
             $maintenances = $maintenances->where('contractor.name','ilike', "%".$request->assignee."%");
 
-            Log::debug($maintenances->toSql());
+            $maintenances = $maintenances->select('maintenance_job_staff_history.*' ,'contractor_agent.*' , 'contractor.name AS contractor_name' ,'maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
+
+            //Log::debug($maintenances->toSql());
         }
         else{
-            //$maintenances = $maintenances->whereNull('maintenance_job_staff_history.staff_end_date_time');
+            $maintenances = $maintenances->
+            leftjoin('maintenance_job_staff_history', function($join) {
+                $join->on('maintenance_job.id_maintenance_job', 'maintenance_job_staff_history.id_maintenance_job')
+                ->where('maintenance_job_staff_history.maintenance_job_staff_history_active' , 1);
+              })->
+            leftjoin('users AS u2', 'maintenance_job_staff_history.id_maintenance_assignee' , 'u2.id')->
+            leftjoin('contractor_agent', 'contractor_agent.id_user' , 'u2.id')->
+            leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+
+            $maintenances = $maintenances->select('contractor.name AS contractor_name','maintenance_job_staff_history.*' , 'u2.first_name AS assignee_first_name' ,'u2.last_name AS assignee_last_name','maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
         }
+
+
+        // return response()->json(
+        //     [
+        //         'status' => 'ok',
+        //         'message'   => $maintenances->toSql(),
+        //         'maintenances'  => [],
+        //     ]
+        // );
+
+
+
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
@@ -244,11 +272,12 @@ class ApiMaintenanceDetailController extends Controller
 
 
         if( $request->has('assignee') and $request->assignee != null ){
-            $maintenances = $maintenances->whereNull('staff_end_date_time');
-            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident','maintenance_job_staff_history.id_maintenance_job_staff_history','contractor_agent.id_contractor_agent','contractor.id_contractor');
+            $maintenances = $maintenances->whereNull('staff_end_date_time')->where('is_last_one' , 1);
+
         }
         else{
-            $maintenances = $maintenances->groupBy('maintenance_job.id_saas_client_business','maintenance_job.id_maintenance_job','maintenance_job_category_ref.id_maintenance_job_category_ref','maintenance_job_status_ref.id_maintenance_job_status_ref','maintenance_job_priority_ref.id_maintenance_job_priority_ref','users.id','maintenance_job_sla.id_maintenance_job_sla' , 'maintenance_job_sla_ref.id_maintenance_job_sla_ref','resident.id_resident');
+            $maintenances = $maintenances->where('is_last_one' , 1)->orWhereNull('is_last_one');
+
         }
 
 
@@ -272,8 +301,8 @@ class ApiMaintenanceDetailController extends Controller
 
                 }
             }
-            unset($maintenance->password);
-            unset($maintenance->permissions);
+            //unset($maintenance->password);
+            //unset($maintenance->permissions);
 
             $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
             $maintenance->mail_url = env('APP_URL').'/maintenance/create/email_temp/'. $maintenance->id_maintenance_job;
@@ -288,17 +317,6 @@ class ApiMaintenanceDetailController extends Controller
 
             }
 
-
-            // if($maintenance->expected_target_minutes){
-
-            //     $time = Carbon::createFromFormat('Y-m-d H:i:s', $maintenance->job_report_date_time )->addMinutes($maintenance->expected_target_minutes);
-            //     $maintenance->remain_time = $time->format('Y-m-d H:i:s');
-            // }
-            // else{
-            //     $maintenance->remain_time = '-';
-
-
-            // }
 
         }
 
@@ -891,6 +909,17 @@ class ApiMaintenanceDetailController extends Controller
                 $maintenance_log->save();
 
 
+                }
+
+
+                $change_status = $this->changeMaintenanceStatusOnAssignJob($maintenance->id_maintenance_job);
+                if(!$change_status){
+                    DB::rollback();
+                    return response()->json(
+                        [
+                        'code' => ActionStatusConstants::FAILURE,
+                        'message' => trans('maintenance::dashboard.change_maintenance_status_was_not_successful'),
+                        ]);
                 }
 
 

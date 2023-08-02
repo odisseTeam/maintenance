@@ -22,12 +22,15 @@ class CreateHistoricalMaintenanceJobTable extends Migration
             $table->dateTime('job_report_date_time')->nullable()->default(now());
             $table->dateTime('job_start_date_time')->nullable();
             $table->dateTime('job_finish_date_time')->nullable();
+            $table->date('commencement_date')->nullable();
+            $table->date('complete_date')->nullable();
             $table->integer('id_maintenance_job_category')->index('fk_historical_maintanance_job_category1_idx');
             $table->integer('id_maintenance_job_priority')->index('fk_historical_maintanance_job_priority1_idx');
             $table->integer('id_maintenance_job_status')->index('fk_historical_maintanance_job_status1_idx');
             $table->string('maintenance_job_title');
             $table->text('maintenance_job_description')->nullable();
             $table->integer('id_resident_reporter')->nullable();
+            $table->string('order_number' , 20);
             $table->tinyInteger('maintenance_job_active');
             $table->integer('edited_by');
             $table->date('history_valid_from')->nullable();

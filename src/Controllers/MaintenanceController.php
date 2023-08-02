@@ -43,6 +43,7 @@ use Odisse\Maintenance\Models\ManintenanceJob;
 
 
 use App\Http\General\UserData;
+use App\Models\LegalCompany;
 use App\SLP\Com\LinkGenerator\WikiLinkGenerator;
 use Illuminate\Support\Facades\Http;
 use Sentinel;
@@ -66,6 +67,34 @@ class MaintenanceController extends Controller
     public function newTest()
     {
         return view('maintenance::create_maintenance');
+    }
+
+
+    public function getOrderNumber($property , $maintenance_job_id){
+
+        $today = Carbon::createFromDate('now');
+
+        //get largest maintenance no;
+        $last_maintenance = MaintenanceJob::where('id_maintenance_job' ,'!=' , $maintenance_job_id)->orderBy('id_maintenance_job' , 'desc')->first();
+        if($last_maintenance){
+            $last_order_no_part3 = substr($last_maintenance->order_number , 11);
+
+        }
+        else{
+            $last_order_no_part3 = 99;
+        }
+
+        $legal_company = LegalCompany::find($property->id_legal_company);
+        if($legal_company){
+
+            $order_no = $legal_company->short_name .'-'. $today->format('ymd').'-'.(intval($last_order_no_part3) +1);
+        }
+        else{
+            $order_no =null;
+
+        }
+        return $order_no;
+
     }
 
 
@@ -93,6 +122,13 @@ class MaintenanceController extends Controller
 
             $locations = $this->getMaintainables();;
 
+            $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
+            $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
+            $contactors = [];
+            $users = null;
+            $agents = null;
+
+
             $jobs = MaintenanceJob::all();
             $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('create_maintenance');
 
@@ -105,6 +141,11 @@ class MaintenanceController extends Controller
                           'saas_client_businesses' => $saas_client_businesses,
                           'priorities' => $priorities,
                           'locations' => $locations,
+                          'skills' => $skills,
+                          'businesses' => $businesses,
+                          'contactors' => $contactors,
+                          'users' => $users,
+                          'agents' => $agents,
                           'jobs' => $jobs,
                           'wiki_link' => $wiki_link,
 
@@ -249,6 +290,8 @@ class MaintenanceController extends Controller
               'maintenance_title' => 'required',
               'description'=>'required',
               'maintenance_date'=>'required|date_format:' . SystemDateFormats::getDateTimeFormat(),
+              'commencement_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat(),
+              'complete_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat().'|after_or_equal:commencement_date',
               'maintenance_category'=>'required',
               'saas_client_business'=>'required',
               'locations'=>'required',
@@ -279,12 +322,15 @@ class MaintenanceController extends Controller
               $maintenance_job->id_parent_job = 1;
               $maintenance_job->id_saas_staff_reporter = $user->id;
               $maintenance_job->job_report_date_time = $request->maintenance_date;
+              $maintenance_job->commencement_date = $request->commencement_date;
+              $maintenance_job->complete_date = $request->complete_date;
               $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
               $maintenance_job->id_maintenance_job_priority = $request->priority;
               $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
               $maintenance_job->maintenance_job_title = $request->maintenance_title;
               $maintenance_job->maintenance_job_description = $request->description;
               $maintenance_job->id_resident_reporter = $request->resident_reporter;
+              $maintenance_job->order_number = 'AAA';//by default
               $maintenance_job->maintenance_job_active = 1;
 
               $maintenance_job->save();
@@ -363,89 +409,46 @@ class MaintenanceController extends Controller
               $maintenance_log->save();
 
               $locations = $request->locations;
+              $first_property = 0;
 
 
               //save all maintenance locations in maintainable table
               foreach($locations as $location) {
 
-                  switch ($location) {
-                      case  Str::contains($location, 'Room'):
+                switch ($location) {
+                    case  Str::contains($location, 'Room'):
 
-                          $maintainable_id =  strtok($location, 'Room');
+                        $maintainable_id =  strtok($location, 'Room');
 
-                          $maintainable = new Maintainable();
-                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                          $maintainable->maintenable_id =  $maintainable_id;
-                          $maintainable->maintenable_type = 'App\Models\Rooms';
+                        $maintainable = new Maintainable();
+                        $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                        $maintainable->maintenable_id =  $maintainable_id;
+                        $maintainable->maintenable_type = 'App\Models\Rooms';
 
-                          $maintainable->save();
+                        $maintainable->save();
 
-                          $active_booking = DB::table('booking_room')
-                          ->join('booking', 'booking_room.id_booking', '=', 'booking.id_booking')
-                          ->where('booking_room.id_room', $maintainable_id)
-                          ->where('booking.booking_status', BookingStatusConstants::Active)
-                          ->where('booking_room.room_check_out_date_time', null)
-                          ->select('booking.*', 'booking_room.*')
-                          ->groupBy('booking_room.id_booking_room')
-                          ->groupBy('booking.id_booking')
-                           ->get();
-
-
-                          if($active_booking->isNotEmpty()) {
-                              $id_client = $active_booking[0]->id_client;
-
-                          } else {
-                              $id_client = null;
-                          }
-
-                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
-                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
-
-                          if($maintenance_sla_ref->isNotEmpty()) {
-
-                              $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
-
-                              if($existence_of_maintenance_job_sla->isEmpty()) {
-
-                                  $maintenance_job_sla = new MaintenanceJobSla();
-                                  $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
-                                  $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                                  $maintenance_job_sla->maintenance_job_sla_active = 1;
-
-                                  $maintenance_job_sla->save();
+                        $active_booking = DB::table('booking_room')
+                        ->join('booking', 'booking_room.id_booking', '=', 'booking.id_booking')
+                        ->where('booking_room.id_room', $maintainable_id)
+                        ->where('booking.booking_status', BookingStatusConstants::Active)
+                        ->where('booking_room.room_check_out_date_time', null)
+                        ->select('booking.*', 'booking_room.*')
+                        ->groupBy('booking_room.id_booking_room')
+                        ->groupBy('booking.id_booking')
+                        ->get();
 
 
-                              }
+                        if($active_booking->isNotEmpty()) {
+                            $id_client = $active_booking[0]->id_client;
 
-                          }
+                        } else {
+                            $id_client = null;
+                        }
 
+                        $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                        ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
 
-
-                          //change room_maintenance_status field of room
-                          $maintenance_status = MaintenanceJobStatusRef::find($maintenance_job->id_maintenance_job_status);
-                          $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable_id);
-
-
-                          break;
-
-                      case Str::contains($location, 'Property'):
-
-                          $maintainable_id =  strtok($location, 'Property');
-
-                          $maintainable = new Maintainable();
-                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                          $maintainable->maintenable_id =  $maintainable_id;
-                          $maintainable->maintenable_type = 'App\Models\Property';
-
-                          $maintainable->save();
-
-                          $id_client = null;
-
-                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
-                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
-
-
-                          if($maintenance_sla_ref->isNotEmpty()) {
+                        if($maintenance_sla_ref->isNotEmpty()) {
 
                             $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
 
@@ -459,55 +462,176 @@ class MaintenanceController extends Controller
                                 $maintenance_job_sla->save();
 
 
-                              }
+                            }
 
-                           }
+                        }
 
+                        $room = Room::find($maintainable_id);
+                        if($room){
+                            if($first_property == 0){
+                                $first_property = $room->id_property;
+                            }
+                            else if($first_property != $room->id_property){
 
-                          break;
-                      case Str::contains($location, 'Site'):
-
-                          $maintainable_id =  strtok($location, 'Site');
-
-                          $maintainable = new Maintainable();
-                          $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                          $maintainable->maintenable_id =  $maintainable_id;
-                          $maintainable->maintenable_type = 'App\Models\Site';
-
-                          $maintainable->save();
+                                $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
 
 
-                          $id_client = null;
+                                Log::error($message);
 
-                          $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
-                          ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
+                                DB::rollBack();
+                                $status = ActionStatusConstants::ERROR;
+                                return redirect()->back()
+                                    ->withError($message)
+                                    ->withInput();
 
-
-                          if($maintenance_sla_ref->isNotEmpty()) {
-
-                            $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
-
-                            if($existence_of_maintenance_job_sla->isEmpty()) {
-
-                                $maintenance_job_sla = new MaintenanceJobSla();
-                                $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
-                                $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
-                                $maintenance_job_sla->maintenance_job_sla_active = 1;
-
-                                $maintenance_job_sla->save();
+                            }
+                        }
 
 
-                              }
 
-                           }
+                        //change room_maintenance_status field of room
+                        $maintenance_status = MaintenanceJobStatusRef::find($maintenance_job->id_maintenance_job_status);
+                        $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable_id);
 
-                          break;
+
+                        break;
+
+                    case Str::contains($location, 'Property'):
+
+                        $maintainable_id =  strtok($location, 'Property');
+
+                        $maintainable = new Maintainable();
+                        $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                        $maintainable->maintenable_id =  $maintainable_id;
+                        $maintainable->maintenable_type = 'App\Models\Property';
+
+                        $maintainable->save();
+
+                        $id_client = null;
+
+                        $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                        ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
 
 
-                  }
+                        if($maintenance_sla_ref->isNotEmpty()) {
+
+                        $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
+
+                        if($existence_of_maintenance_job_sla->isEmpty()) {
+
+                            $maintenance_job_sla = new MaintenanceJobSla();
+                            $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
+                            $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                            $maintenance_job_sla->maintenance_job_sla_active = 1;
+
+                            $maintenance_job_sla->save();
+
+
+                            }
+
+                        }
+
+                        if($first_property == 0){
+                            $first_property = $maintainable_id;
+                        }
+                        else if($first_property != $maintainable_id){
+
+                            $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
+
+
+                            Log::error($message);
+
+                            DB::rollBack();
+                            $status = ActionStatusConstants::ERROR;
+                            return redirect()->back()
+                                ->withError($message)
+                                ->withInput();
+
+                        }
+
+
+                        break;
+                    case Str::contains($location, 'Site'):
+
+                        $maintainable_id =  strtok($location, 'Site');
+
+                        $maintainable = new Maintainable();
+                        $maintainable->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                        $maintainable->maintenable_id =  $maintainable_id;
+                        $maintainable->maintenable_type = 'App\Models\Site';
+
+                        $maintainable->save();
+
+
+                        $id_client = null;
+
+                        $maintenance_sla_ref = MaintenanceJobSlaRef::where('id_client', $id_client)
+                        ->where('id_maintenance_job_priority_ref', $request->priority)->where('id_saas_client_business', $request->saas_client_business)->get();
+
+
+                        if($maintenance_sla_ref->isNotEmpty()) {
+
+                        $existence_of_maintenance_job_sla = MaintenanceJobSla::where('id_maintenance_job', $maintenance_job->id_maintenance_job)->where('maintenance_job_sla_active', 1)->get();
+
+                        if($existence_of_maintenance_job_sla->isEmpty()) {
+
+                            $maintenance_job_sla = new MaintenanceJobSla();
+                            $maintenance_job_sla->id_maintenance_job_sla_ref = $maintenance_sla_ref[0]->id_maintenance_job_sla_ref;
+                            $maintenance_job_sla->id_maintenance_job =  $maintenance_job->id_maintenance_job;
+                            $maintenance_job_sla->maintenance_job_sla_active = 1;
+
+                            $maintenance_job_sla->save();
+
+
+                            }
+
+                        }
+
+                        break;
+
+
+                }
 
 
               }
+
+
+              //save assign maintenance
+              $assign_response = $this->assignJobToUser($maintenance_job->id_maintenance_job , $request->user_agent , $user->id);
+
+              if($assign_response['code'] == ActionStatusConstants::FAILURE){
+                return redirect()->back()
+                    ->withError($assign_response['message'])
+                    ->withInput();
+              }
+
+
+
+              $property = Property::find($first_property);
+              $order_number = $this->getOrderNumber($property , $maintenance_job->id_maintenance_job);
+              if($order_number){
+                $maintenance_job->update([
+                    'order_number' => $order_number,
+                  ]);
+              }
+              else{
+
+
+                $message = trans('maintenance::maintenance.set_order_number_was_unsuccessful');
+
+
+                Log::error($message);
+
+                DB::rollBack();
+                $status = ActionStatusConstants::ERROR;
+                return redirect()->back()
+                    ->withError($message)
+                    ->withInput();
+
+
+              }
+
+
 
 
 
@@ -529,11 +653,14 @@ class MaintenanceController extends Controller
 
 
               $status = ActionStatusConstants::ERROR;
-              $message = trans('maintenance:maintenance.maintenance_not_created');
+              $message = trans('maintenance::maintenance.maintenance_not_created');
 
               return redirect()->back()
-                  ->withErrors($message)
+                  ->withError($message)
                   ->withInput();
+
+            //return redirect()->back()->withError($e->getMessage());
+
 
           }
         return redirect('/maintenance/dashboard')
@@ -628,7 +755,7 @@ class MaintenanceController extends Controller
               if( !$maintenance )
               {
 
-              return redirect('/maintenance/dashboard')->withErrors('Maintenance not exists');
+              return redirect('/maintenance/dashboard')->withError('Maintenance not exists');
             }
 
 
@@ -804,9 +931,34 @@ class MaintenanceController extends Controller
       public function editMaintenanceDetail(Request $request)
       {
 
+
           $user = Sentinel::getUser();
 
           Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+          $validator = Validator::make($request->all(), [
+            'maintenance_title' => 'required',
+            'maintenance_category'=>'required',
+            'locations'=>'required',
+            'priority'=>'required',
+            'commencement_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat(),
+            'complete_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat().'|after_or_equal:commencement_date',
+
+
+
+          ]);
+        if ($validator->fails()) {
+
+
+            Log::error("in MaintenanceController- saveNewMaintenence function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+            return redirect()->back()
+            ->withErrors($validator->errors())
+            ->withInput();
+        }
+
 
           try {
               DB::beginTransaction();
@@ -844,12 +996,35 @@ class MaintenanceController extends Controller
 
                 // edit title of maintenance job
                 $maintenance_old_data->update([
-                    'maintenance_job_title' => $request->maintenance_title
+                    'maintenance_job_title' => $request->maintenance_title,
                         ]);
 
                $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance title to ".$request->maintenance_title."\r\n";
 
 
+               }
+
+               //check if commencement_date has been changed
+               if($maintenance_old_data->commencement_date != $request->commencement_date) {
+
+                // edit commencement_date of maintenance job
+                $maintenance_old_data->update([
+                    'commencement_date'=> $request->commencement_date,
+                        ]);
+
+               $note = $note. " ". $user->first_name . " " . $user->last_name." changed commencement date to ".$request->commencement_date."\r\n";
+               }
+
+
+               //check if complete_date has been changed
+               if($maintenance_old_data->complete_date != $request->complete_date) {
+
+                // edit complete_date of maintenance job
+                $maintenance_old_data->update([
+                    'complete_date' => $request->complete_date,
+                        ]);
+
+               $note = $note. " ". $user->first_name . " " . $user->last_name." changed complete date to ".$request->complete_date."\r\n";
                }
 
 
@@ -1020,6 +1195,7 @@ class MaintenanceController extends Controller
               }
 
               $maintainable_location_id = [];
+              $first_property = 0;
 
               //get locations of maintenance job
               $maintainables = Maintainable::where('id_maintenance_job', $id_maintenance)->where('maintainable_active', 1)->get();
@@ -1086,6 +1262,27 @@ class MaintenanceController extends Controller
 
 
 
+                        $room = Room::find($maintainable_id);
+                        if($room){
+                            if($first_property == 0){
+                                $first_property = $room->id_property;
+                            }
+                            else if($first_property != $room->id_property){
+
+                                $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
+
+
+                                Log::error($message);
+
+                                DB::rollBack();
+                                $status = ActionStatusConstants::ERROR;
+                                return redirect()->back()
+                                    ->withError($message)
+                                    ->withInput();
+
+                            }
+                        }
+
 
 
 
@@ -1101,6 +1298,25 @@ class MaintenanceController extends Controller
                               $maintainable->maintenable_type = 'App\Models\Property';
 
                               $maintainable->save();
+
+
+                            if($first_property == 0){
+                                $first_property = $maintainable_id;
+                            }
+                            else if($first_property != $maintainable_id){
+
+                                $message = trans('maintenance:maintenance.locations_must_be_in_same_property');
+
+
+                                Log::error($message);
+
+                                DB::rollBack();
+                                $status = ActionStatusConstants::ERROR;
+                                return redirect()->back()
+                                    ->withError($message)
+                                    ->withInput();
+
+                            }
 
                               break;
                           case Str::contains($location, 'Site'):

@@ -66,6 +66,7 @@ return [
 
     'create' => 'Create Maintenance',
     'create_job' => 'Create New Job',
+    'assigned_user_contractor' => 'Assigned User/Contractor',
 
 
     //contractor management
@@ -73,6 +74,8 @@ return [
     'locations' => 'Locations',
 
     'contractor_name' => 'Contractor Name',
+    'comment_by_user_when_send_email' => 'Comment by user when send email',
+    'change_maintenance_status_was_not_successful' => 'Change maintenance status was not successful',
 
 
 ];

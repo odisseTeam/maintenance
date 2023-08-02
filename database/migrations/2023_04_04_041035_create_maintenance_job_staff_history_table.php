@@ -21,6 +21,7 @@ class CreateMaintenanceJobStaffHistoryTable extends Migration
             $table->dateTime('staff_assign_date_time');
             $table->dateTime('staff_start_date_time')->nullable();
             $table->dateTime('staff_end_date_time')->nullable();
+            $table->tinyInteger('is_last_one')->default(1);
             $table->tinyInteger('maintenance_job_staff_history_active');
             $table->charset = "utf8";
             $table->collation = "utf8_general_ci";

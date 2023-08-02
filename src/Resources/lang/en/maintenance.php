@@ -17,6 +17,11 @@ return [
     'till_date'  =>  'Till Date',
     'search'  =>  'Search',
     'you_have_to_first_define_template'  =>  'You have to first define template',
+    'locations_must_be_in_same_property'  =>  'Selected locations must be in same property',
+    'set_order_number_was_unsuccessful'  =>  'Set order number was unsuccessful',
+    'maintenance_not_created'  =>  'Maintenance not created!',
+    'commencement_date'  =>  'Commencement Date',
+    'complete_date'  =>  'Complete Date',
 
     'jobs'  => 'Jobs',
 
@@ -121,6 +126,8 @@ return [
     'contractor_skill'=>'Contractor Skill',
     'select_contractor_skill'=>'Select Contractor Skill',
     'contractor_note'=>'Contractor Note',
+    'download_pdf'=>'Download PDF',
+    'email_to_contractor'=>'Email to Contractor',
 
 
 
