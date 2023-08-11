@@ -23,6 +23,9 @@ return [
     'password_placeholder'=>'Please Enter Password',
     'vat_number'=>'VAT Number',
     'vat_number_placeholder'=>'Please Enter VAT Number',
+    'skills'=>'Skills',
+    'coverage_area'=>'Coverage Area',
+    'address'=>'Address',
     'address_line1'=>'Address Line1',
     'address_line2'=>'Address Line2',
     'address_line3'=>'Address Line3',
@@ -122,7 +125,9 @@ return [
     'preview_email_content'=>'Preview Email Content',
     'additional_comment'=>'Additional Comment',
     'preview_email_content_modal'=>'Preview Email Content Modal',
-    'send_email'=>'Send Email'
+    'send_email'=>'Send Email',
+    'attached_files'=>'Attached Files',
+    'selected_notes'=>'Selected Notes',
 
 
 ];

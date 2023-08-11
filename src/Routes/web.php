@@ -178,9 +178,14 @@ Route::middleware(['web','ProxyCAS'])->group(
            //email preview
            Route::post('/contractor_email/preview', [MaintenanceDashboardController::class,'previewEmailContent']);
 
+          //download email preview
+           Route::post('/email_content/download', [MaintenanceDashboardController::class,'downloadEmailContent']);
+
+
 
         });
 
+        Route::post('/maintenance/contractor_email/preview_for_download', [MaintenanceDashboardController::class,'previewEmailContentForDownload']);
 
 
           //contractor management in portal

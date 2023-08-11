@@ -35,12 +35,21 @@ use Odisse\Maintenance\Models\MaintenanceJobDocument;
 use Odisse\Maintenance\Models\Maintainable;
 use Odisse\Maintenance\App\SLP\Enum\MaintainableTypeConstants;
 use App\Models\LegalCompany;
+use App\Models\Room;
+use App\Models\Property;
 use App\Models\CommsJobQueueSaas;
 use App\Models\CommsJobQueueDetailSaas;
 use App\SLP\Enum\TemplateTypeConstants;
+use Jenssegers\Date\Date;
 
 use Odisse\Maintenance\App\Traits\ReplaceTemplateBody;
 
+use PDF;
+use File;
+use Illuminate\Support\Facades\Storage;
+
+use Odisse\Maintenance\Models\ContractorLocation;
+use Odisse\Maintenance\Models\ContractorSkill;
 
 
 class MaintenanceDashboardController extends Controller
@@ -306,6 +315,8 @@ class MaintenanceDashboardController extends Controller
         try{
 
             $contractor = null;
+            $contractor_skills = null;
+            $coverage_areas = null;
             $business_contractor = $request->business_contractor;
             $result=[];
             if($business_contractor && $business_contractor[0] == "B"){
@@ -326,6 +337,16 @@ class MaintenanceDashboardController extends Controller
                 $result = $agents;
                 $user_type = "agent";
                 $contractor = Contractor::find(substr($business_contractor, 1));
+
+                $contractor_skills = ContractorSkill::where('id_contractor' , $contractor->id_contractor)->where('contractor_skill_active' , 1)->
+                                     join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref')->get();
+
+
+                $coverage_areas = ContractorLocation::where('id_contractor' ,$contractor->id_contractor )->where('contractor_location_active' , 1)->
+                                  join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->get();
+
+
+
             }
 
 
@@ -337,6 +358,8 @@ class MaintenanceDashboardController extends Controller
               'result' => $result,
               'user_type' => $user_type,
               'contractor' => $contractor,
+              'contractor_skills' => $contractor_skills,
+              'coverage_areas' => $coverage_areas,
             ]);
 
         }
@@ -350,7 +373,7 @@ class MaintenanceDashboardController extends Controller
                   'code' => ActionStatusConstants::FAILURE,
                   'result'=>[],
                   'contractor'=>null,
-                  'message' => $e->getMessage(),//trans('maintenance::dashboard.load_users_agents_was_not_successful'),
+                  'message' => trans('maintenance::dashboard.load_users_agents_was_not_successful'),
                 ]);
 
 
@@ -407,6 +430,8 @@ class MaintenanceDashboardController extends Controller
         $validator = Validator::make($request->all(), [
 
             'start_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
+            'user' => 'required|numeric',
+
 
         ]);
 
@@ -428,7 +453,48 @@ class MaintenanceDashboardController extends Controller
         Log::info("In maintenance package, MaintenanceDashboardController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
-        $result = $this->startMaintenance($user->id ,$id_maintenance ,$request->start_date_time);
+        try{
+            DB::beginTransaction();
+
+            $result = $this->startMaintenance($user->id ,$id_maintenance ,$request->start_date_time);
+            if($result['code']== 'success'){
+
+                $response = $this->assignJobToUser($id_maintenance , $request->user ,$user->id );
+                DB::commit();
+                return response()->json($response);
+
+
+
+
+            }
+            else{
+                DB::rollback();
+
+
+                return response()->json(
+                    [
+                    'code' => $result['code'],
+                    'message' => $result['message'],
+                    ]);
+
+
+            }
+
+        } catch (\Exception $e) {
+
+
+            Log::error($e->getMessage());
+            DB::rollback();
+
+
+            return
+                [
+                'code' => 'failure',
+                'message' => $e->getMessage(),//trans('maintenance::dashboard.start_maintenance_was_not_successful'),
+                ];
+
+
+        }
 
 
         return response()->json(
@@ -677,12 +743,39 @@ class MaintenanceDashboardController extends Controller
 
     public function createEmailTemplateForContractor($id_maintenance_job){
 
-        $user = Sentinel::getUser();
+                   $user = Sentinel::getUser();
 
         try {
                     Log::info("In maintenance package, MaintenanceDashboardController- createEmailTemplateForContractor function " . " try to go page for create template  email :" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
                     $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_dashboard');
+
+                    $now = \Illuminate\Support\Carbon::create('now');
+
+                    
+                    
+                    $maintenance = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $id_maintenance_job)
+                    ->where('maintenance_job.id_saas_client_business' , $user->id_saas_client_business)->where('maintenance_job.maintenance_job_active',1)
+                    ->join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+                    join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)
+                     ->first(); 
+                   
+                       
+                        if($maintenance->commencement_date == null){
+                       
+                            $maintenance->commencement_date = $now->format(SystemDateFormats::getDateFormat());
+                        
+                        }
+
+                        if($maintenance->complete_date == null){
+
+                            $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+                           
+
+                            $maintenance->complete_date = Carbon::parse($remain_time)->format(SystemDateFormats::getDateFormat());
+                        }
+
+                   
 
                     //get contractor of maintenance job
                     $contractor = MaintenanceJob::join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
@@ -754,6 +847,7 @@ class MaintenanceDashboardController extends Controller
                             'code' => ActionStatusConstants::SUCCESS,
                             'wiki_link'=>$wiki_link,
                             'legal_company'=>$legal_company,
+                            'maintenance'=>$maintenance,
 
                         ]);
 
@@ -841,8 +935,11 @@ class MaintenanceDashboardController extends Controller
     public function sendEmailToContractor(Request $request){
 
 
+        // dd($request->all());
         try {
             $user = Sentinel::getUser();
+
+            $maintenance = MaintenanceJob::findOrFail($request->id_maintenance_job);
 
             DB::beginTransaction();
 
@@ -864,13 +961,13 @@ class MaintenanceDashboardController extends Controller
 
                 if($request->notes){
 
-                $notes = $request->notes;
+                    $notes = $request->notes;
 
-                $notes = MaintenanceLog::whereIn('id_maintenance_log',$notes)->get();
+                    $notes = MaintenanceLog::whereIn('id_maintenance_log',$notes)->get();
 
-                    foreach($notes as $note){
-                        $note_list = $note_list."<p>".$note->log_note."</p></hr>";
-                    }
+                        foreach($notes as $note){
+                            $note_list = $note_list."<p>".$note->log_note."</p></hr>";
+                        }
                 }
                 $final_email_text = $final_email_text . $note_list;
 
@@ -915,6 +1012,15 @@ class MaintenanceDashboardController extends Controller
 
                 }
 
+                if(($maintenance->commencement_date != $request->commencement_date)or ($maintenance->complete_date != $request->complete_date)){
+
+                    $maintenance->update([
+                        'commencement_date' => $request->commencement_date,
+                        'complete_date' => $request->complete_date,
+
+                    ]);
+
+                }
                 $final_email_text = $final_email_text . $attached_files_list;
 
                 // additional comment of email content
@@ -928,6 +1034,8 @@ class MaintenanceDashboardController extends Controller
                 $comms_job_queue_detail = new CommsJobQueueDetailSaas();
                 //    $comms_job_queue_detail->id_comms_job_queue_saas = $comms_job_queue->id_comms_job_queue_saas;
                 $comms_job_queue_detail->id_comms_message_type_ref = TemplateTypeConstants::Email;
+                $comms_job_queue_detail->message_subject = "Contactor's notification";
+                $comms_job_queue_detail->job_create_date_time = Carbon::now();
                 $comms_job_queue_detail->message_to = $contractor_email->email;
                 $comms_job_queue_detail->message_body = $final_email_text;
                 $comms_job_queue_detail->message_attachment_uri = $final_message_attachment_uri;
@@ -973,6 +1081,284 @@ class MaintenanceDashboardController extends Controller
 
     }
 
+    public function previewEmailContentForDownload(Request $request){
+
+
+        $user = Sentinel::getUser();
+
+        Log::info("in MaintenanceDashboardController- previewEmailContent function " . " try to get all details of maintenance :" . " ------- by user " . $user->first_name . " " . $user->last_name);
+
+        try{
+
+            $html_text = '';
+            $id_maintenance_job = $request['id_maintenance_job'];
+
+            $id_contractor = $request['id_contractor'];
+
+            $template_body = $request['email_html_text'];
+
+            $maintenance_template_body = $this->replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor);
+
+            $html_text = $html_text . $maintenance_template_body;
+            $notes = [];
+            $maintenance_job_attachments = [];
+
+
+            if($request->notes_output){
+             
+                $html_text = $html_text.'<h3> Select Files To be attached</h3>';
+             
+                $notes = MaintenanceLog::whereIn('id_maintenance_log',$request->notes_output)->get();
+           
+             foreach ($notes as $note){
+                $html_text = $html_text .'<p>'.$note->log_note.'</p>';
+             }
+            }
+
+
+            if($request->job_attachments_output){
+               
+                $html_text = $html_text.'<h3> Select Notes To be attached</h3>';
+
+                $maintenance_job_attachments = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$request->job_attachments_output)->get();
+               
+                foreach ($maintenance_job_attachments as $maintenance_job_attachment){
+                    $html_text = $html_text .'<p>'.$maintenance_job_attachment->document_name.'</p>';
+                 }
+            }
+
+            $html_text = $html_text.'<h3> Additional Comments</h3>';
+            $html_text = $html_text.$request->additional_comment;
+
+            // $html_text =  str_replace('<p>', '', $html_text);
+            // $html_text =  str_replace('</p>', '', $html_text);
+
+            $date = new Date();
+
+            $data = [
+                'date' => $date->format('Y/m/d'),
+                'content' => $html_text,
+            ];
+
+
+            $pdf = PDF::loadView('pdf.letter_template', $data);
+           
+            $base_path = config('pdf.tempDir') ;
+
+            $file_name = 'emailcontent_'.date('Y-m-d H:i:s');
+
+            $pdf->save($base_path.'/mpdf/' . $file_name.'.pdf');
+
+            $file_path = "maintenance_email/$file_name.pdf";
+            Storage::put($file_path, $pdf->output());
+            $path = Storage::path($file_path);
+
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::SUCCESS,
+                'message' => trans('maintenance::contractor.preview_of_email_content_returned'),
+                'maintenance_job_attachments'=> $maintenance_job_attachments,
+                'notes'=> $notes,
+                'maintenance_template_body'=> $maintenance_template_body,
+                'additional_comment'=>$request->additional_comment,
+                'html_text'=> $html_text,
+
+
+                ]);
+        }
+        catch(\Exception $e){
+
+
+            Log::error('In maintenance package, MaintenanceDashboardController- previewEmailContent function'. $e->getMessage());
+
+            return response()->json(
+                [
+                  'code' => ActionStatusConstants::FAILURE,
+                  'result'=>[],
+                  'contractor'=>null,
+                  'message' =>trans('maintenance::maintenance.maintenance_info_did_not_returned'), //$e->getMessage(),
+                ]);
+
+
+        }
+
+    }
+
+    
+    public function downloadEmailContent(Request $request){
+
+        // dd($request->all());
+      try {
+
+            $user = Sentinel::getUser();
+    
+            // DB::beginTransaction();
+
+
+            //change format of complete_date
+            $complete_date = $request['complete_date'];
+            // $complete_date =  Carbon::createFromFormat('d/m/Y', $holiday->holiday_date)->format('d-m-Y') ;
+            //remove timezone from date
+            // $complete_date = substr($complete_date, 0,20);
+
+            // $complete_date = Carbon::parse($complete_date);
+
+            // dd($complete_date);
+
+            // $complete_date = $complete_date->format('Y-m-d');
+    
+        Log::info("In maintenance package, MaintenanceDashboardController- downloadEmailContent function " . " try to download email content as pdf:" . " ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+        $data = $request->all();
+        // dd($request['id_maintenance_job']);
+
+        $maintenance_job = MaintenanceJob::findOrFail($request['id_maintenance_job']);
+
+        if($request['notes'] == null){
+            $notes = [];
+        }else{
+            $notes = MaintenanceLog::whereIn('id_maintenance_log',$request['notes'])->get();
+        }
+
+        if($request['job_attachments'] == null){
+            $contractor_job_attachments = [];
+        }else{
+            $contractor_job_attachments = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$request['job_attachments'])->get();
+        }
+
+        $selected_notes = '<html>';
+            foreach ($notes as $note){
+               
+                $selected_notes =  $selected_notes .$note->log_note .'.<br>';
+            }
+
+            $selected_notes =  $selected_notes .'</html>';
+
+            $selected_document = '<html>';
+            foreach ($contractor_job_attachments as $contractor_job_attachment){
+               
+                $selected_document = $selected_document .$contractor_job_attachment->document_name.' .<br>';
+
+            }
+            $selected_document =  $selected_document .'</html>';
+
+           //change format of commencement_date
+            $commencement_date = $request['commencement_date'];
+
+            //remove timezone from date
+            $commencement_date = substr($commencement_date, 0, -30);
+
+            $commencement_date = Carbon::parse($commencement_date);
+
+
+            $commencement_date = $commencement_date->format('Y-m-d');
+
+
+
+
+
+
+        $final_email_text = $this->replaceMaintenanceTemplateVariables($request->html_maintenance_temp,$request->id_maintenance_job,$request->id_contractor);
+        $final_email_text = '<html>'.$final_email_text.'</html>';
+
+        $data = [
+            'id_maintenance_job'=> $request['id_maintenance_job'],
+            'id_contractor'=> $request['id_contractor'],
+            'template_message_body'=> $final_email_text,
+            'additional_comment'=> $request['contractor_job_attachment_text'],
+            'commencement_date'=> $request['commencement_date'],
+            'complete_date'=> $request['complete_date'],
+            'maintenance'=> $maintenance_job,
+            'selected_notes'=> $selected_notes,
+            'selected_document'=> $selected_document,
+
+        ];
+       
+        
+
+        $base_path = config('pdf.tempDir') ;
+
+        $pdf = PDF::loadView('maintenance::download_maintenance_email', $data);
+
+        $maintainable = Maintainable::where('id_maintenance_job',$maintenance_job->id_maintenance_job)->where('maintainable_active',1)->first();
+
+        if($maintainable->maintenable_type == MaintainableTypeConstants::Room){
+          
+            $legal_company = Room::where('id_room',$maintainable->maintenable_id)->where('room_active',1)->
+            join('property', 'property.id_property' , 'room.id_property')->where('property.property_active' , 1)->
+            join('legal_company','legal_company.id_legal_company','property.id_legal_company')
+            ->select('legal_company.short_name')->get();
+        
+        }elseif($maintainable->maintenable_type == MaintainableTypeConstants::Property){
+
+            $legal_company = Property::where('id_property',$maintainable->maintenable_id)->where('property_active',1)->
+            join('legal_company','legal_company.id_legal_company','property.id_legal_company')->select('legal_company.short_name')->get();
+        
+        }          
+        
+
+           //count all pdf files that previously have been generated
+            $log_for_maintenance_email_pdf_file = MaintenanceLog::where('log_note',trans('maintenance::dashboard.system_created_a_pdf_file_automatically'))->get();
+            
+            $size_log_for_maintenance_email_pdf_file = sizeof($log_for_maintenance_email_pdf_file);
+
+
+            $digit_number = 100 + $size_log_for_maintenance_email_pdf_file;
+
+            //define name of pdf file
+            $file_name = $legal_company[0]->short_name.'-'.date('Y-m-d').'-'.$digit_number;
+
+            $file_path = "maintenance_email/$file_name.pdf";
+
+            Storage::put($file_path, $pdf->output());
+
+            $path = Storage::path($file_path);
+               
+            $now = Carbon::createFromDate('now');
+
+           // put the file in determined destination path
+            $pdf->save($base_path.'/mpdf/' . $file_name.'.pdf');
+
+            $file_path = config('file_storage.maintenance_email_file_path');
+
+            //add this pdf file to maintenance job document table
+            $maintenance_job_document = new MaintenanceJobDocument();
+            $maintenance_job_document->id_maintenance_job = $request->id_maintenance_job;
+            $maintenance_job_document->document_name = $file_name.'.pdf';
+            $maintenance_job_document->document_address = $file_path;
+            $maintenance_job_document->document_extention = 'pdf';
+            $maintenance_job_document->save();
+
+           //record creating this pdf file in maintenance log table
+            $maintenance_log = new MaintenanceLog();
+            $maintenance_log->id_maintenance_job = $request->id_maintenance_job;
+            $maintenance_log->id_staff = $user->id;
+            $maintenance_log->log_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+            $maintenance_log->log_note = trans('maintenance::dashboard.system_created_a_pdf_file_automatically');
+            $maintenance_log->save();
+            // trans('maintenance::dashboard.your_file_did_not_downloaded'),
+            return response()->download(public_path($file_path.'/'.$file_name.'.pdf'), $file_name);
+
+           
+                } catch (\Exception $e) {
+
+
+                    Log::error('In maintenance package, MaintenanceDashboardController- downloadEmailContent function ' . $e->getMessage());
+                    // DB::rollback();
+
+
+                    return response()->json(
+                        [
+                          'code' => ActionStatusConstants::FAILURE,
+                          'message' => $e->getmessage(),
+                        ]);
+
+
+                }
+
+    }
 
 }
 

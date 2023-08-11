@@ -283,7 +283,7 @@ class MaintenanceManagementController extends Controller
             //get maintenance of all businesses
         }
 
-        if($responseObj->status == 200){
+        if($responseObj && $responseObj->status == 200){
             return response()->json(
                 [
                   'code' => 'success',
@@ -293,11 +293,13 @@ class MaintenanceManagementController extends Controller
                   'selected_user_agent'=>$responseObj->selected_user_agent,
                   'selected_contractor'=>$responseObj->selected_contractor,
                   'selected_business'=>$responseObj->selected_business,
+                  'contractor_skills'=>$responseObj->contractor_skills,
+                  'coverage_areas'=>$responseObj->coverage_areas,
                   'users'=>$responseObj->users,
                   'agents'=>$responseObj->agents,
                 ]);
         }
-        else{
+        elseif($responseObj){
             return response()->json(
                 [
                   'code' => 'failure',
@@ -307,8 +309,28 @@ class MaintenanceManagementController extends Controller
                   'selected_user_agent'=>$responseObj->selected_user_agent,
                   'selected_contractor'=>$responseObj->selected_contractor,
                   'selected_business'=>$responseObj->selected_business,
+                  'contractor_skills'=>$responseObj->contractor_skills,
+                  'coverage_areas'=>$responseObj->coverage_areas,
                   'users'=>$responseObj->users,
                   'agents'=>$responseObj->agents,
+                ]);
+
+        }
+
+        else{
+            return response()->json(
+                [
+                  'code' => 'failure',
+                  'message' => '',
+                  'businesses' => [],
+                  'contractors' => [],
+                  'selected_user_agent'=>null,
+                  'selected_contractor'=>null,
+                  'selected_business'=>null,
+                  'contractor_skills'=>[],
+                  'coverage_areas'=>[],
+                  'users'=>[],
+                  'agents'=>[],
                 ]);
 
         }
@@ -361,6 +383,8 @@ class MaintenanceManagementController extends Controller
                   'message' => $responseObj->message,
                   'agents' => $responseObj->agents,
                   'contractor' =>$responseObj->contractor,
+                  'contractor_skills' =>$responseObj->contractor_skills,
+                  'coverage_areas' =>$responseObj->coverage_areas,
                   'user_type' =>$responseObj->user_type
                 ]);
         }
@@ -566,7 +590,8 @@ class MaintenanceManagementController extends Controller
                         $params =[
                             'maintenance'=>$id_maintenance,
                             'staff_user'=>$staff_user->email,
-                            'start_date_time'=>$request->start_date_time
+                            'start_date_time'=>$request->start_date_time,
+                            'user'=>$request->user
                         ];
 
 

@@ -140,8 +140,8 @@
                                                 <div class="form-group row">
                                                     <label class="col-xs-2 col-sm-2 col-md-2  text-right">{{trans('maintenance::contractor.password')}}:</label>
 
-                                                    <div class="col-xs-8 col-sm-8 col-md-8 text-left">
-                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                                    <div class="col-xs-8 col-sm-8 col-md-7 text-left">
+                                                        <div class="input-group col-xs-12 col-sm-12 col-md-12   ">
                                                             <input type="password" class="form-control pull-right" autocomplete="off" id="password" name="password" value="@if(old('password')){{old('password')}}@endif">
 
                                                             <span class="input-group-addon" role="button" title="veiw password" onclick="togglePassword()">
@@ -151,12 +151,12 @@
 
                                                         </div>
 
-
                                                     </div>
-
                                                     <div class="col-2 col-md-2 col-lg-2 col-xs-2 col-sm-2">
-                                                        <button type="button" class="btn btn-primary" onclick="createPassword()">{{ trans('maintenance::contractor.generate_password') }}</button>
-                                                    </div>
+                                                            <button type="button" class="btn btn-primary" onclick="createPassword()">{{ trans('maintenance::contractor.generate_password') }}</button>
+                                                        </div>
+
+                                                    
                                                 </div>
                                             @endif
 

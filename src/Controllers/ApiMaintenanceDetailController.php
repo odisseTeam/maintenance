@@ -22,6 +22,8 @@ use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use Odisse\Maintenance\App\SLP\MaintenanceOperation;
 use Odisse\Maintenance\Models\ContractorAgent;
+use Odisse\Maintenance\Models\ContractorLocation;
+use Odisse\Maintenance\Models\ContractorSkill;
 use Odisse\Maintenance\Models\ContractorSkillRef;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use stdClass;
@@ -622,6 +624,8 @@ class ApiMaintenanceDetailController extends Controller
             $selected_user_agent = null;
             $selected_contractor = null;
             $selected_business = null;
+            $contractor_skills=null;
+            $coverage_areas=null;
             $users = null;
             $agents = null;
 
@@ -639,6 +643,16 @@ class ApiMaintenanceDetailController extends Controller
                     $agents = Contractor::where('contractor.id_contractor' , $selected_contractor->id_contractor)->
                     join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                     join('users','users.id','contractor_agent.id_user')->get();
+
+
+                    $contractor_skills = ContractorSkill::where('id_contractor' , $selected_contractor->id_contractor)->where('contractor_skill_active' , 1)->
+                    join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref')->get();
+
+
+                    $coverage_areas = ContractorLocation::where('id_contractor' ,$selected_contractor->id_contractor )->where('contractor_location_active' , 1)->
+                    join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->get();
+
+
 
                 }
                 else{
@@ -668,13 +682,15 @@ class ApiMaintenanceDetailController extends Controller
         } catch (\Exception $e) {
 
             Log::error($e->getMessage());
-            $message = trans('maintenance::maintenance_mgt.load_business_contractors_was_unsuccessful');
+            $message = $e->getMessage();//trans('maintenance::maintenance_mgt.load_business_contractors_was_unsuccessful');
             $status = APIStatusConstants::BAD_REQUEST;
             $businesses=null;
             $contractors=null;
             $selected_user_agent=null;
             $selected_contractor=null;
             $selected_business=null;
+            $contractor_skills=null;
+            $coverage_areas=null;
             $users=null;
             $agents=null;
 
@@ -690,6 +706,8 @@ class ApiMaintenanceDetailController extends Controller
                 'selected_user_agent'=>$selected_user_agent,
                 'selected_contractor'=>$selected_contractor,
                 'selected_business'=>$selected_business,
+                'contractor_skills'=>$contractor_skills,
+                'coverage_areas'=>$coverage_areas,
                 'users'=>$users,
                 'agents'=>$agents,
             ]
@@ -724,6 +742,8 @@ class ApiMaintenanceDetailController extends Controller
 
             $contractor = null;
             $user_type = null;
+            $contractor_skills = null;
+            $coverage_areas = null;
 
 
             $business_contractor = $request->business_contractor;
@@ -746,6 +766,16 @@ class ApiMaintenanceDetailController extends Controller
                 $result = $agents;
                 $user_type = "agent";
                 $contractor = Contractor::find(substr($business_contractor, 1));
+
+
+                $contractor_skills = ContractorSkill::where('id_contractor' , $contractor->id_contractor)->where('contractor_skill_active' , 1)->
+                                     join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref')->get();
+
+
+                $coverage_areas = ContractorLocation::where('id_contractor' ,$contractor->id_contractor )->where('contractor_location_active' , 1)->
+                                  join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->get();
+
+
 
             }
 
@@ -778,6 +808,8 @@ class ApiMaintenanceDetailController extends Controller
                 'agents'  => $result,
                 'contractor'  => $contractor,
                 'user_type' => $user_type,
+                'contractor_skills' => $contractor_skills,
+                'coverage_areas' => $coverage_areas,
             ]
         );
     }
@@ -841,6 +873,7 @@ class ApiMaintenanceDetailController extends Controller
                     foreach($check2  as $assign_staf_obj){
                         $assign_staf_obj->update([
                             'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                            'is_last_one'    =>0,
                         ]);
                     }
 
@@ -1000,51 +1033,87 @@ class ApiMaintenanceDetailController extends Controller
 
             try{
 
-            $validator = Validator::make($request->all(), [
+                $validator = Validator::make($request->all(), [
 
-                'start_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_validation'),
+                    'start_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_validation'),
 
-            ]);
-
-            if ($validator->fails()) {
-
-                Log::error("In maintenance package, ApiMaintenanceDetailController- startMaintenanceApi function ".": ". $validator->errors());
-
-
-
-                return response()->json(
-                    [
-                    'code' => 'failure',
-                    'message' => $validator->errors(),
-                    ]);
-
-            }
-
-            $staff_user = User::where('email' , $request->staff_user)->first();
-            if($staff_user){
-                $user = Sentinel::findById($staff_user->id);
-                Sentinel::login($user);
-                $result = $this->startMaintenance($staff_user->id ,$request->maintenance ,$request->start_date_time);
-
-            }
-            else{
-
-                //get api user
-                $api_user = User::where('email' , 'api.user@sdr.uk')->first();
-                $result = $this->startMaintenance($api_user->id ,$request->maintenance ,$request->start_date_time);
-
-
-            }
-
-
-
-
-
-            return response()->json(
-                [
-                  'code' => $result['code'],
-                  'message' => $result['message'],
                 ]);
+
+                if ($validator->fails()) {
+
+                    Log::error("In maintenance package, ApiMaintenanceDetailController- startMaintenanceApi function ".": ". $validator->errors());
+
+
+
+                    return response()->json(
+                        [
+                        'code' => 'failure',
+                        'message' => $validator->errors(),
+                        ]);
+
+                }
+
+                $staff_user = User::where('email' , $request->staff_user)->first();
+                if($staff_user){
+                    $user = Sentinel::findById($staff_user->id);
+                    Sentinel::login($user);
+                    $result = $this->startMaintenance($staff_user->id ,$request->maintenance ,$request->start_date_time);
+
+                    if($result['code']== 'success'){
+
+                        $response = $this->assignJobToUser($request->maintenance , $request->user ,$staff_user->id );
+                        DB::commit();
+                        return response()->json($response);
+
+
+
+
+                    }
+                    else{
+                        DB::rollback();
+
+
+                        return response()->json(
+                            [
+                            'code' => $result['code'],
+                            'message' => $result['message'],
+                            ]);
+
+
+                    }
+
+                }
+                else{
+
+                    //get api user
+                    $api_user = User::where('email' , 'api.user@sdr.uk')->first();
+                    $result = $this->startMaintenance($api_user->id ,$request->maintenance ,$request->start_date_time);
+                    if($result['code']== 'success'){
+
+                        $response = $this->assignJobToUser($request->maintenance , $request->user ,$api_user->id );
+                        DB::commit();
+                        return response()->json($response);
+
+
+
+
+                    }
+                    else{
+                        DB::rollback();
+
+
+                        return response()->json(
+                            [
+                            'code' => $result['code'],
+                            'message' => $result['message'],
+                            ]);
+
+
+                    }
+
+                }
+
+
 
 
 
@@ -1245,6 +1314,40 @@ class ApiMaintenanceDetailController extends Controller
             'code' => 'success',
             'message' => trans('maintenance::dashboard.chart_data_prepared'),
             'result' => $temp_val,
+            ]);
+
+
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    public function getMaintenanceStatusCount(Request $request){
+
+
+
+
+        $statuses = MaintenanceJobStatusRef::where('maintenance_job_status_ref_active' , 1)->get();
+        $result = [];
+
+        $counter =0;
+        foreach($statuses as $status){
+
+            $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('id_maintenance_job_status' , $status->id_maintenance_job_status_ref)->get();
+            $maintenance_count = count($maintenances);
+
+            $result[$status->job_status_code] = $maintenance_count;
+
+        }
+
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'message' => trans('maintenance::dashboard.status_data_prepared'),
+            'status_counts' => $result,
             ]);
 
 

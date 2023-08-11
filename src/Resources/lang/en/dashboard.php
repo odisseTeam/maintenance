@@ -76,6 +76,7 @@ return [
     'contractor_name' => 'Contractor Name',
     'comment_by_user_when_send_email' => 'Comment by user when send email',
     'change_maintenance_status_was_not_successful' => 'Change maintenance status was not successful',
-
+    'maintenance_email_page'=>'Maintenance Email Page',
+    'system_created_a_pdf_file_automatically'=>'System Created a Pdf File Automatically'
 
 ];

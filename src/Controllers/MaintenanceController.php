@@ -1138,6 +1138,7 @@ class MaintenanceController extends Controller
                     foreach($check2  as $assign_staf_obj){
                         $assign_staf_obj->update([
                             'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                            'is_last_one'    =>0,
                         ]);
                     }
 

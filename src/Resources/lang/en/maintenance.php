@@ -20,8 +20,8 @@ return [
     'locations_must_be_in_same_property'  =>  'Selected locations must be in same property',
     'set_order_number_was_unsuccessful'  =>  'Set order number was unsuccessful',
     'maintenance_not_created'  =>  'Maintenance not created!',
-    'commencement_date'  =>  'Commencement Date',
-    'complete_date'  =>  'Complete Date',
+    'commencement_date'  =>  'Commencement',
+    'complete_date'  =>  'Complete by',
 
     'jobs'  => 'Jobs',
 

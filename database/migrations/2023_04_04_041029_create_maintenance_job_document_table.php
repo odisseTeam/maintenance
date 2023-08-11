@@ -20,7 +20,7 @@ class CreateMaintenanceJobDocumentTable extends Migration
             $table->string('document_address');
             $table->string('document_extention');
             $table->text('description')->nullable();
-            $table->tinyInteger('maintenance_job_document_active');
+            $table->tinyInteger('maintenance_job_document_active')->default(1);
             $table->charset = "utf8";
             $table->collation = "utf8_general_ci";
 

@@ -407,6 +407,8 @@ class ContractorController extends Controller
             $selected_business = null;
             $users = null;
             $agents = null;
+            $contractor_skills=null;
+            $coverage_areas=null;
 
             if(count($mjsh) == 1){
                 $selected_user_agent = $mjsh[0]->id_maintenance_assignee;
@@ -422,6 +424,16 @@ class ContractorController extends Controller
                     $agents = Contractor::where('contractor.id_contractor' , $selected_contractor->id_contractor)->
                     join('contractor_agent','contractor_agent.id_contractor','contractor.id_contractor')->
                     join('users','users.id','contractor_agent.id_user')->get();
+
+
+                $contractor_skills = ContractorSkill::where('id_contractor' , $contractor_agent->id_contractor)->where('contractor_skill_active' , 1)->
+                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref')->get();
+
+
+                $coverage_areas = ContractorLocation::where('id_contractor' ,$contractor_agent->id_contractor )->where('contractor_location_active' , 1)->
+                join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->get();
+
+
 
                 }
                 else{
@@ -444,6 +456,8 @@ class ContractorController extends Controller
               'selected_user_agent'=>$selected_user_agent,
               'selected_contractor'=>$selected_contractor,
               'selected_business'=>$selected_business,
+              'contractor_skills'=>$contractor_skills,
+              'coverage_areas'=>$coverage_areas,
               'users'=>$users,
               'agents'=>$agents,
               'message' => trans('maintenance::contractor.your_contractors_returned'),

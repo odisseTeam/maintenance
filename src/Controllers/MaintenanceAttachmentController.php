@@ -73,7 +73,6 @@ class MaintenanceAttachmentController extends Controller
     {
 
 
-        // dd($request->all());
         // $request->validate([
         //     'attachments' => 'required',
         //     'attachments.*' => 'required|max:2048',
@@ -83,7 +82,7 @@ class MaintenanceAttachmentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'attachments'        => 'array|required',
-            'attachments.*' => 'required|mimes:doc,docx,jpg,odt,jpeg,pdf,PNG,png,zip,rar|max:2048',
+            'attachments.*' => 'required|mimes:doc,docx,jpg,odt,jpeg,pdf,PNG,png,zip,rar,webp|max:2048',
           ]);
 
           if ($validator->fails()) {

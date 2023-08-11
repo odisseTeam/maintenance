@@ -165,7 +165,7 @@
 
                                                         <div class="row">
 
-                                                        <div class="col-md-10 col-xs-12">
+                                                        <div class="col-md-11 col-xs-12">
 
 
                                                             <div class="row">
@@ -196,12 +196,13 @@
 
 
                                                                 <!-- saas_client_business -->
-                                                                <div class="col-md-3">
-                                                                    <div class="form-group">
+                                                                <div class="col-md-4">
+                                                                    <div class="form-group row">
+                                                                        <label class="col-xs-3 col-sm-3 col-md-3 ">{{__('maintenance::dashboard.business')}}</label>
 
-                                                                        <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                                        <div class="col-xs-9 col-sm-9 col-md-9 ">
                                                                             <select class="form-control pull-right select2" id="search_business" name="search_business[]" multiple="multiple"  onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                                                {{-- <option value="">
+                                                                                {{-- <option value="" selected>
                                                                                     {{__('maintenance::dashboard.business')}}
                                                                                 </option> --}}
                                                                                 @foreach($businesses as $business)
@@ -219,7 +220,7 @@
 
 
                                                                 <!-- priority -->
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">
@@ -287,7 +288,7 @@
 
 
                                                                 <!-- category -->
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-4">
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">
@@ -310,7 +311,7 @@
 
 
                                                                 <!-- status -->
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">
@@ -352,7 +353,7 @@
                                                         </div>
 
 
-                                                        <div class="col-md-2 col-xs-12 col-sm-12 col-lg-2">
+                                                        <div class="col-md-1 col-xs-12 col-sm-12 col-lg-1">
                                                             <div class="row">
                                                                 <button style="min-width:150px;margin-top:1px;" id="searchbtn" onclick="searchAgain()" type="button" class="btn btn-primary">{{__('maintenance::maintenance_mgt.search')}}</button>
                                                             </div>
@@ -578,19 +579,6 @@
                                                     </div>
 
 
-                                                    <!-- vat number-->
-
-                                                    <div class="form-group row ">
-
-                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.vat_number') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <input class="form-control" id="contractor_vat_number" readonly value="@if(isset($selected_contractor)){{$selected_contractor->vat_number}}@endif" >
-                                                        </div>
-
-                                                    </div>
-
-
-
                                                     <!-- tel number1-->
 
                                                     <div class="form-group row ">
@@ -608,12 +596,38 @@
 
                                                     <div class="form-group row ">
 
-                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.address_line1') }}:</label>
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <textarea class="form-control" rows="4" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                                                            <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
                                                         </div>
 
                                                     </div>
+
+
+
+                                                    <!-- contractor_skills-->
+                                                    <div class="form-group row ">
+
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
+                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
+
+                                                        </div>
+
+                                                    </div>
+
+
+
+                                                    <!-- coverage_areas-->
+                                                    <div class="form-group row ">
+
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
+                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
+
+                                                        </div>
+
+                                                    </div>
+
+
 
 
 
@@ -692,38 +706,74 @@
 
 
                                             <div class="modal-body">
-                                                    <div class="alert alert-danger alert-dismissible" id="err_msg_box_start" style="display: none">
-                                                        <div id="ajx_err_msg_start"></div>
-                                                    </div>
-                                                    <div class="alert alert-success alert-dismissible" id="suc_msg_box_start" style="display: none">
-                                                        <div id="ajx_suc_msg_start"></div>
-                                                    </div>
-                                                    <input type="hidden" id="started_business">
-                                                    <input type="hidden" id="started_maintenance">
+                                                <div class="alert alert-danger alert-dismissible" id="err_msg_box_start" style="display: none">
+                                                    <div id="ajx_err_msg_start"></div>
+                                                </div>
+                                                <div class="alert alert-success alert-dismissible" id="suc_msg_box_start" style="display: none">
+                                                    <div id="ajx_suc_msg_start"></div>
+                                                </div>
+                                                <input type="hidden" id="started_business">
+                                                <input type="hidden" id="started_maintenance">
 
-                                                    <div class="form-group row">
-                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_start_date_of_job') }}:</label>
-                                                        <div class="col-sm-5 col-md-5 col-lg-5">
+                                                <div class="form-group row">
+                                                    <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.select_start_date_of_job') }}:</label>
+                                                    <div class="col-sm-5 col-md-5 col-lg-5">
 
-                                                            <div class="input-group date date_place" id="id_2">
-                                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="start_datetimepicker" id="start_datetimepicker">
-                                                                <div class="input-group-addon input-group-append">
-                                                                    <div class="input-group-text">
-                                                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                                                    </div>
+                                                        <div class="input-group date date_place" id="id_2">
+                                                            <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="start_datetimepicker" id="start_datetimepicker">
+                                                            <div class="input-group-addon input-group-append">
+                                                                <div class="input-group-text">
+                                                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                                                                 </div>
                                                             </div>
-
-                                                            {{-- <div class="form-group">
-                                                                <div class="input-group date" id="start_datetimepicker">
-                                                                    <input type="text" class="form-control">
-                                                                    <span class="input-group-addon">
-                                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                                    </span>
-                                                                </div>
-                                                            </div> --}}
                                                         </div>
+
+
                                                     </div>
+                                                </div>
+
+
+
+
+                                                <!-- Business/contractor -->
+                                                <div class="form-group row">
+                                                    <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.business_contractor')}}:</label>
+                                                    <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                        <span name="business_contractor_readonly" id="business_contractor_readonly">
+
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+
+
+
+                                                <!-- User / agent -->
+                                                <div class="form-group row">
+                                                    <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.user_agent')}}:</label>
+                                                    <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                        <select name="user_agent_start" id="user_agent_start" class="form-control select ">
+                                                            @foreach ($maintenance_users as $maintenance_user)
+                                                            <option value="{{ $maintenance_user->id }}">
+                                                                {{ $maintenance_user->first_name }} {{ $maintenance_user->last_name }}
+                                                            </option>
+                                                            @endforeach
+                                                            @foreach ($contractor_agents as $contractor_agent)
+                                                            <option value="{{ $contractor_agent->id }}">
+                                                                @if(isset($contractor_agent->first_name) || isset($contractor_agent->last_name))){{ $contractor_agent->first_name }} {{ $contractor_agent->last_name }}@else{{$contractor_agent->login_name}}@endif
+                                                            </option>
+                                                            @endforeach
+
+
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+
 
 
                                             </div>
@@ -1152,6 +1202,47 @@
                     var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
                     var assignee = maintenance_list[k]["assignee_first_name"]?(maintenance_list[k]["assignee_first_name"]+' '+maintenance_list[k]["assignee_last_name"]):(maintenance_list[k]['contractor_name']?maintenance_list[k]['contractor_name']:'-');
 
+                    if(assignee == '-'){
+                        var email_btn ='<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="' + mail_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" title="Send Email To Contractor" >'+
+                        '<i class="fa fa-solid fa-envelope"></i>'+
+                        '</a>';
+
+                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                        '<i class="fa fa-solid fa-play"></i>'+
+                        '</a>';
+                    }
+                    else{
+                        var email_btn = '<a href="' + mail_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" title="Send Email To Contractor" >'+
+                        '<i class="fa fa-solid fa-envelope"></i>'+
+                        '</a>';
+
+                        if(job_start_date_time == '-'){
+
+                            var start_btn = '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                            '<i class="fa fa-solid fa-play"></i>'+
+                            '</a>';
+
+                        }
+                        else{
+                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                            '<i class="fa fa-solid fa-play"></i>'+
+                            '</a>';
+                        }
+                    }
+
+                    if(job_finished_date_time == '-'){
+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa fa-solid fa-stop"></i>'+
+                        '</button></a>';
+                    }
+                    else{
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa fa-solid fa-stop"></i>'+
+                        '</button></a>';
+                    }
+
+
                     var operation = '<a href="' + m_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<i class="fa-solid fa-info fa fa-info" aria-hidden="true"></i>' +
                         '</a>' +
@@ -1160,16 +1251,9 @@
                         '<i class="fa fa-solid fa-user"></i>'+
                         '</a>'+
 
-                        '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
-                        '<i class="fa fa-solid fa-play"></i>'+
-                        '</a>'+
-                        '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business + ',' + id_maintenance_job+')"> '+
-                        '<i class="fa fa-solid fa-stop"></i>'+
-                        '</a>'+
-
-                        '<a href="' + mail_url + '" target="_blank" class="btn btn-primary allign-btn sdr-primary" title="Send Email To Contractor" >'+
-                        '<i class="fa fa-solid fa-envelope"></i>'+
-                        '</a>'+
+                        start_btn+
+                        stop_btn+
+                        email_btn+
 
 
 
@@ -1319,6 +1403,15 @@
             $('#user_agent').find('option').not(':first').remove();
 
 
+            $("#contractor_note").html('');
+            $("#contractor_address_line1").html('');
+            $("#contractor_tel_number1").val('');
+            $("#contractor_short_name").val('');
+
+            $("#skill_place").html('');
+            $("#coverage_area_place").html('');
+
+
             // var spinHandle = loadingOverlay.activate();
 
             send( '/maintenance/mgt/business_contractors',  {
@@ -1341,6 +1434,8 @@
             let selected_contractor = return_value.selected_contractor;
             let selected_business = return_value.selected_business;
             let selected_user_agent = return_value.selected_user_agent;
+            let contractor_skills = return_value.contractor_skills;
+            let coverage_areas = return_value.coverage_areas;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1352,10 +1447,13 @@
 
             else{
 
-                business_list.forEach(item => {
-                    var item_name = item.business_name;
-                    $('#business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
-                });
+                if(business_list){
+
+                    business_list.forEach(item => {
+                        var item_name = item.business_name;
+                        $('#business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
+                    });
+                }
 
                 if(contractor_list){
 
@@ -1400,9 +1498,47 @@
 
                 if(selected_contractor){
                     $('#business_contractor').val('C'+selected_contractor.id_contractor);
+
+
+                    $("#contractor_note").html(selected_contractor.note);
+                    $("#contractor_address_line1").html(selected_contractor.address_line1);
+                    $("#contractor_tel_number1").val(selected_contractor.tel_number1);
+                    $("#contractor_short_name").val(selected_contractor.short_name);
+
+                    var contractor_skill = "";
+
+                    if(contractor_skills){
+                        contractor_skills.forEach(item => {
+                        var item_name = item.skill_name;
+                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#skill_place").html(contractor_skill);
+
+                    var coverage_area = "";
+
+                    if(coverage_areas){
+                        coverage_areas.forEach(item => {
+                        var item_name = item.location;
+                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#coverage_area_place").html(coverage_area);
                 }
                 else if(selected_business){
                     $('#business_contractor').val('B'+selected_business.id_saas_client_business);
+
+
+                    $("#contractor_note").html('');
+                    $("#contractor_address_line1").html('');
+                    $("#contractor_tel_number1").val('');
+                    $("#contractor_short_name").val('');
+
+                    $("#skill_place").html('');
+                    $("#coverage_area_place").html('');
+
                 }
                 if(selected_user_agent){
                     $('#user_agent').val(selected_user_agent);
@@ -1426,6 +1562,8 @@
             // var spinHandle = loadingOverlay.activate();
             business = $('#assigned_business').val();
             business_contractor = $('#business_contractor').val();
+            $("#ajx_err_msg_assign_maintenance").html('');
+            $("#err_msg_box_assign_maintenance").css('display' , 'none');
 
             send( '/maintenance/mgt/business_contractor/user_agents',  {
                 business :business,
@@ -1440,6 +1578,8 @@
             let res = return_value.code;
             let user_list = return_value.agents;
             let contractor = return_value.contractor;
+            let contractor_skills = return_value.contractor_skills;
+            let coverage_areas = return_value.coverage_areas;
             let user_type = return_value.user_type;
 
 
@@ -1472,6 +1612,28 @@
                     $("#contractor_vat_number").val(contractor.vat_number);
                     $("#contractor_tel_number1").val(contractor.tel_number1);
                     $("#contractor_short_name").val(contractor.short_name);
+
+                    var contractor_skill = "";
+
+                    if(contractor_skills){
+                        contractor_skills.forEach(item => {
+                        var item_name = item.skill_name;
+                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#skill_place").html(contractor_skill);
+
+                    var coverage_area = "";
+
+                    if(coverage_areas){
+                        coverage_areas.forEach(item => {
+                        var item_name = item.location;
+                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#coverage_area_place").html(coverage_area);
                 }
                 else{
                     $("#contractor_note").html('');
@@ -1480,9 +1642,12 @@
                     $("#contractor_tel_number1").val('');
                     $("#contractor_short_name").val('');
 
+                    $("#skill_place").html('');
+                    $("#coverage_area_place").html('');
+
 
                     $('#user_agent').find('option').remove();
-                    $('#user_agent').append(new Option('Select User/Agent' ,''));
+                    //$('#user_agent').append(new Option('Select User/Agent' ,''));
                 }
 
 
@@ -1573,6 +1738,82 @@
 
         function showStartMaintenanceModal(id_business , id_maintenance){
 
+
+            send( '/maintenance/mgt/business_contractors',  {
+                business :id_business,
+                maintenance :id_maintenance,
+            }, 'handleShowStartMaintenanceModal', [id_maintenance , id_business]);
+
+        }
+        ///////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
+        function handleShowStartMaintenanceModal(id_maintenance , id_business)
+        {
+            let message = return_value.message;
+            let res = return_value.code;
+            let business_list = return_value.businesses;
+            let contractor_list = return_value.contractors;
+            let users = return_value.users;
+            let agents = return_value.agents;
+            let selected_contractor = return_value.selected_contractor;
+            let selected_business = return_value.selected_business;
+            let selected_user_agent = return_value.selected_user_agent;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                $("#err_msg_box_assign_maintenance").css('display' , 'block');
+
+            }
+
+            else{
+
+                if(selected_business){
+                    console.log(selected_business);
+
+
+                    var item_name = selected_business.business_name;
+                    $('#business_contractor_readonly').html(item_name);
+
+
+                    if(users){
+                        users.forEach(item => {
+                        var item_name = item.first_name +' '+item.last_name;
+                        var item_id = item.user_id ;
+                        $('#user_agent_start').append(new Option(item_name ,item_id));
+                    });
+                    }
+                }
+
+
+                if(selected_contractor){
+
+                    var item_name = selected_contractor.name;
+                    $('#business_contractor_readonly').html(item_name);
+
+
+
+                    if(agents){
+                        agents.forEach(item => {
+                        var item_name = item.email;
+                        var item_id = item.id ;
+                        $('#user_agent_start').append(new Option(item_name ,item_id));
+                    });
+                    }
+                }
+
+
+
+                if(selected_user_agent){
+                    $('#user_agent_start').val(selected_user_agent);
+                }
+
+
+
+            }
+
+
             $("#start_maintenance_btn").removeAttr('disabled');
 
             $('#start_datetimepicker').val('');
@@ -1583,7 +1824,9 @@
             $('#suc_msg_box_start').css('display' , 'none');
             $('#startMaintenanceModal').modal('show');
 
+
         }
+
         ///////////////////////////////////////////////////////
         function startMaintenance(){
             // var spinHandle = loadingOverlay.activate();
@@ -1596,10 +1839,12 @@
             let started_business = $( '#started_business' ).val();
 
             let start_date_time = $( '#start_datetimepicker' ).val();
+            user = $('#user_agent_start').val();
 
             send( '/maintenance/mgt/start/'+started_maintenance,  {
                 business:started_business,
                 start_date_time:start_date_time,
+                user:user,
             }, 'handleStartMaintenance', []);
         }
         ////////////////////////////////////////////////////////

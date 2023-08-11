@@ -33,7 +33,7 @@ trait MaintenanceOperation
 
 
 
-            DB::beginTransaction();
+            //DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'INPR' )->where('maintenance_job_status_ref_active' , 1)->first();
             if($status){
@@ -93,7 +93,7 @@ trait MaintenanceOperation
 
                 }
 
-                DB::commit();
+                //DB::commit();
 
 
 
@@ -115,7 +115,7 @@ trait MaintenanceOperation
 
 
             Log::error($e->getMessage());
-            DB::rollback();
+            //DB::rollback();
 
 
             return
@@ -261,6 +261,7 @@ trait MaintenanceOperation
             $days_count = $expected_target_hour/ 8 ;
             $base_date_time = $job_report_date_time;
             $counter=1;
+
             while($counter<=$days_count){
                 $base_date_time =Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $base_date_time)->addDay()->format(SystemDateFormats::getDateTimeFormat());
 
@@ -396,111 +397,123 @@ trait MaintenanceOperation
 
     private function assignJobToUser($id_maintenance_job , $id_user , $id_staff){
 
-        $maintenance = MaintenanceJob::find($id_maintenance_job);
-        $now = Carbon::createFromDate('now');
 
-        try{
-            DB::beginTransaction();
+        if($id_user){
 
-            //check this task assigned to this user already
-            $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-                                                where('id_maintenance_assignee' , $id_user)->
-                                                whereNull('staff_end_date_time')->
-                                                where('maintenance_job_staff_history_active' , 1)->get();
-            if(count($check)==0 ){
+            $maintenance = MaintenanceJob::find($id_maintenance_job);
+            $now = Carbon::createFromDate('now');
 
-                //check if this task is assigned to another person
-                $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
-                whereNull('staff_end_date_time')->
-                where('is_last_one' , 1)->
-                where('maintenance_job_staff_history_active' , 1)->get();
+            try{
+                //DB::beginTransaction();
 
-                if(count($check2)>0){
-                    foreach($check2  as $assign_staf_obj){
-                        $assign_staf_obj->update([
-                            'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                            'is_last_one'    =>0,
-                        ]);
+                //check this task assigned to this user already
+                $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
+                                                    where('id_maintenance_assignee' , $id_user)->
+                                                    whereNull('staff_end_date_time')->
+                                                    where('maintenance_job_staff_history_active' , 1)->get();
+                if(count($check)==0 ){
+
+                    //check if this task is assigned to another person
+                    $check2 = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->
+                    whereNull('staff_end_date_time')->
+                    where('is_last_one' , 1)->
+                    where('maintenance_job_staff_history_active' , 1)->get();
+
+                    if(count($check2)>0){
+                        foreach($check2  as $assign_staf_obj){
+                            $assign_staf_obj->update([
+                                'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                                'is_last_one'    =>0,
+                            ]);
+                        }
+
                     }
 
+
+                    //insert into maintenance_job_staff table
+                    $maintenance_staff = new MaintenanceJobStaffHistory([
+                        'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                        'id_maintenance_staff'    =>  $id_staff,
+                        'id_maintenance_assignee'    =>  $id_user,
+                        'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'is_last_one'    =>1,
+                        'maintenance_job_staff_history_active'  =>  1,
+
+                    ]);
+                    $maintenance_staff->save();
+
+
+
+                    //insert into maintenance_job_staff table
+                    $maintenance_log = new MaintenanceLog([
+                        'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                        'id_staff'    =>  $id_staff,
+                        'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
+
+                    ]);
+                    $maintenance_log->save();
+
+
+
+                    $change_status = $this->changeMaintenanceStatusOnAssignJob($maintenance->id_maintenance_job);
+                    if(!$change_status){
+                        DB::rollback();
+                        return
+                            [
+                            'code' => ActionStatusConstants::FAILURE,
+                            'message' => trans('maintenance::dashboard.change_maintenance_status_was_not_successful'),
+                            ];
+                    }
+
+
+
+                    //DB::commit();
+
+
+
+                    return [
+                        'code' => ActionStatusConstants::SUCCESS,
+                        'message'=>trans('maintenance::dashboard.assign_maintenance_to_staff_was_successful')
+                        ] ;
+
+                }
+                else{
+
+                    return  [
+                        'code' => ActionStatusConstants::FAILURE ,
+                        'message'=>trans('maintenance::dashboard.maintenance_assigned_to_this_user_already')
+                        ] ;
+
                 }
 
 
-                //insert into maintenance_job_staff table
-                $maintenance_staff = new MaintenanceJobStaffHistory([
-                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_maintenance_staff'    =>  $id_staff,
-                    'id_maintenance_assignee'    =>  $id_user,
-                    'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'is_last_one'    =>1,
-                    'maintenance_job_staff_history_active'  =>  1,
-
-                ]);
-                $maintenance_staff->save();
-
-
-
-                //insert into maintenance_job_staff table
-                $maintenance_log = new MaintenanceLog([
-                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
-                    'id_staff'    =>  $id_staff,
-                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'log_note'  =>  trans('maintenance::dashboard.assign_maintenance_to_user'),
-
-                ]);
-                $maintenance_log->save();
-
-
-
-                $change_status = $this->changeMaintenanceStatusOnAssignJob($maintenance->id_maintenance_job);
-                if(!$change_status){
-                    DB::rollback();
-                    return
-                        [
-                        'code' => ActionStatusConstants::FAILURE,
-                        'message' => trans('maintenance::dashboard.change_maintenance_status_was_not_successful'),
-                        ];
-                }
-
-
-
-                DB::commit();
-
-
-
-                return [
-                    'code' => ActionStatusConstants::SUCCESS,
-                    'message'=>trans('maintenance::dashboard.assign_maintenance_to_staff_was_successful')
-                    ] ;
-
             }
-            else{
+            catch(\Exception $e){
 
-                return  [
-                    'code' => ActionStatusConstants::FAILURE ,
-                    'message'=>trans('maintenance::dashboard.maintenance_assigned_to_this_user_already')
-                    ] ;
+
+                Log::error('In maintenance package, MaintenanceOperation- assignJobToUser function' . $e->getMessage());
+                DB::rollback();
+
+
+                return
+                    [
+                    'code' => ActionStatusConstants::FAILURE,
+                    'message' => $e->getMessage(),//trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
+                    ];
+
 
             }
 
-
         }
-        catch(\Exception $e){
 
 
-            Log::error('In maintenance package, MaintenanceOperation- assignJobToUser function' . $e->getMessage());
-            DB::rollback();
+        return [
+            'code' => ActionStatusConstants::SUCCESS,
+            'message'=>trans('maintenance::dashboard.job_assigned_to_nobody')
+            ] ;
 
-
-            return
-                [
-                'code' => ActionStatusConstants::FAILURE,
-                'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
-                ];
-
-
-        }
     }
 
 

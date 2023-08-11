@@ -579,20 +579,6 @@
                         </div>
 
 
-                        <!-- vat number-->
-
-                        <div class="form-group row ">
-
-                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.vat_number') }}:</label>
-                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                <input class="form-control" id="contractor_vat_number" readonly value="@if(isset($selected_contractor)){{$selected_contractor->vat_number}}@endif" >
-                            </div>
-
-                        </div>
-
-
-
-
 
 
                         <!-- tel number1-->
@@ -612,9 +598,31 @@
 
                         <div class="form-group row ">
 
-                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.address_line1') }}:</label>
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
                             <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                <textarea class="form-control" rows="4" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                                <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                            </div>
+
+                        </div>
+
+                        <!-- contractor_skills-->
+                        <div class="form-group row ">
+
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
+                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- coverage_areas-->
+                        <div class="form-group row ">
+
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
+                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
+
                             </div>
 
                         </div>
@@ -720,6 +728,51 @@
                                 </div>
                             </div>
                         </div>
+
+
+
+
+
+                        <!-- Business/contractor -->
+                        <div class="form-group row">
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.business_contractor')}}:</label>
+                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                <span name="business_contractor_readonly" id="business_contractor_readonly">
+
+                                </span>
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- User / agent -->
+                        <div class="form-group row">
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.user_agent')}}:</label>
+                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                <select name="user_agent_start" id="user_agent_start" class="form-control select ">
+                                    @foreach ($maintenance_users as $maintenance_user)
+                                     <option value="{{ $maintenance_user->id }}">
+                                        {{ $maintenance_user->first_name }} {{ $maintenance_user->last_name }}
+                                     </option>
+                                    @endforeach
+                                    @foreach ($contractor_agents as $contractor_agent)
+                                     <option value="{{ $contractor_agent->id }}">
+                                        @if(isset($contractor_agent->first_name) || isset($contractor_agent->last_name))){{ $contractor_agent->first_name }} {{ $contractor_agent->last_name }}@else{{$contractor_agent->login_name}}@endif
+                                     </option>
+                                    @endforeach
+
+
+
+                                </select>
+                            </div>
+                        </div>
+
+
 
 
                 </div>
@@ -940,7 +993,6 @@
 
             $("#contractor_note").html('');
             $("#contractor_address_line1").html('');
-            $("#contractor_vat_number").val('');
             $("#contractor_tel_number1").val('');
             $("#contractor_short_name").val('');
 
@@ -1154,6 +1206,47 @@
                     // var resident_reporter = maintenance_list[k]["resident_reporter"]? maintenance_list[k]["resident_reporter"]:'-';
                     var resident_reporter = maintenance_list[k]["resident_first_name"] ?  maintenance_list[k]["resident_first_name"] + ' ' + maintenance_list[k]["resident_surname"] : "N/A";
 
+                    if(assignee == '-'){
+                        var email_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="/maintenance/create/email_temp/' + id_maintenance_job + '"  target="_blank" data-toggle="tooltip"  title="Send Email To Contractor" >'+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" >'+
+                        '<i class="fa-solid fa-envelope"></i>'+
+                        '</button></a>';
+
+                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                            '<i class="fa-solid fa-play"></i>'+
+                            '</button></a>';
+                    }
+                    else{
+                        var email_btn = '<a href="/maintenance/create/email_temp/' + id_maintenance_job + '"  target="_blank" data-toggle="tooltip"  title="Send Email To Contractor" >'+
+                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" >'+
+                        '<i class="fa-solid fa-envelope"></i>'+
+                        '</button></a>';
+
+                        if(job_start_date_time == '-'){
+
+                            var start_btn = '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                            '<i class="fa-solid fa-play"></i>'+
+                            '</button></a>';
+
+                        }
+                        else{
+                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                            '<i class="fa-solid fa-play"></i>'+
+                            '</button></a>';
+                        }
+                    }
+
+                    if(job_finished_date_time == '-'){
+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa-solid fa-stop"></i>'+
+                        '</button></a>';
+                    }
+                    else{
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        '<i class="fa-solid fa-stop"></i>'+
+                        '</button></a>';
+                    }
 
                     var operation = '<a href="/maintenance/detail/' + id_maintenance_job + '" target="_blank" data-toggle="tooltip" title="Maintenance Detail" data-original-title="Maintenance Detail">' +
                         '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn"  >' +
@@ -1162,18 +1255,9 @@
                         '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Assign Maintenance" onclick="showAssignMaintenanceModal('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-user"></i>'+
                         '</button></a>'+
-                        '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
-                        '<i class="fa-solid fa-play"></i>'+
-                        '</button></a>'+
-                        '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
-                        '<i class="fa-solid fa-stop"></i>'+
-                        '</button></a>'+
-
-                        '<a href="/maintenance/create/email_temp/' + id_maintenance_job + '"  target="_blank" data-toggle="tooltip"  title="Send Email To Contractor" >'+
-                        '<button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" >'+
-                        '<i class="fa-solid fa-envelope"></i>'+
-                        '</button></a>'+
-
+                        start_btn+
+                        stop_btn+
+                        email_btn+
                         '<button style="margin-right: 1px;" type="button" class="btn btn-danger allign-btn" title="Delete Maintenance" onclick="showDeleteMaintenanceModal('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-trash"></i>'+
                         '</button>';
@@ -1381,6 +1465,15 @@
             $("#business_contractor").prop("selectedIndex", 0);
 
 
+            $("#contractor_note").html('');
+            $("#contractor_address_line1").html('');
+            $("#contractor_tel_number1").val('');
+            $("#contractor_short_name").val('');
+
+            $("#skill_place").html('');
+            $("#coverage_area_place").html('');
+
+
             send( '/maintenance/contractors_for_assignment',  {
                 maintenance:id_maintenance
             }, 'handelShowAssignMaintenanceModal', []);
@@ -1398,6 +1491,8 @@
             let selected_contractor = return_value.selected_contractor;
             let selected_business = return_value.selected_business;
             let selected_user_agent = return_value.selected_user_agent;
+            let contractor_skills = return_value.contractor_skills;
+            let coverage_areas = return_value.coverage_areas;
 
             if(res == "failure"){
                 var textmessage = message;
@@ -1411,6 +1506,8 @@
 
                 $('#business_contractor').find('option').not(':first').remove();
                 $('#user_agent').find('option').not(':first').remove();
+
+
                 if(businesses){
                     businesses.forEach(item => {
                         var item_name = item.business_name ;
@@ -1427,43 +1524,84 @@
                         var item_id = 'C'+contractors[key]['id_contractor'] ;
 						$('#business_contractor').append(new Option(item_name ,item_id));
 					});
-                    // contractors.forEach(item => {
-                    //     var item_name = item.name ;
-                    //     var item_id = 'C'+item.id_contractor ;
-                    //     $('#business_contractor').append(new Option(item_name ,item_id));
-                    // });
+
                 }
 
 
 
 
-
-                if(users){
-                    users.forEach(item => {
-                    var item_name = item.first_name +' '+item.last_name;
-                    var item_id = item.user_id ;
-                    $('#user_agent').append(new Option(item_name ,item_id));
-                });
-                }
-
-
-
-
-                if(agents){
-                    agents.forEach(item => {
-                    var item_name = item.email;
-                    var item_id = item.id ;
-                    $('#user_agent').append(new Option(item_name ,item_id));
-                });
-                }
 
 
 
                 if(selected_contractor){
+
+
+
+                    if(agents){
+                        agents.forEach(item => {
+                        var item_name = item.email;
+                        var item_id = item.id ;
+                        $('#user_agent').append(new Option(item_name ,item_id));
+                    });
+                    }
+
+
+
+
+
+
                     $('#business_contractor').val('C'+selected_contractor.id_contractor);
+
+                    $("#contractor_note").html(selected_contractor.note);
+                    $("#contractor_address_line1").html(selected_contractor.address_line1);
+                    $("#contractor_tel_number1").val(selected_contractor.tel_number1);
+                    $("#contractor_short_name").val(selected_contractor.short_name);
+
+                    var contractor_skill = "";
+
+                    if(contractor_skills){
+                        contractor_skills.forEach(item => {
+                        var item_name = item.skill_name;
+                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#skill_place").html(contractor_skill);
+
+                    var coverage_area = "";
+
+                    if(coverage_areas){
+                        coverage_areas.forEach(item => {
+                        var item_name = item.location;
+                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#coverage_area_place").html(coverage_area);
                 }
                 else if(selected_business){
+
+
+
+
+                    if(users){
+                        users.forEach(item => {
+                        var item_name = item.first_name +' '+item.last_name;
+                        var item_id = item.user_id ;
+                        $('#user_agent').append(new Option(item_name ,item_id));
+                    });
+                    }
+
+
+
                     $('#business_contractor').val('B'+selected_business.id_saas_client_business);
+                    $("#contractor_note").html('');
+                    $("#contractor_address_line1").html('');
+                    $("#contractor_tel_number1").val('');
+                    $("#contractor_short_name").val('');
+
+                    $("#skill_place").html('');
+                    $("#coverage_area_place").html('');
                 }
                 if(selected_user_agent){
                     $('#user_agent').val(selected_user_agent);
@@ -1484,6 +1622,8 @@
 
             var spinHandle = loadingOverlay.activate();
             business_contractor = $('#business_contractor').val();
+            $("#ajx_err_msg_assign_maintenance").html('');
+            $("#err_msg_box_assign_maintenance").css('display' , 'none');
 
             send( '/maintenance/business_contractor/user_agents',  {
                 business_contractor :business_contractor,
@@ -1497,6 +1637,8 @@
             let res = return_value.code;
             let user_list = return_value.result;
             let contractor = return_value.contractor;
+            let contractor_skills = return_value.contractor_skills;
+            let coverage_areas = return_value.coverage_areas;
             let user_type = return_value.user_type;
 
             if(res == "failure"){
@@ -1506,7 +1648,6 @@
                 $("#err_msg_box_assign_maintenance").css('display' , 'block');
                 $("#contractor_note").html('');
                 $("#contractor_address_line1").html('');
-                $("#contractor_vat_number").val('');
                 $("#contractor_tel_number1").val('');
                 $("#contractor_short_name").val('');
 
@@ -1525,20 +1666,42 @@
 
                     $("#contractor_note").html(contractor.note);
                     $("#contractor_address_line1").html(contractor.address_line1);
-                    $("#contractor_vat_number").val(contractor.vat_number);
                     $("#contractor_tel_number1").val(contractor.tel_number1);
                     $("#contractor_short_name").val(contractor.short_name);
+
+                    var contractor_skill = "";
+
+                    if(contractor_skills){
+                        contractor_skills.forEach(item => {
+                        var item_name = item.skill_name;
+                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#skill_place").html(contractor_skill);
+
+                    var coverage_area = "";
+
+                    if(coverage_areas){
+                        coverage_areas.forEach(item => {
+                        var item_name = item.location;
+                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#coverage_area_place").html(coverage_area);
                 }
                 else{
                     $("#contractor_note").html('');
                     $("#contractor_address_line1").html('');
-                    $("#contractor_vat_number").val('');
                     $("#contractor_tel_number1").val('');
                     $("#contractor_short_name").val('');
 
+                    $("#skill_place").html('');
+                    $("#coverage_area_place").html('');
 
                     $('#user_agent').find('option').remove();
-                    $('#user_agent').append(new Option('Select User/Agent' ,''));
+                    //$('#user_agent').append(new Option('Select User/Agent' ,''));
                 }
 
                 if(user_type == 'user'){
@@ -1624,6 +1787,80 @@
 
         function showStartMaintenanceModal(id_maintenance){
 
+
+            send( '/maintenance/contractors_for_assignment',  {
+                maintenance:id_maintenance
+            }, 'handelShowStartMaintenanceModal', [id_maintenance]);
+
+
+        }
+        ///////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        function handelShowStartMaintenanceModal(id_maintenance){
+            let message = return_value.message;
+            let res = return_value.code;
+            let contractors = return_value.contractors;
+            let businesses = return_value.businesses;
+            let users = return_value.users;
+            let agents = return_value.agents;
+            let selected_contractor = return_value.selected_contractor;
+            let selected_business = return_value.selected_business;
+            let selected_user_agent = return_value.selected_user_agent;
+
+            if(res == "failure"){
+                var textmessage = message;
+
+                $("#ajx_err_msg_start").html(textmessage);
+                $("#err_msg_box_start").css('display' , 'block');
+
+            }
+
+            else{
+
+                $('#user_agent_start').find('option').remove();
+                if(selected_business){
+
+                    console.log(selected_business);
+
+                    var item_name = selected_business.business_name ;
+                    $('#business_contractor_readonly').html(item_name);
+
+                    if(users){
+                        users.forEach(item => {
+                        var item_name = item.first_name +' '+item.last_name;
+                        var item_id = item.user_id ;
+                        $('#user_agent_start').append(new Option(item_name ,item_id));
+                    });
+                    }
+
+                }
+                else if(selected_contractor ){
+
+
+                    var item_name = selected_contractor.name ;
+                    $('#business_contractor_readonly').html(item_name);
+
+
+
+                    if(agents){
+                        agents.forEach(item => {
+                            var item_name = item.email;
+                            var item_id = item.id ;
+                            $('#user_agent_start').append(new Option(item_name ,item_id));
+                        });
+                    }
+                }
+
+
+
+                if(selected_user_agent){
+                    $('#user_agent_start').val(selected_user_agent);
+                }
+
+
+
+
+            }
             $("#start_maintenance_btn").removeAttr('disabled');
 
             $('#started_maintenance').val(id_maintenance);
@@ -1631,7 +1868,12 @@
             $('#suc_msg_box_start').css('display' , 'none');
             $('#startMaintenanceModal').modal('show');
 
+
+
+            loadingOverlay.cancelAll();
+
         }
+
         ///////////////////////////////////////////////////////
         function startMaintenance(){
             var spinHandle = loadingOverlay.activate();
@@ -1642,9 +1884,11 @@
 
             let started_maintenance = $( '#started_maintenance' ).val();
             let start_date_time = $( '#start_datetimepicker input' ).val();
+            user = $('#user_agent_start').val();
 
             send( '/maintenance/start/'+started_maintenance,  {
                 start_date_time:start_date_time,
+                user:user,
             }, 'handleStartMaintenance', []);
         }
         ////////////////////////////////////////////////////////

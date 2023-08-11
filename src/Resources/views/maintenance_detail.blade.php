@@ -419,19 +419,6 @@
                                                 </div>
 
 
-                                                <!-- vat number-->
-
-                                                <div class="form-group row ">
-
-                                                    <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.vat_number') }}:</label>
-                                                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                        <input class="form-control" id="contractor_vat_number" readonly value="@if(isset($selected_contractor)){{$selected_contractor->vat_number}}@endif" >
-                                                    </div>
-
-                                                </div>
-
-
-
                                                 <!-- tel number1-->
 
                                                 <div class="form-group row ">
@@ -449,12 +436,36 @@
 
                                                 <div class="form-group row ">
 
-                                                    <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.address_line1') }}:</label>
+                                                    <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
                                                     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                        <textarea class="form-control" rows="4" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                                                        <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
                                                     </div>
 
                                                 </div>
+
+
+                                                <!-- contractor_skills-->
+                                                <div class="form-group row ">
+
+                                                    <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
+                                                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
+
+                                                    </div>
+
+                                                </div>
+
+
+
+                                                <!-- coverage_areas-->
+                                                <div class="form-group row ">
+
+                                                    <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
+                                                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
+
+                                                    </div>
+
+                                                </div>
+
 
 
 
@@ -856,7 +867,6 @@
 
             $("#contractor_note").html('');
             $("#contractor_address_line1").html('');
-            $("#contractor_vat_number").val('');
             $("#contractor_tel_number1").val('');
             $("#contractor_short_name").val('');
 
@@ -1352,6 +1362,8 @@
             let res = return_value.code;
             let user_list = return_value.result;
             let contractor = return_value.contractor;
+            let contractor_skills = return_value.contractor_skills;
+            let coverage_areas = return_value.coverage_areas;
             let user_type = return_value.user_type;
 
             if(res == "failure"){
@@ -1362,9 +1374,11 @@
 
                 $("#contractor_note").html('');
                 $("#contractor_address_line1").html('');
-                $("#contractor_vat_number").val('');
                 $("#contractor_tel_number1").val('');
                 $("#contractor_short_name").val('');
+
+                $("#skill_place").html('');
+                $("#coverage_area_place").html('');
 
                 $('#user_agent').find('option').remove();
                 $('#user_agent').append(new Option('Select User/Agent' ,''));
@@ -1380,20 +1394,43 @@
 
                     $("#contractor_note").html(contractor.note);
                     $("#contractor_address_line1").html(contractor.address_line1);
-                    $("#contractor_vat_number").val(contractor.vat_number);
                     $("#contractor_tel_number1").val(contractor.tel_number1);
                     $("#contractor_short_name").val(contractor.short_name);
+
+                    var contractor_skill = "";
+
+                    if(contractor_skills){
+                        contractor_skills.forEach(item => {
+                        var item_name = item.skill_name;
+                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#skill_place").html(contractor_skill);
+
+                    var coverage_area = "";
+
+                    if(coverage_areas){
+                        coverage_areas.forEach(item => {
+                        var item_name = item.location;
+                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                        });
+                    }
+
+                    $("#coverage_area_place").html(coverage_area);
                 }
                 else{
                     $("#contractor_note").html('');
                     $("#contractor_address_line1").html('');
-                    $("#contractor_vat_number").val('');
                     $("#contractor_tel_number1").val('');
                     $("#contractor_short_name").val('');
 
+                    $("#skill_place").html('');
+                    $("#coverage_area_place").html('');
+
 
                     $('#user_agent').find('option').remove();
-                    $('#user_agent').append(new Option('Select User/Agent' ,''));
+                    //$('#user_agent').append(new Option('Select User/Agent' ,''));
                 }
 
                 if(user_type == 'user'){

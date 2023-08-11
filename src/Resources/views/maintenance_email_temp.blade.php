@@ -1,6 +1,6 @@
 @extends('adminlte.layouts.sdr')
 
-@section('page_title', session('saas_title').' '.__('maintenance::dashboard.maintenance_dashboard'))
+@section('page_title', session('saas_title').' '.__('maintenance::dashboard.maintenance_email_page'))
 
 
 @section('css')
@@ -104,19 +104,79 @@
                     <div class="col-lg-12 col-md-12 col-sm-12">
 
 
-                        <form method="POST" action="/maintenance/contractor/send/email">
+                        <form id="maintenance_content_email"  method="POST" action="">
 
                             @csrf
                             <div class="box">
-                                <div class="box-body">
+                                <div class="box-body" id="main_text">
 
                                         <div class="col-md-11">
 
                                             <h4>{{ __('maintenance::contractor.maintenance_template') }}</h4>
 
+                                            <input type="hidden" name="email_content_for_download" id="email_content_for_download" >
                                             <input type="hidden" name="html_maintenance_temp" id="html_maintenance_temp" value="{{$template_message_body}}" >
 
-                                            <div id="maintenance_template"></div>
+                                            <div>
+                                                {{$template_message_body}}
+                                            </div>
+                                            <!-- <div id="maintenance_template"></div> -->
+
+                                            <hr>
+
+                                                 <!-- commencement_date -->
+                                                 <div class="form-group row ">
+                                                    <div class="col-sm-10 col-md-10 col-xs-10 col-lg-10">
+                                                        <label
+                                                            class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.commencement_date') }}:</label>
+                                                            <div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+
+                                                            <div class="">
+                                                                    <div class="form-group">
+                                                                        <div class="input-group date" id="datepicker2" >
+                                                                        <input type="text" class="form-control"  value="{{ $maintenance->commencement_date }}"
+                                                                        value="@if (isset($maintenance)) {{ $maintenance->commencement_date }} @elseif (old('commencement_date')) {{ old('commencement_date') }} @endif"
+                                                                        placeholder="{{ trans('maintenance::maintenance.commencement_date') }}"
+                                                                        id="commencement_date" name="commencement_date"   >
+                                                                        <span class="input-group-addon">
+                                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                                        </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                            <!-- complete_date -->
+                                            <div class="form-group row ">
+                                              <div class="col-sm-10 col-md-10 col-xs-10 col-lg-10">
+
+                                                <label
+                                                    class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.complete_date') }}:</label>
+                                                    <div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+
+                                                    <div class="">
+                                                            <div class="form-group">
+                                                                <div class="input-group date" id="datepicker3" >
+                                                                <input type="text" class="form-control"  value="{{ $maintenance->complete_date }}"
+                                                                value="@if (isset($maintenance)) {{ $maintenance->complete_date }} @elseif (old('complete_date')) {{ old('complete_date') }} @endif"
+                                                                placeholder="{{ trans('maintenance::maintenance.complete_date') }}"
+                                                                id="complete_date" name="complete_date"   >
+                                                                <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                               </div>
+                                            </div>
+                                            <hr>
 
 
                                             <hr>
@@ -133,7 +193,7 @@
                                             <h4>{{ __('maintenance::contractor.select_fields_to_attach') }}</h4>
 
                                             <input type="hidden" name="id_contractor" id="hidden_id_contractor"  value="@if(isset($contractor)){{$contractor->id_contractor}}@endif">
-                                            <input type="hidden" name="id_maintenance_job" id="hidden_id_maintenance_job" value="@if(isset($contractor)){{$contractor->id_maintenance_job}}@endif" >
+                                            <input type="hidden" name="id_maintenance_job" id="hidden_id_maintenance_job" value="@if(isset($maintenance)){{$maintenance->id_maintenance_job}}@endif" >
 
 
                                             @foreach($contractor_job_attachments as $contractor_job_attachment)
@@ -143,22 +203,22 @@
 
                                             <hr>
 
+
                                             <div class="form-group row">
                                                 <label class="col-xs-2 col-sm-2 col-md-2 control-label text-left" for="exampleFormControlTextarea1">{{ __('maintenance::contractor.additional_comments') }} :</label>
 
                                                 <div class="input-group col-xs-8 col-sm-8 col-md-8">
 
-                                                    <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
+                                                    <textarea   class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
 
                                                 </div>
                                              </div>
                                         </div>
 
-
                                 </div>
                                 <div class="box-footer">
-                                    <button type="submit" class="btn btn-primary" style="float:right;min-width:55px"  >{{ __('maintenance::contractor.send_email') }}</button>
-                                    <button type="submit" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
+                                    <button type="button" id="send_email_btn" onclick="sendEmail()" class="btn btn-primary" style="float:right;min-width:55px"  >{{ __('maintenance::contractor.send_email') }}</button>
+                                    <button type="button"  id="download_btn" onclick="downloadPdf()" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
                                     <button type="button" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
                                     <a href="/maintenance/dashboard" ><button style="float:right;margin-right:2px" type="button" id="close_btn" class="btn btn-warning"
                                         >{{ __('maintenance::contractor.back') }}</button></a>
@@ -270,11 +330,24 @@
 @section('script')
 
     <script src="{{ asset('resources/modalLoading/modalLoading.min.js') }}"></script>
+    <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
 
  <script>
 
         $(document).ready(function () {
 
+
+
+            $('#datepicker2 , #datepicker3').datepicker({
+                autoclose: true,
+                weekStart: 1,
+                todayBtn: "linked",
+                todayHighlight: true,
+                orientation: "left",
+                //format: 'dd/mm/yy',
+                format: window._date_format,
+            });
 
             let html_maintenance_temp = $( '#html_maintenance_temp' ).val();
 
@@ -282,6 +355,214 @@
             $('#maintenance_template').append(html_maintenance_temp);
         });
         //////////////////////////////////////////////////////////
+        function sendEmail(){
+
+            $("#maintenance_content_email").attr("action", "/maintenance/contractor/send/email"); 
+            document.getElementById("send_email_btn").type = "submit";
+
+
+        }
+        //////////////////////////////////////////////////
+        function downloadPdf(){
+
+            //Will set action for form
+            $("#maintenance_content_email").attr("action", "/maintenance/email_content/download"); 
+
+            document.getElementById("download_btn").type = "submit";
+
+            let id_contractor = $('#hidden_id_contractor').val();
+            let id_maintenance_job = $('#hidden_id_maintenance_job').val();
+
+            let notes_checkboxes= document.querySelectorAll('input[name="notes[]"]:checked');
+            let notes_output= [];
+            notes_checkboxes.forEach((note_checkbox) => {
+                notes_output.push(note_checkbox.value);
+            });
+
+            let files_checkboxes= document.querySelectorAll('input[name="job_attachments[]"]:checked');
+            let job_attachments_output= [];
+            files_checkboxes.forEach((file_checkbox) => {
+                job_attachments_output.push(file_checkbox.value);
+            });
+
+            let email_html_text = $('#html_maintenance_temp').val();
+
+            let additional_comment = document.getElementById("contractor_job_attachment_text").value;
+           
+            // let datepicker2 = $("#datepicker2").val();
+
+            var commencement_date = $( "#datepicker2" ).datepicker("getDate");
+            var complete_date = $( "#datepicker3" ).datepicker("getDate");
+
+
+
+
+
+            console.log(complete_date);
+
+
+            send('/maintenance/email_content/download', {
+                id_maintenance_job: id_maintenance_job,
+                id_contractor: id_contractor,
+                notes_output:notes_output,
+                job_attachments_output:job_attachments_output,
+                email_html_text:email_html_text,
+                additional_comment:additional_comment,
+                commencement_date:commencement_date,
+                complete_date:complete_date,
+
+            }, 'handledownloadEmailContent', []);
+
+
+            
+        }
+        ///////////////////////////////////////////////////////////
+        function handledownloadEmailContent(){
+           
+            // let message = return_value.message;
+            // let res = return_value.code;
+            // let blade_html_content = return_value.blade_html_content;
+            // let file_path = return_value.file_path;
+            // let file_name = return_value.file_name;
+
+            // download(file_path, file_name);
+
+                        console.log('oiuytr');
+
+            // const anchor = document.createElement('a');
+            // anchor.href = file_path;
+            // anchor.download = file_name;
+            // console.log(blade_html_content);
+
+            // var doc = new jsPDF();
+
+            // doc.fromHTML(`<html><head><title>email_connntttent</title></head><body>` + blade_html_content + `</body></html>`);
+            // doc.fromHTML( blade_html_content );
+
+            // doc.save('div.pdf');
+
+
+        }
+        ///////////////////////////////////////
+        const download = (file_path, file_name) => {
+
+            console.log('llllllllllll');
+
+            // Create a new link
+            const anchor = document.createElement('a');
+            anchor.href = file_path;
+            anchor.download = file_name;
+
+            // Append to the DOM
+            document.body.appendChild(anchor);
+
+            // Trigger `click` event
+            anchor.click();
+            console.log('poiuygbnm');
+
+            // Remove element from DOM
+            document.body.removeChild(anchor);
+
+        }; 
+        ////////////////////////////////////////////
+        function downloadPdfff(){
+        
+        
+            let id_contractor = $('#hidden_id_contractor').val();
+            let id_maintenance_job = $('#hidden_id_maintenance_job').val();
+
+            let notes_checkboxes= document.querySelectorAll('input[name="notes[]"]:checked');
+            let notes_output= [];
+            notes_checkboxes.forEach((note_checkbox) => {
+                notes_output.push(note_checkbox.value);
+            });
+
+            // console.log(notes_output);
+
+            let files_checkboxes= document.querySelectorAll('input[name="job_attachments[]"]:checked');
+            let job_attachments_output= [];
+            files_checkboxes.forEach((file_checkbox) => {
+                job_attachments_output.push(file_checkbox.value);
+            });
+
+
+            let email_html_text = $('#html_maintenance_temp').val();
+
+            let additional_comment = document.getElementById("contractor_job_attachment_text").value;
+
+            // var email_html_text = document.getElementById('maintenance_template').getAttribute('value');
+
+            // console.log(email_html_text);
+
+            send('/maintenance/contractor_email/preview_for_download', {
+                id_maintenance_job: id_maintenance_job,
+                id_contractor: id_contractor,
+                notes_output:notes_output,
+                job_attachments_output:job_attachments_output,
+                email_html_text:email_html_text,
+                additional_comment:additional_comment,
+
+            }, 'handleDownloadPdf', []);
+
+        }
+        //////////////////////////////////////////////////////////////////
+        function handleDownloadPdf(){
+            let message = return_value.message;
+            let res = return_value.code;
+            let maintenance_template_body = return_value.maintenance_template_body;
+            let maintenance_job_attachments = return_value.maintenance_job_attachments;
+            let notes = return_value.notes;
+            let additional_comment = return_value.additional_comment;
+            let html_text = return_value.html_text;
+
+            var doc = new jsPDF();
+            console.log('lkj');
+           
+           
+            saveDiv(html_text);
+
+            
+        }
+        ////////////////////////////////////////////////
+        function saveDiv(html_text) {
+
+            var doc = new jsPDF();
+            // let aa= document.getElementById(maintenance_template).innerHTML ;
+
+            let email_html_text = $('#html_maintenance_temp').val();
+
+            document.getElementById("email_content_for_download").setAttribute('value',html_text);
+            let email_html_jj = $('#email_content_for_download').val();
+
+            console.log(email_html_jj);
+
+            doc.fromHTML(`<html><head><title>email_connntttent</title></head><body>` + html_text + `</body></html>`);
+            doc.save('div.pdf');
+
+            // printDiv(maintenance_template,email_connntttent);
+
+            }
+        ///////////////////////////////////////////////
+            function printDiv(maintenance_template,email_connntttent) {
+
+                let mywindow = window.open('', 'PRINT', 'height=650,width=900,top=100,left=150');
+
+                mywindow.document.write(`<html><head><title>${email_connntttent}</title>`);
+                mywindow.document.write('</head><body >');
+                mywindow.document.write(document.getElementById(maintenance_template).innerHTML);
+                mywindow.document.write('</body></html>');
+
+                mywindow.document.close(); // necessary for IE >= 10
+                mywindow.focus(); // necessary for IE >= 10*/
+
+                mywindow.print();
+                mywindow.close();
+
+                return true;
+                }
+
+
+        /////////////////////////////////////////////////////////////
         function previewEmailContent(){
 
             let id_contractor = $('#hidden_id_contractor').val();
