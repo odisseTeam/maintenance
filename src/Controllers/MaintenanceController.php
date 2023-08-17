@@ -710,21 +710,25 @@ class MaintenanceController extends Controller
       //api to load residents of location in portal area
       public function getLocationResidents(Request $request)
       {
-
+        Log::info("In maintenanceController, call getLocationResident");
 
         if( $request->has('business') and $request->business != null ){
 
             $requested_business = $request->business;
 
             $businesses = config('maintenances.businesses_name');
-            foreach($businesses as $business){
-                if($business['id_saas_client_business'] == $requested_business){
-                    $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
-                    $response = Http::get($url, $request->all());
 
-                    return $response;
+            if( $businesses != null )
+                foreach($businesses as $business){
+                    if($business['id_saas_client_business'] == $requested_business){
+                        $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
+                        $response = Http::get($url, $request->all());
+
+                        return $response;
+                    }
                 }
-            }
+            
+            return null;
         }
         else{
             return null;

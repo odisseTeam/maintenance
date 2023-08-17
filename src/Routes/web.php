@@ -10,8 +10,6 @@ use Odisse\Maintenance\Controllers\MaintenanceAttachmentController;
 use Odisse\Maintenance\Controllers\ContractorManagementController;
 use Odisse\Maintenance\Controllers\ApiContractorMgtController;
 
-
-
 Route::prefix('api/maintenance/')->group(
     function () {
         Route::post('save/new', [ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
@@ -22,56 +20,13 @@ Route::prefix('api/maintenance/')->group(
 
 
 
-Route::group(['prefix' => 'maintenance'],function () {
 
-    Route::any('/testItem', [MTestController::class,'testFunc']);
-    Route::any('/demo', function(){
-        echo "OK";
-    });
-});
 
 Route::middleware(['web','ProxyCAS'])->group(
     function () {
 
 
-        Route::get('/maintenance/files/{filename}', function($filename){
-
-
-
-            $path = storage_path('../../systemfiles/maintenance_files/uploaded_files/' . $filename);
-
-
-
-            if (!file_exists($path)) {
-                abort(404);
-            }
-
-            $file = file_get_contents($path);
-
-            return response($file, 200)->header('Content-Type', mime_content_type($path));
-
-        });
-
-
-        Route::get('/contractor/files/{filename}', function($filename){
-
-            $path = config('database.backup_path').'/'.str_replace(" ", "",$saas_client->id_saas_client_business.$saas_client->business_name);
-
-
-            $path = storage_path('../../systemfiles/contractor_files/uploaded_files/' . $filename);
-
-            $contractor_file_path = config('maintenances.contractor_file_path');
-
-
-            if (!file_exists($path)) {
-                abort(404);
-            }
-
-            $file = file_get_contents($path);
-
-            return response($file, 200)->header('Content-Type', mime_content_type($path));
-
-        });
+        Route::get('/maintenance/files/{filename}', [MaintenanceAttachmentController::class, 'getAttahmentFile']);
 
 
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware']], function(){

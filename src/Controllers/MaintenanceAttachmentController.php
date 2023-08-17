@@ -21,7 +21,7 @@ use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Carbon;
 use Odisse\Maintenance\Models\MaintenanceLog;
 use App\SLP\Formatter\SystemDateFormats;
-
+use Illuminate\Support\Facades\Storage;
 use Sentinel;
 use Validator;
 
@@ -169,4 +169,26 @@ class MaintenanceAttachmentController extends Controller
                 ->with('success',trans('maintenance::maintenance.maintenance_file_uploaded_successfully'));
 
     }
+
+
+    public function getAttahmentFile($filename){
+
+        $path = config('maintenances.maintenance_file_path');
+        $path = storage_path($path.'uploaded_files/'.$filename);
+    
+   
+        if (!file_exists($path)) {
+            abort(404);
+        }
+    
+        $file = file_get_contents($path);
+    
+        $headers = [
+            'Content-Type' => Storage::mimeType($path),
+            'Content-Disposition' => 'inline', // Instructs browser to display content instead of downloading it
+        ];
+    
+        return response()->file($path, $headers);   
+    
+      }
 }

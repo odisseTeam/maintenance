@@ -217,10 +217,10 @@
 
                                 </div>
                                 <div class="box-footer">
-                                    <button type="button" id="send_email_btn" onclick="sendEmail()" class="btn btn-primary" style="float:right;min-width:55px"  >{{ __('maintenance::contractor.send_email') }}</button>
-                                    <button type="button"  id="download_btn" onclick="downloadPdf()" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
-                                    <button type="button" class="btn btn-primary" style="float:right;min-width:55px;margin-right:2px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
-                                    <a href="/maintenance/dashboard" ><button style="float:right;margin-right:2px" type="button" id="close_btn" class="btn btn-warning"
+                                    <button type="button" id="send_email_btn" onclick="sendEmail()" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right"  >{{ __('maintenance::contractor.send_email') }}</button>
+                                    <button type="button"  id="download_btn" onclick="downloadPdf()" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
+                                    <button type="button" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right;margin-right:2px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
+                                    <a href="/maintenance/dashboard" ><button style="float:right;margin-right:2px;" type="button" id="close_btn" class="btn btn-warning col-md-1 col-sm-1 col-xs-1 col-lg-1"
                                         >{{ __('maintenance::contractor.back') }}</button></a>
 
 
@@ -398,51 +398,24 @@
 
 
 
-            console.log(complete_date);
 
 
-            send('/maintenance/email_content/download', {
-                id_maintenance_job: id_maintenance_job,
-                id_contractor: id_contractor,
-                notes_output:notes_output,
-                job_attachments_output:job_attachments_output,
-                email_html_text:email_html_text,
-                additional_comment:additional_comment,
-                commencement_date:commencement_date,
-                complete_date:complete_date,
+            // send('/maintenance/email_content/download', {
+            //     id_maintenance_job: id_maintenance_job,
+            //     id_contractor: id_contractor,
+            //     notes_output:notes_output,
+            //     job_attachments_output:job_attachments_output,
+            //     email_html_text:email_html_text,
+            //     additional_comment:additional_comment,
+            //     commencement_date:commencement_date,
+            //     complete_date:complete_date,
 
-            }, 'handledownloadEmailContent', []);
+            // }, 'handledownloadEmailContent', []);
 
 
             
         }
-        ///////////////////////////////////////////////////////////
-        function handledownloadEmailContent(){
-           
-            // let message = return_value.message;
-            // let res = return_value.code;
-            // let blade_html_content = return_value.blade_html_content;
-            // let file_path = return_value.file_path;
-            // let file_name = return_value.file_name;
-
-            // download(file_path, file_name);
-
-                        console.log('oiuytr');
-
-            // const anchor = document.createElement('a');
-            // anchor.href = file_path;
-            // anchor.download = file_name;
-            // console.log(blade_html_content);
-
-            // var doc = new jsPDF();
-
-            // doc.fromHTML(`<html><head><title>email_connntttent</title></head><body>` + blade_html_content + `</body></html>`);
-            // doc.fromHTML( blade_html_content );
-
-            // doc.save('div.pdf');
-
-
-        }
+       
         ///////////////////////////////////////
         const download = (file_path, file_name) => {
 

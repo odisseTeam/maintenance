@@ -115,7 +115,7 @@ class ApiMaintenanceMgtController extends Controller{
         $today = Carbon::createFromDate('now');
 
         //get largest maintenance no;
-        $last_maintenance = MaintenanceJob::where('id_maintenance_job' ,'!=' , $maintenance_job_id)->orderBy('id_maintenance_job' , 'desc')->first();
+        $last_maintenance = MaintenanceJob::where('id_maintenance_job' ,'<>' , $maintenance_job_id)->orderBy('id_maintenance_job' , 'desc')->first();
         if($last_maintenance){
             $last_order_no_part3 = substr($last_maintenance->order_number , 11);
 
@@ -126,10 +126,13 @@ class ApiMaintenanceMgtController extends Controller{
 
         $legal_company = LegalCompany::find($property->id_legal_company);
         if($legal_company){
-
+            
+            Log::info("in legal company");
             $order_no = $legal_company->short_name .'-'. $today->format('ymd').'-'.(intval($last_order_no_part3) +1);
         }
         else{
+            Log::info("in legal company, no legal company");
+
             $order_no =null;
 
         }
@@ -601,12 +604,15 @@ class ApiMaintenanceMgtController extends Controller{
     //api to load residents of location
     public function getLocationResident(Request $request)
     {
+        Log::info("in apiMaintenanceMgtController, call getLocationResident");
         try {
 
             $rooms = [];
             $locations = $request->locations;
 
-            Log::info(print_r($request->all(), true));
+            if( $locations == null )
+                throw new \Exception("Location not sat in the request");
+
             foreach($locations as $location) {
 
                 if(Str::contains($location, 'Room')) {
@@ -630,7 +636,7 @@ class ApiMaintenanceMgtController extends Controller{
             );
 
         } catch (\Exception $e) {
-            Log::error("in ApiContractorMgtController- getLocationResident function list templates "
+            Log::error("in ApiContractorMgtController- getLocationResident s "
                 .$e->getMessage());
 
             return response()->json([ 'message' =>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful'), 400]);

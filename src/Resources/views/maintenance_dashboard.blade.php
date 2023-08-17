@@ -1463,7 +1463,7 @@
             $('#suc_msg_box_assign_maintenance').css('display' , 'none');
             $('#user_agent').find('option').remove();
             $("#business_contractor").prop("selectedIndex", 0);
-            
+
             $("li.select2-selection__choice").remove();
             $(".select2").each(function() { $(this).val([]); });
 
@@ -1777,7 +1777,7 @@
                 $("#ajx_suc_msg_assign_maintenance").html(message);
                 $("#suc_msg_box_assign_maintenance").css('display' , 'block');
                 $("#err_msg_box_assign_maintenance").css('display' , 'none');
-                setTimeout(function() {$('#assignMaintenanceModal').modal('hide');}, 3000);
+                setTimeout(function() {loadMaintenances();$('#assignMaintenanceModal').modal('hide');}, 3000);
 
 
 

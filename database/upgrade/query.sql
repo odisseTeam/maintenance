@@ -1,3 +1,29 @@
+-- all routes
+
+-- route related to contractor update page
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{id_contractor}','post',null,null,1,1);
+
+
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachment/{id_attachment}/download','get',null,null,1,1);
+
+
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
+-- VALUES (null,'contractor.attachment.delete','/maintenance/contractor_document/delete','post',null,null,1,1);
+
+
+
+
 -- -- routes related to create maintenance page
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
 -- VALUES (null,'maintenance.create_page','/maintenance/create/page','get',null,null,1,1);
@@ -43,7 +69,6 @@
 
 
 
--- -- route related to room page (api from package)
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
 -- VALUES (null,'maintenance.api.get_maintenance_list_history','/maintenance/api/maintenancelist_history','post',null,null,1,1);
 
@@ -54,8 +79,6 @@
 -- VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
 
 
-
--- -- route related to room page (api from package)
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
 -- VALUES (null,'maintenance.api.get_maintenance_list_history','/maintenance/api/maintenancelist_history','post',null,null,1,1);
 
@@ -64,23 +87,10 @@
 
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active,id_permission_category)
 -- VALUES (null,'maintenance.attachment.download','/maintenance/attachment/{id_attachment}/download','get',null,null,1,1);
-
-
-
-
-
-
-
-
-
-
-
 
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
 --     VALUES (null,'maintenance.get.resident_reporter','/maintenance/get/resident_reporter','post',null,null,1);
 
--- INSERT INTO saas_client_business (id_saas_client,business_name,saas_client_business_active) VALUES
--- 	 (1,'SDR - Eastbourne',1);
 
 -- INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 -- VALUES ('contractor.show_create_page','/maintenance/contractor','get',1);
@@ -110,6 +120,9 @@
 -- VALUES ('contractor.login_setting.change','/maintenance/contractor/login_settings/change','post',1);
 -- INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 -- VALUES ('contractor.email.get','/maintenance/contractor/email/{id_contractor}','post',1);
+
+
+
 -- INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 -- VALUES ('maintenance.management','/maintenance/management','get',1);
 -- INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
@@ -124,6 +137,7 @@
 -- VALUES ('mgt.business_contractor.user_agent','/maintenance/mgt/business_contractor/user_agents','post',1);
 -- INSERT INTO permission_route_mapping(permission,route,method,mapping_active)
 -- VALUES ('mgt.maintenance.assign_user','/maintenance/mgt/assign_user','post',1);
+
 -- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
 -- VALUES (null,'maintenance.get.detail','/maintenance/detail/{maintenanceId}','get',null,null,1);
 
@@ -200,6 +214,109 @@
 -- VALUES (null,'contractor.tasks.get','/maintenance/contractor/tasks/{id_contractor}','post',null,null,1);
 
 
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{id_contractor}','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.document.delete','/maintenance/contractor_document/delete','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachment/{id_attachment}/download','get',null,null,1);
+
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'contractor.search_skill','/maintenance/contractor_skill/contractors','post',null,null,1);
+
+
+-- -- contractor management in portall
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_management','/maintenance/contractor_management','get',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.mgt_contractors_list','/maintenance/mgt_contractors_list','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.new_contractor_page','/maintenance/new_contractor','get',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.store_contractor','/maintenance/contractor/store','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.attachments','/maintenance/mgt_contractor/attachments/{id_contractor}','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.tasks','/maintenance/mgt_contractor/tasks/{id_contractor}','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.delete','/maintenance/contractor/mgt/delete/{id_contractor}','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.email_info','/maintenance/mgt_contractor/email/{id_contractor}','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.change_login_info','/maintenance/mgt_contractor/login_settings/change','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_mgt.location','/maintenance/mgt_contractor/location/{id_contractor}','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'mgt.contractor.search_skill','/maintenance/mgt/contractor_skill/contractors','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.mgt_contractor.change_location','/maintenance/mgt_contractor/locations/change','post',null,null,1);
+
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.mgt_contractor.skill','/maintenance/mgt_contractor/skill/{id_contractor}','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.mgt_contractor.change_skill','/maintenance/mgt_contractor/skills/change','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.mgt_contractor.store','/maintenance/mgt_contractor/portal/store','post',null,null,1);
+
+
+--preview email content
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor_email.preview','/maintenance/contractor_email/preview','post',null,null,1);
+
+
+
+
+--send email to contractor
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor.get.job_document','/maintenance/contractor/job_document/{id_maintenance_job}','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.create.email_temp','/maintenance/create/email_temp/{id_maintenance_job}','get',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.contractor.send.email','/maintenance/contractor/send/email','post',null,null,1);
+
+-- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
+-- VALUES (null,'maintenance.download.email_content','/maintenance/email_content/download','post',null,null,1);
+
+
+
+
+
+
+
+
+
+
+
 -- Add base data to initialize package
 -- INSERT INTO public.maintenance_job_category_ref
 -- (job_category_code, job_category_name, job_category_icon, maintenance_job_category_ref_active)
@@ -209,8 +326,6 @@
 -- ('STRC', 'Structural', '-', 1),
 -- ('MISC', 'Misc', '-', 1);
 
--- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
--- VALUES (null,'contractor.attachments.get','/maintenance/contractor/attachments/{id_contractor}','post',null,null,1);
 
 
 -- INSERT INTO public.maintenance_job_priority_ref
@@ -229,14 +344,6 @@
 -- ('CLOS', 'Closed', '-', 1);
 
 
--- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
--- VALUES (null,'contractor.attachment.delete','/maintenance/contractor_document/delete','post',null,null,1);
-
--- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
--- VALUES (null,'contractor.attachment.download','/maintenance/contractor_attachment/{id_attachment}/download','get',null,null,1);
-
-
---comment this
 -- INSERT INTO public.maintenance_job_sla_ref
 -- (id_saas_client_business, id_maintenance_job_priority_ref, id_client, maximum_expected_seen_minutes, expected_target_minutes, maintenance_job_sla_ref_active)VALUES
 -- (1, 1, 1, '30', '3000', 1),
@@ -353,87 +460,38 @@
 -- (1, 4, 28, '30', '3000', 1),
 -- (1, 4, null, '30', '3000', 1);
 
+-- INSERT INTO public.maintenance_job_sla_ref
+-- (id_saas_client_business, id_maintenance_job_priority_ref, id_client, maximum_expected_seen_minutes, expected_target_minutes, maintenance_job_sla_ref_active)VALUES
+-- (1, 1, 28, '30', '3000', 1),
+-- (1, 2, 28, '30', '3000', 1),
+-- (1, 3, 28, '30', '3000', 1),
+-- (1, 4, 28, '30', '3000', 1),
+-- (1, 1, 29, '30', '3000', 1),
+-- (1, 2, 29, '30', '3000', 1),
+-- (1, 3, 29, '30', '3000', 1),
+-- (1, 4, 29, '30', '3000', 1),
+-- (1, 1, 30, '30', '3000', 1),
+-- (1, 2, 30, '30', '3000', 1),
+-- (1, 3, 30, '30', '3000', 1),
+-- (1, 4, 30, '30', '3000', 1),
+-- (1, 1, 31, '30', '3000', 1),
+-- (1, 2, 31, '30', '3000', 1),
+-- (1, 3, 31, '30', '3000', 1),
+-- (1, 4, 31, '30', '3000', 1);
+
+
 -- INSERT INTO public.contractor_location_ref (location,contractor_location_ref_active) VALUES
 --	('Woolston',1),
 --	('Eastleigh',1),
 --	('West End',1),
 --	('Hailsham',1);
+-- ('Hampshire', 1),
+-- ('St Leonards On Sea', 1),
+-- ('Eastbourne', 1),
+-- ('Sussex', 1),
+-- ('Shoreham', 1),
+-- ('Worthing', 1);
 
-
--- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
--- VALUES (null,'contractor.attachment.upload','/maintenance/contractor_file/upload','post',null,null,1);
-
-
--- INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
--- VALUES (null,'contractor.search_skill','/maintenance/contractor_skill/contractors','post',null,null,1);
-
-
--- contractor management in portall
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_management','/maintenance/contractor_management','get',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.mgt_contractors_list','/maintenance/mgt_contractors_list','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.new_contractor_page','/maintenance/new_contractor','get',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.store_contractor','/maintenance/contractor/store','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.attachments','/maintenance/mgt_contractor/attachments/{id_contractor}','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.tasks','/maintenance/mgt_contractor/tasks/{id_contractor}','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.delete','/maintenance/contractor/mgt/delete/{id_contractor}','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.email_info','/maintenance/mgt_contractor/email/{id_contractor}','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.change_login_info','/maintenance/mgt_contractor/login_settings/change','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_mgt.location','/maintenance/mgt_contractor/location/{id_contractor}','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'mgt.contractor.search_skill','/maintenance/mgt/contractor_skill/contractors','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.mgt_contractor.change_location','/maintenance/mgt_contractor/locations/change','post',null,null,1);
-
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.mgt_contractor.skill','/maintenance/mgt_contractor/skill/{id_contractor}','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.mgt_contractor.change_skill','/maintenance/mgt_contractor/skills/change','post',null,null,1);
-
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.mgt_contractor.store','/maintenance/mgt_contractor/portal/store','post',null,null,1);
-
-
---preview email content
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor_email.preview','/maintenance/contractor_email/preview','post',null,null,1);
-
-
-
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true,"maintenance.contractor.get.job_document":true,"maintenance.create.email_temp":true,"maintenance.contractor.send.email":true,"maintenance.contractor_email.preview":true,"maintenance.download.email_content":true}' where slug = 'admin';
-
-
-update roles set permissions = '{"portal":true,"report_widgets":true,"profile":true,"users":true,"user.edit":true,"create_user":true,"logout":true,"widgets":true,"widget":true,"widget.save":true,"businesses_link":true,"user_groups":true, "root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true,"maintenance.contractor.get.job_document":true,"maintenance.create.email_temp":true,"maintenance.contractor.send.email":true,"maintenance.contractor_email.preview":true,"maintenance.download.email_content":true}' where slug = 'super_admin';
-
-
-update roles set permissions = '{"portal":true,"profile":true,"logout":true,"root": true, "maintenance.management": true, "maintenance.management.list": true, "maintenance.management.details": true, "mgt.maintenance.delete": true, "mgt.business_contractor": true, "mgt.business_contractor.user_agent": true, "mgt.maintenance.assign_user": true, "mgt.maintenance.create":true,"mgt.maintenance.new.save": true, "maintenance.get.resident_reporter":true,"maintenance.mgt.resident_reporter":true,"mgt.maintenance.start":true,"mgt.maintenance.end":true,"mgt.maintenance.status.get_data":true,"mgt.maintenance.sla.get_data":true,"maintenance.contractors.get":true,"maintenance.contractor_management":true,"maintenance.mgt_contractors_list":true,"maintenance.new_contractor_page":true,"maintenance.store_contractor":true,"maintenance.contractor_mgt.attachments":true,"maintenance.contractor_mgt.tasks":true,"maintenance.contractor_mgt.delete":true,"maintenance.contractor_mgt.email_info":true,"maintenance.contractor_mgt.change_login_info":true,"maintenance.contractor_mgt.location":true,"maintenance.mgt_contractor.change_location":true,"maintenance.mgt_contractor.skill":true,"maintenance.mgt_contractor.change_skill":true,"maintenance.mgt_contractor.store":true,"mgt.contractor.search_skill":true,"maintenance.contractor_management":true,"maintenance.contractor.get.job_document":true,"maintenance.create.email_temp":true,"maintenance.contractor.send.email":true,"maintenance.contractor_email.preview":true,"maintenance.download.email_content":true}' where slug = 'maintenance';
 
 
 
@@ -460,29 +518,36 @@ update roles set permissions = '{"portal":true,"profile":true,"logout":true,"roo
 -- ('Carpet Cleaning Services', 1),
 -- ('Drainage Services', 1);
 
--- -- comment this
--- INSERT INTO public.contractor_location_ref
--- (location, contractor_location_ref_active)VALUES
--- ('Hampshire', 1),
--- ('St Leonards On Sea', 1),
--- ('Eastbourne', 1),
--- ('Sussex', 1),
--- ('Shoreham', 1),
--- ('Worthing', 1);
 
 
---send email to contractor
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor.get.job_document','/maintenance/contractor/job_document/{id_maintenance_job}','post',null,null,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.create.email_temp','/maintenance/create/email_temp/{id_maintenance_job}','get',null,null,1);
+-- insert into system_variable_category_ref(id_system_variable_category_ref , variable_category_name , friendly_name , category_visible , system_variable_category_ref_active) values(8 , 'maintenance' ,'MAINTENANCE',1,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.contractor.send.email','/maintenance/contractor/send/email','post',null,null,1);
 
-INSERT INTO permission_route_mapping(id_saas_module_list,permission,route,method,created_at,updated_at,mapping_active)
-VALUES (null,'maintenance.download.email_content','/maintenance/email_content/download','post',null,null,1);
+
+-- insert into system_variable_ref(id_system_variable_category_ref , variable_name , friendly_name , variable_code , variable_description , code_visible , system_variable_ref_active) values
+-- (8 , 'MAINTENANCE_TITLE' ,'MAINTENANCE_TITLE' , '%%MAINTENANCE_TITLE%%' ,'',1,1),
+-- (8 , 'MAINTENANCE_DETAIL' ,'MAINTENANCE_DETAIL' , '%%MAINTENANCE_DETAIL%%' ,'',1,1),
+-- (8 , 'MAINTENANCE_CATEGORY' ,'MAINTENANCE_CATEGORY' , '%%MAINTENANCE_CATEGORY%%' ,'',1,1),
+-- (8 , 'MAINTENANCE_LOCATION' ,'MAINTENANCE_LOCATION' , '%%MAINTENANCE_LOCATION%%' ,'',1,1),
+-- (8 , 'MAINTENANCE_PRIORITY' ,'MAINTENANCE_PRIORITY' , '%%MAINTENANCE_PRIORITY%%' ,'',1,1),
+-- (8 , 'MAINTENANCE_STATUS' ,'MAINTENANCE_STATUS' , '%%MAINTENANCE_STATUS%%' ,'',1,1),
+-- (8 , 'RESIDENT_REPORTER' ,'RESIDENT_REPORTER' , '%%RESIDENT_REPORTER%%' ,'',1,1),
+-- (8 , 'JOB_START_DATE_TIME' ,'JOB_START_DATE_TIME' , '%%JOB_START_DATE_TIME%%' ,'',1,1),
+-- (8 , 'JOB_FINISH_DATE_TIME' ,'JOB_FINISH_DATE_TIME' , '%%JOB_FINISH_DATE_TIME%%' ,'',1,1),
+-- (8 , 'LEGAL_COMPANY_LOGO' ,'LEGAL_COMPANY_LOGO' , '%%LEGAL_COMPANY_LOGO%%' ,'',1,1),
+-- (8 , 'LEGAL_COMPANY_NAME' ,'LEGAL_COMPANY_NAME' , '%%LEGAL_COMPANY_NAME%%' ,'',1,1),
+-- (8 , 'LEGAL_COMPANY_SHORT_NAME' ,'LEGAL_COMPANY_SHORT_NAME' , '%%LEGAL_COMPANY_SHORT_NAME%%' ,'',1,1),
+-- (8 , 'ORDER_NUMBER' ,'ORDER_NUMBER' , '%%ORDER_NUMBER%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_NAME' ,'CONTRACTOR_NAME' , '%%CONTRACTOR_NAME%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_SHORT_NAME' ,'CONTRACTOR_SHORT_NAME' , '%%CONTRACTOR_SHORT_NAME%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_VAT_NUMBER' ,'CONTRACTOR_VAT_NUMBER' , '%%CONTRACTOR_VAT_NUMBER%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_TEL_NUMBER1' ,'CONTRACTOR_TEL_NUMBER1' , '%%CONTRACTOR_TEL_NUMBER1%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_TEL_NUMBER2' ,'CONTRACTOR_TEL_NUMBER2' , '%%CONTRACTOR_TEL_NUMBER2%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_ADDRESS' ,'CONTRACTOR_ADDRESS' , '%%CONTRACTOR_ADDRESS%%' ,'',1,1),
+-- (8 , 'COMMENCEMENT_DATE' ,'COMMENCEMENT_DATE' , '%%COMMENCEMENT_DATE%%' ,'',1,1),
+-- (8 , 'COMPLETE_DATE' ,'COMPLETE_DATE' , '%%COMPLETE_DATE%%' ,'',1,1),
+-- (8 , 'CONTRACTOR_NOTE' ,'CONTRACTOR_NOTE' , '%%CONTRACTOR_NOTE%%' ,'',1,1);
 
 
 
@@ -490,44 +555,20 @@ VALUES (null,'maintenance.download.email_content','/maintenance/email_content/do
 
 
 -- data related to maintenance template
-insert into template_category(id_template_category,template_category_name , description , is_visible_in_booking , template_category_active) values(9,'maintenance' ,'All templates relating to maintenances',0,1);
+-- insert into template_category(id_template_category,template_category_name , description , is_visible_in_booking , template_category_active)
+-- values(9,'maintenance' ,'All templates relating to maintenances',0,1);
 
 
-insert into template_sub_category(id_template_sub_category,id_template_category , template_sub_category_name , description , is_visible_in_booking,template_sub_category_active) values(3,9,'maintenance sent to contractor' ,'maintenance sent to contractor',0,1);
-
-insert into system_variable_category_ref(id_system_variable_category_ref , variable_category_name , friendly_name , category_visible , system_variable_category_ref_active) values(8 , 'maintenance' ,'MAINTENANCE',1,1);
-
-
-
-insert into system_variable_ref(id_system_variable_category_ref , variable_name , friendly_name , variable_code , variable_description , code_visible , system_variable_ref_active) values
-(8 , 'MAINTENANCE_TITLE' ,'MAINTENANCE_TITLE' , '%%MAINTENANCE_TITLE%%' ,'',1,1),
-(8 , 'MAINTENANCE_DETAIL' ,'MAINTENANCE_DETAIL' , '%%MAINTENANCE_DETAIL%%' ,'',1,1),
-(8 , 'MAINTENANCE_CATEGORY' ,'MAINTENANCE_CATEGORY' , '%%MAINTENANCE_CATEGORY%%' ,'',1,1),
-(8 , 'MAINTENANCE_LOCATION' ,'MAINTENANCE_LOCATION' , '%%MAINTENANCE_LOCATION%%' ,'',1,1),
-(8 , 'MAINTENANCE_PRIORITY' ,'MAINTENANCE_PRIORITY' , '%%MAINTENANCE_PRIORITY%%' ,'',1,1),
-(8 , 'MAINTENANCE_STATUS' ,'MAINTENANCE_STATUS' , '%%MAINTENANCE_STATUS%%' ,'',1,1),
-(8 , 'RESIDENT_REPORTER' ,'RESIDENT_REPORTER' , '%%RESIDENT_REPORTER%%' ,'',1,1),
-(8 , 'JOB_START_DATE_TIME' ,'JOB_START_DATE_TIME' , '%%JOB_START_DATE_TIME%%' ,'',1,1),
-(8 , 'JOB_FINISH_DATE_TIME' ,'JOB_FINISH_DATE_TIME' , '%%JOB_FINISH_DATE_TIME%%' ,'',1,1),
-(8 , 'LEGAL_COMPANY_LOGO' ,'LEGAL_COMPANY_LOGO' , '%%LEGAL_COMPANY_LOGO%%' ,'',1,1),
-(8 , 'LEGAL_COMPANY_NAME' ,'LEGAL_COMPANY_NAME' , '%%LEGAL_COMPANY_NAME%%' ,'',1,1),
-(8 , 'LEGAL_COMPANY_SHORT_NAME' ,'LEGAL_COMPANY_SHORT_NAME' , '%%LEGAL_COMPANY_SHORT_NAME%%' ,'',1,1),
-(8 , 'ORDER_NUMBER' ,'ORDER_NUMBER' , '%%ORDER_NUMBER%%' ,'',1,1),
-(8 , 'CONTRACTOR_NAME' ,'CONTRACTOR_NAME' , '%%CONTRACTOR_NAME%%' ,'',1,1),
-(8 , 'CONTRACTOR_SHORT_NAME' ,'CONTRACTOR_SHORT_NAME' , '%%CONTRACTOR_SHORT_NAME%%' ,'',1,1),
-(8 , 'CONTRACTOR_VAT_NUMBER' ,'CONTRACTOR_VAT_NUMBER' , '%%CONTRACTOR_VAT_NUMBER%%' ,'',1,1),
-(8 , 'CONTRACTOR_TEL_NUMBER1' ,'CONTRACTOR_TEL_NUMBER1' , '%%CONTRACTOR_TEL_NUMBER1%%' ,'',1,1),
-(8 , 'CONTRACTOR_TEL_NUMBER2' ,'CONTRACTOR_TEL_NUMBER2' , '%%CONTRACTOR_TEL_NUMBER2%%' ,'',1,1),
-(8 , 'CONTRACTOR_ADDRESS' ,'CONTRACTOR_ADDRESS' , '%%CONTRACTOR_ADDRESS%%' ,'',1,1),
-(8 , 'COMMENCEMENT_DATE' ,'COMMENCEMENT_DATE' , '%%COMMENCEMENT_DATE%%' ,'',1,1),
-(8 , 'COMPLETE_DATE' ,'COMPLETE_DATE' , '%%COMPLETE_DATE%%' ,'',1,1),
-(8 , 'CONTRACTOR_NOTE' ,'CONTRACTOR_NOTE' , '%%CONTRACTOR_NOTE%%' ,'',1,1);
+-- insert into template_sub_category(id_template_sub_category,id_template_category , template_sub_category_name , description , is_visible_in_booking,template_sub_category_active)
+-- values(3,9,'maintenance sent to contractor' ,'maintenance sent to contractor',0,1);
 
 
 
-update template set '<h3><b>Work Instruction</b></h3><p><b>Works issued on behalf of %%LEGAL_COMPANY_NAME%%</b></p><p>%%LEGAL_COMPANY_LOGO%%</p><br><br><br><p>Order Number: %%ORDER_NUMBER%%</p><p>Date: %%DATE%%</p>
-<p>Contact: Emma Weston</p><p>Direct Dial: 07741300764</p><p>Email:  emma.weston@sdrgroup.co.uk</p><br><div style="margin:10px auto;text-align: center;border-width:3px; border-style:solid; border-color: #0f0f0f ;"><span><b>Please address invoice to:</b></span><br> <span>In Chorus Ltd, 48 Malling Street, Lewes, BN7 2RH </span><br><span><b>Quote order no:</b> xxxx and email to: emma.weston@sdrgroup.co.uk  </span></div><br><br><p>Site Address:</p><p>Commencement: %%COMMENCEMENT_DATE%%</p><p>Oaklea</p><p>29 Oak Road</p><p>Complete By: %%COMPLETE_DATE%%</p><p>Woolston</p><p>Southampton</p><p>SO19 9BQ</p><br><br><p><b>%%MAINTENANCE_TITLE%%</b></p><p><b>%%MAINTENANCE_DETAIL%%</b></p><p>Please can you attend the above-mentioned site and carry out and EICR. Attached for reference is the previous report. </p><p>Known Hazards and Health and Safety: </p><p>The contractor should ensure that all works relating to this works order are carried out in accordance with Health and Safety Policies and, where applicable the provisions of the Construction and Design Management Regulations 2015. Asbestos surveys are kept onsite, and a digital copy can be sent upon request. Should you have any concerns regarding this instruction, please raise them with us before commencing works.</p><br><br><br>'
-where id_template_category =
+
+
+-- update template set template_message_body = '<h3><b>Work Instruction</b></h3><p><b>Works issued on behalf of %%LEGAL_COMPANY_NAME%%</b></p><p>%%LEGAL_COMPANY_LOGO%%</p><br><br><br><p>Order Number: %%ORDER_NUMBER%%</p><p>Date: %%DATE%%</p>
+-- <p>Contact: Emma Weston</p><p>Direct Dial: 07741300764</p><p>Email:  emma.weston@sdrgroup.co.uk</p><br><div style="margin:10px auto;text-align: center;border-width:3px; border-style:solid; border-color: #0f0f0f ;"><span><b>Please address invoice to:</b></span><br> <span>In Chorus Ltd, 48 Malling Street, Lewes, BN7 2RH </span><br><span><b>Quote order no:</b> xxxx and email to: emma.weston@sdrgroup.co.uk  </span></div><br><br><p>Site Address:</p><p>Commencement: %%COMMENCEMENT_DATE%%</p><p>Oaklea</p><p>29 Oak Road</p><p>Complete By: %%COMPLETE_DATE%%</p><p>Woolston</p><p>Southampton</p><p>SO19 9BQ</p><br><br><p><b>%%MAINTENANCE_TITLE%%</b></p><p><b>%%MAINTENANCE_DETAIL%%</b></p><p>Please can you attend the above-mentioned site and carry out and EICR. Attached for reference is the previous report. </p><p>Known Hazards and Health and Safety: </p><p>The contractor should ensure that all works relating to this works order are carried out in accordance with Health and Safety Policies and, where applicable the provisions of the Construction and Design Management Regulations 2015. Asbestos surveys are kept onsite, and a digital copy can be sent upon request. Should you have any concerns regarding this instruction, please raise them with us before commencing works.</p><br><br><br>'
+-- where id_template_category =
 
 
 
