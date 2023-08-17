@@ -860,22 +860,6 @@ class MaintenanceManagementController extends Controller
 
         }
 
-        if ($request->has('locations') ) {
-            // get Illuminate\Http\UploadedFile instance
-            $locations = $request->get('locations');
-
-            $index = 1;
-            foreach($locations as $location) {
-                // post request with attachment
-                $data[] = [
-                    'name' => 'locations[]',
-                    'contents' => $location,
-                ] ;
-            }
-
-        }
-
-
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
