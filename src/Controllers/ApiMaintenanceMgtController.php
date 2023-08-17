@@ -43,9 +43,6 @@ class ApiMaintenanceMgtController extends Controller{
     {
 
 
-        $user = User::find($request->user);;
-
-
         $validator = $this->validateMaintenance($request);
 
         if( null != $validator) {
@@ -143,7 +140,7 @@ class ApiMaintenanceMgtController extends Controller{
     private function createMaintenance( $request )
     {
 
-        $user = User::find($request->user);
+        $user = User::where('email','=',$request->user)->first();
 
 
         try {

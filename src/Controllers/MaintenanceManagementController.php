@@ -860,11 +860,27 @@ class MaintenanceManagementController extends Controller
 
         }
 
+        if ($request->has('locations') ) {
+            // add locations as array
+            $locations = $request->get('locations');
+
+            $index = 1;
+            foreach($locations as $location) {
+                $data[] = [
+                    'name' => 'locations[]',
+                    'contents' => $location,
+                ] ;
+            }
+
+        }
+
+
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
         unset($datum['locations']);
-        $datum['user'] = $user->id;
+        unset($datum['contractor_skill']);
+        $datum['user'] = $user->email;
 
         foreach( $datum as $key=>$value){
             $data[] = [
