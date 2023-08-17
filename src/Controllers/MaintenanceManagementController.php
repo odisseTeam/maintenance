@@ -876,36 +876,6 @@ class MaintenanceManagementController extends Controller
         }
 
 
-        if ($request->has('user_agent') ) {
-
-            $data[] = [
-                'name' => 'user_agent',
-                'contents' => $request->user_agent,
-            ] ;
-
-
-        }
-        if ($request->has('commencement_date') ) {
-
-            $data[] = [
-                'name' => 'commencement_date',
-                'contents' => $request->commencement_date,
-            ] ;
-
-
-        }
-
-        if ($request->has('complete_date') ) {
-
-            $data[] = [
-                'name' => 'complete_date',
-                'contents' => $request->complete_date,
-            ] ;
-
-
-        }
-
-
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
@@ -924,7 +894,6 @@ class MaintenanceManagementController extends Controller
         $options = [
             'multipart' => $data,
         ];
-        Log::info("data is " . print_r( $options, true ));
 
         try {
             $response = $client->post($url, $options);
