@@ -50,7 +50,7 @@ class MaintenanceManagementController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in Maintenance package MaintenanceDshboardController- showDashboardPage function " . " try to go to maintenance dashboard page  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In Maintenance package MaintenanceManagementController- showManagementPage function " . " try to go to maintenance management page  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
         $businesses = config('maintenances.businesses_name');
@@ -114,6 +114,7 @@ class MaintenanceManagementController extends Controller
     public Function ajaxLoadMaintenances(Request $request){
 
 
+        Log::info("In Maintenance package MaintenanceManagementController- ajaxLoadMaintenances function ");
 
         $user = Sentinel::getUser();
 
@@ -246,7 +247,7 @@ class MaintenanceManagementController extends Controller
         $user = Sentinel::getUser();
         $staff_user = User::find($user->id);
 
-        Log::info("In maintenance package, MaintenanceManagementController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxLoadBusinessContractors function " . " try to load business and contractors  ------- by user " . $user->first_name . " " . $user->last_name);
 
         if( $request->has('business') and $request->business != null ){
 
@@ -348,7 +349,9 @@ class MaintenanceManagementController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info("In maintenance package, MaintenanceManagementController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+        //dd($request->all());
+
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxLoadMgtUserAgents function " . " try to load users and agents  ------- by user " . $user->first_name . " " . $user->last_name);
 
         if( $request->has('business') and $request->business != null ){
 
@@ -409,36 +412,36 @@ class MaintenanceManagementController extends Controller
 
 
     public Function ajaxMgtAssignMaintenanceToUser(Request $request){
-
-
-
         $user = Sentinel::getUser();
+
+
+        $validator = Validator::make($request->all(), [
+
+            'maintenance' => 'required|numeric',
+            'user' => 'required|numeric',
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtAssignMaintenanceToUser function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+
+            return response()->json(
+                [
+                'code' => 'failure',
+                'message' => $validator->errors(),
+                ]);
+
+        }
+
+
+
         $staff_user = User::find($user->id);
 
 
-        Log::info("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function " . " try to assign maintenance to user  ------- by user " . $user->first_name . " " . $user->last_name);
-
-        // $validator = Validator::make($request->all(), [
-
-        //     'business' => 'required|numeric',
-        //     'maintenance' => 'required|numeric',
-        //     'user' => 'required|numeric',
-
-        // ]);
-
-        // if ($validator->fails()) {
-
-        //     Log::error("In maintenance package, MaintenanceDashboardController- ajaxMgtAssignMaintenanceToUser function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
-
-
-
-        //     return response()->json(
-        //         [
-        //         'code' => 'failure',
-        //         'message' => $validator->errors(),
-        //         ]);
-
-        // }
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxMgtAssignMaintenanceToUser function " . " try to assign maintenance to user  ------- by user " . $user->first_name . " " . $user->last_name);
 
         try{
 
@@ -483,7 +486,7 @@ class MaintenanceManagementController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtAssignMaintenanceToUser function " . $e->getMessage());
             DB::rollback();
 
 
@@ -491,7 +494,7 @@ class MaintenanceManagementController extends Controller
                 [
                   'code' => 'failure',
                   'result'=>[],
-                  'message' => $e->getMessage(),//trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
+                  'message' => trans('maintenance::dashboard.assign_maintenance_to_staff_was_not_successful'),
                 ]);
 
 
@@ -543,13 +546,24 @@ class MaintenanceManagementController extends Controller
          $businesses = config('maintenances.businesses_name');
 
 
+
+         $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
+         $contactors = [];
+         $users = null;
+         $agents = null;
+
+
         //dd($maintenance_category, $locations, $priorities);
         return view(
             'maintenance::mgt_create_maintenance',
             [
                         'maintenance_categories' => $maintenance_category,
                         'saas_client_businesses' => $saas_client_businesses,
+                        'skills' => $skills,
                         'businesses' => $businesses,
+                        'contactors' => $contactors,
+                        'users' => $users,
+                        'agents' => $agents,
                         'priorities' => $priorities,
                         'locations' => $locations,
                         'jobs' => $jobs,
@@ -627,57 +641,7 @@ class MaintenanceManagementController extends Controller
         $user = Sentinel::getUser();
         $staff_user = User::find($user->id);
 
-        //dd($this->getDateTimeFormat('date_time_format_javascript'));
-
-        Log::info("In maintenance package, MaintenanceManagementController- ajaxEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
-
-        // $validator = Validator::make($request->all(), [
-
-        //     'end_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_javascript'),
-
-        // ]);
-
-        // if ($validator->fails()) {
-
-        //     Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
-
-        //     return response()->json(
-        //         [
-        //         'code' => 'failure',
-        //         'message' => $validator->errors(),
-        //         ]);
-
-        // }
-
-        // $maintenance = MaintenanceJob::find($id_maintenance);
-
-        // if(!$maintenance->job_start_date_time){
-
-
-        //     Log::error("In maintenance package, MaintenanceDashboardController- ajaxEndMaintenance function ".": ". 'maintenance start date must have start date for this action! ' ." by user ".$user->first_name . " " . $user->last_name);
-
-
-
-        //     return response()->json(
-        //         [
-        //         'code' => 'failure',
-        //         'message' => trans('maintenance::dashboard.maintenance_must_have_start_date_for_this_action'),
-        //         ]);
-
-
-        // }
-
-        // if(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format'), $maintenance->job_start_date_time)->gt(Carbon::createFromFormat($this->getDateTimeFormat('date_time_format_javascript'), $request->end_date_time))){
-
-        //     Log::error("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function ".": ". 'maintenance start date is after maintenance end date! ' ." by user ".$user->first_name . " " . $user->last_name);
-
-        //     return response()->json(
-        //         [
-        //         'code' => 'failure',
-        //         'message' => trans('maintenance::dashboard.start_date_is_after_end_date'),
-        //         ]);
-
-        // }
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxMgtEndMaintenance function " . " try to end specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
         if( $request->has('business') and $request->business != null ){
 
@@ -716,8 +680,6 @@ class MaintenanceManagementController extends Controller
 
     }
     /////////////////////////////////////////////////////////////////////////////
-
-
 
     public Function ajaxGetStatusChartData(Request $request){
 
@@ -808,6 +770,8 @@ class MaintenanceManagementController extends Controller
 
     public Function ajaxGetSlaChartData(Request $request){
 
+        Log::info("In Maintenance package -  MaintenanceManagementController- ajaxGetSlaChartData function ");
+
 
 
         $user = Sentinel::getUser();
@@ -866,14 +830,13 @@ class MaintenanceManagementController extends Controller
 
         $user = Sentinel::getUser();
 
-
-        // dd("***");
         $business_index = 0;
         $businesses = config('maintenances.businesses_name');
 
         $url = $businesses[0]['maintenance_api_url'].'/api/maintenance/save/new';
 
 
+        Log::info("In Maintenance package - MaintenanceManagementController createMaintenance function - In the controller, url is " . $url);
 
         $data = [];
         if ($request->hasFile('files') ) {
@@ -913,6 +876,36 @@ class MaintenanceManagementController extends Controller
         }
 
 
+        if ($request->has('user_agent') ) {
+
+            $data[] = [
+                'name' => 'user_agent',
+                'contents' => $request->user_agent,
+            ] ;
+
+
+        }
+        if ($request->has('commencement_date') ) {
+
+            $data[] = [
+                'name' => 'commencement_date',
+                'contents' => $request->commencement_date,
+            ] ;
+
+
+        }
+
+        if ($request->has('complete_date') ) {
+
+            $data[] = [
+                'name' => 'complete_date',
+                'contents' => $request->complete_date,
+            ] ;
+
+
+        }
+
+
         $datum =  $request->all() ;
         unset($datum['files']);
         unset($datum['_token']);
@@ -931,15 +924,21 @@ class MaintenanceManagementController extends Controller
         $options = [
             'multipart' => $data,
         ];
+        Log::info("data is " . print_r( $options, true ));
 
         try {
             $response = $client->post($url, $options);
+            $responseObj = json_decode($response->getBody());
+
+            return redirect('/maintenance/mgt/create')->with([$responseObj->status => $responseObj->message]);
+
 
         }
         catch(\Exception $e){
-        }
+            Log::info("Exception on call api ". $e->getMessage() . $e->getLine());
+            return redirect('/maintenance/mgt/create')->with(['error' => $e->getMessage()]);
 
-        return redirect('/maintenance/mgt/create')->with(['success' => 'maintenance created']);
+        }
 
     }
 
@@ -952,9 +951,10 @@ class MaintenanceManagementController extends Controller
         $user = Sentinel::getUser();
         $staff_user = User::find($user->id);
 
-        Log::info("In maintenance package, MaintenanceManagementController- ajaxDeleteMaintenance function " . " try to delete specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxGetContractorsWithSkill function " . " try to get contractor with skill ------- by user " . $user->first_name . " " . $user->last_name);
 
         if( $request->has('business') and $request->business != null ){
+
 
 
             //get maintenances of specific business
@@ -971,7 +971,8 @@ class MaintenanceManagementController extends Controller
                         'maintenance'=>$request->maintenance,
                         'business'=>$request->business,
                         'contractor_skill'=>$request->contractor_skill,
-                        'staff_user'=>$staff_user->email
+                        'staff_user'=>$staff_user->email,
+                        'place'=>$request->place
                     ];
 
 

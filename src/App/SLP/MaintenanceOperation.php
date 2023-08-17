@@ -482,7 +482,7 @@ trait MaintenanceOperation
                 else{
 
                     return  [
-                        'code' => ActionStatusConstants::FAILURE ,
+                        'code' => ActionStatusConstants::SUCCESS ,
                         'message'=>trans('maintenance::dashboard.maintenance_assigned_to_this_user_already')
                         ] ;
 

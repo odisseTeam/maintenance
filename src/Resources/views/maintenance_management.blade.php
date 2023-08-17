@@ -925,11 +925,9 @@
 
             // var spinHandle = loadingOverlay.activate();
 
-
             let maintenance_id = $('#assigned_maintenance').val();
             let business = $('#assigned_business').val();
             let contractor_skill = $('#contractor_skill').val();
-
 
             send('/maintenance/mgt/contractor_skill/contractors', {
                 business: business,
@@ -976,7 +974,7 @@
 
                     Object.keys(contractor_list).forEach(function(key) {
 
-                        console.log(key);
+                        // console.log(key);
                         var item_name = contractor_list[key]['name'] ;
                         var item_id = 'C'+contractor_list[key]['id_contractor'] ;
                         $('#business_contractor').append(new Option(item_name ,item_id));
@@ -1232,12 +1230,12 @@
 
                     if(job_finished_date_time == '-'){
 
-                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business +','+id_maintenance_job+')">'+
                         '<i class="fa fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
                     else{
-                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business +','+id_maintenance_job+')">'+
                         '<i class="fa fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
@@ -1459,7 +1457,7 @@
 
                     Object.keys(contractor_list).forEach(function(key) {
 
-                        console.log(key);
+                        // console.log(key);
                         var item_name = contractor_list[key]['name'] ;
                         var item_id = 'C'+contractor_list[key]['id_contractor'] ;
                         $('#business_contractor').append(new Option(item_name ,item_id));
@@ -1596,7 +1594,7 @@
                 $("#contractor_short_name").val('');
 
                 $('#user_agent').find('option').remove();
-                $('#user_agent').append(new Option('Select User/Agent' ,''));
+                // $('#user_agent').append(new Option('Select User/Agent' ,''));
 
             }
 
@@ -1739,6 +1737,10 @@
         function showStartMaintenanceModal(id_business , id_maintenance){
 
 
+            $('#user_agent_start').find('option').remove();
+
+
+
             send( '/maintenance/mgt/business_contractors',  {
                 business :id_business,
                 maintenance :id_maintenance,
@@ -1770,7 +1772,7 @@
             else{
 
                 if(selected_business){
-                    console.log(selected_business);
+                    // console.log(selected_business);
 
 
                     var item_name = selected_business.business_name;
@@ -1907,8 +1909,10 @@
         function endMaintenance(){
             // var spinHandle = loadingOverlay.activate();
 
+
             $("#end_maintenance_btn").attr('disabled','disabled');
             $('#err_msg_box_end').css('display' , 'none');
+
 
 
 
@@ -1916,6 +1920,7 @@
             let ended_business = $( '#ended_business' ).val();
 
             let end_date_time = $( '#end_datetimepicker' ).val();
+
 
             send( '/maintenance/mgt/end/'+ended_maintenance,  {
                 business:ended_business,

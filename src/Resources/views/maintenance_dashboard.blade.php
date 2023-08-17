@@ -1461,8 +1461,11 @@
             $('#assigned_maintenance').val(id_maintenance);
             $('#err_msg_box_assign_maintenance').css('display' , 'none');
             $('#suc_msg_box_assign_maintenance').css('display' , 'none');
-            $('#user_agent').find('option').not(':first').remove();
+            $('#user_agent').find('option').remove();
             $("#business_contractor").prop("selectedIndex", 0);
+            
+            $("li.select2-selection__choice").remove();
+            $(".select2").each(function() { $(this).val([]); });
 
 
             $("#contractor_note").html('');

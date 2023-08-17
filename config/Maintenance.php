@@ -38,6 +38,7 @@ return[
 
      ],
 
+     'maintenance_email_path'=>base_path('../temp/mpdf'),
 
 
 ];

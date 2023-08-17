@@ -50,28 +50,28 @@ class ApiContractorMgtController extends Controller{
     public function getContractorListDetail(Request $request)
     {
 
-       
+
 
         try {
 
 
-            Log::info("Call API :: ApiContractorMgtController - getContractorListDetail function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorListDetail function ");
 
             Log::info(print_r($request->all(), true));
 
-           
+
         $contractors = Contractor::where('contractor_active' , 1)->
         leftjoin('contractor_location' , 'contractor_location.id_contractor' , 'contractor.id_contractor')->
         leftjoin('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->
         leftjoin('contractor_skill' , 'contractor_skill.id_contractor' , 'contractor.id_contractor')->
         leftjoin('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref');
-       
 
 
-      
+
+
         if( $request->has('business') and $request->business != null )
         $contractors = $contractors->whereIn('contractor.id_saas_client_business', $request->business);
-       
+
 
         if( $request->has('skills') and $request->skills != null )
         $contractors = $contractors->whereIn('contractor_skill_ref.id_contractor_skill_ref', $request->skills);
@@ -94,7 +94,7 @@ class ApiContractorMgtController extends Controller{
 
 
         foreach( $contractors as $contractor ){
-            
+
             $contractor->c_url = env('APP_URL').'/maintenance/contractor/'. $contractor->first_contractor;
         }
 
@@ -107,7 +107,7 @@ class ApiContractorMgtController extends Controller{
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorListDetail function " . $e->getMessage());
             $message = trans('maintenance::contractor.unsuccessful_getContractors');
             $status = APIStatusConstants::BAD_REQUEST;
             $contractors = null;
@@ -124,13 +124,13 @@ class ApiContractorMgtController extends Controller{
         );
     }
 
-    
+
     public function saveNewContractor( Request $request)
     {
 
         $user = User::find($request->user);;
-       
-        Log::info("Call API :: ApiContractorMgtController - saveNewContractor function");
+
+        Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function ");
 
 
         $validator = $this->validateContractor($request);
@@ -143,7 +143,7 @@ class ApiContractorMgtController extends Controller{
 
 
 
-        Log::info($result['status']);
+        Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function - result=" .$result['status']);
         if( $result['status'] == 'success')
 
             return response()->json($result, 200);
@@ -157,7 +157,7 @@ class ApiContractorMgtController extends Controller{
     private function validateContractor( Request $request)
     {
 
-        Log::info("private function ApiContractorMgtController - validateContractor function");
+        Log::info("In maintenance package, ApiContractorMgtController- validateContractor function ");
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
@@ -174,10 +174,10 @@ class ApiContractorMgtController extends Controller{
           ]);
         if ($validator->fails()) {
 
-            Log::error("in maintenance validatior saveNewMaintenence function ". $validator->errors());
+            Log::error("In maintenance package, ApiContractorMgtController- validateContractor function ". $validator->errors());
 
 
-        
+
 
             return $validator;
         }
@@ -190,7 +190,7 @@ class ApiContractorMgtController extends Controller{
         $user = User::find($request->user);;
         $id_saas_client_business = $user->id_saas_client_business;
 
-        Log::info("private function ApiContractorMgtController - createContractor function");
+        Log::info("In maintenance package, ApiContractorMgtController- createContractor function ");
 
 
         try {
@@ -253,7 +253,7 @@ class ApiContractorMgtController extends Controller{
 
             $this->uploadFile($files,$object,$file_description,$contractor);
 
-          
+
 
 
            DB::commit();
@@ -266,8 +266,7 @@ class ApiContractorMgtController extends Controller{
 
         } catch (\Exception $e) {
 
-            Log::error(" in ApiContractorMgtController - saveNewContractor function : save a new contractor  was not successful");
-            Log::error($e->getMessage(). $e->getLine());
+            Log::error("In maintenance package, ApiContractorMgtController- createContractor function " . $e->getMessage(). $e->getLine());
 
             DB::rollBack();
 
@@ -289,8 +288,7 @@ class ApiContractorMgtController extends Controller{
 
     private function uploadFile($files,$object,$file_description,$object_model){
 
-        // dd($files);
-        Log::info("private function ApiContractorMgtController - uploadFile function");
+        Log::info("In maintenance package, ApiContractorMgtController- uploadFile function ");
 
 
         try {
@@ -308,31 +306,28 @@ class ApiContractorMgtController extends Controller{
                 // File extension
                 $extension = $file->getClientOriginalExtension();
 
-
-            
-
                 // if($object instanceof Contractor){
 
-                        $contractor_file_path = config('maintenances.contractor_file_path');
+                $contractor_file_path = config('maintenances.contractor_file_path');
 
-                            $path = $contractor_file_path . 'uploaded_files/' ;
-                            if (!\File::exists($path)) {
-                                \File::makeDirectory($path, 0755, true);
-                            }
+                    $path = $contractor_file_path . 'uploaded_files/' ;
+                    if (!\File::exists($path)) {
+                        \File::makeDirectory($path, 0755, true);
+                    }
 
-                            $file->move($path, $fileName);
+                    $file->move($path, $fileName);
 
 
-                        //save documents of contractor 
-                        $contractor_document = new ContractorDocument();
-                        $contractor_document->id_contractor =  $object_model->id_contractor;
-                        $contractor_document->document_name = $fileName;
-                        $contractor_document->document_address = $path;
-                        $contractor_document->document_extention = $extension;
-                        $contractor_document->description = $file_description;
-        
-        
-                        $contractor_document->save();
+                //save documents of contractor
+                $contractor_document = new ContractorDocument();
+                $contractor_document->id_contractor =  $object_model->id_contractor;
+                $contractor_document->document_name = $fileName;
+                $contractor_document->document_address = $path;
+                $contractor_document->document_extention = $extension;
+                $contractor_document->description = $file_description;
+
+
+                $contractor_document->save();
 
 
                 // }else if($object instanceof MaintenanceJob){
@@ -367,14 +362,13 @@ class ApiContractorMgtController extends Controller{
             $a=2;
        } catch (\Exception $e) {
 
-        Log::error(" in ApiContractorMgtController - uploadFile function : upload a new contractor document was not successful");
-        Log::error($e->getMessage(). $e->getLine());
+        Log::error("In maintenance package, ApiContractorMgtController- uploadFile function ". $e->getMessage(). $e->getLine());
 
         DB::rollBack();
 
 
         $status = 'error';
-        $message = trans('maintenance:contractor.contractor_not_created');
+        $message = trans('maintenance::contractor.contractor_not_created');
 
 
        }
@@ -386,14 +380,14 @@ class ApiContractorMgtController extends Controller{
 
         try {
 
-            Log::info("Call API :: ApiContractorMgtController - deleteContractor function");
+            Log::info("In maintenance package, ApiContractorMgtController- deleteContractor function ");
 
 
-        $contractor = Contractor::find($request->deleted_contractor);
+            $contractor = Contractor::find($request->deleted_contractor);
 
-        $contractor->update([
-            'contractor_active' => 0,
-        ]);
+            $contractor->update([
+                'contractor_active' => 0,
+            ]);
 
 
             $status = APIStatusConstants::OK;
@@ -402,7 +396,7 @@ class ApiContractorMgtController extends Controller{
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- deleteContractor function " .$e->getMessage());
             $message = trans('maintenance::contractor.delete_contractor_was_unsuccessful');
             $status = APIStatusConstants::BAD_REQUEST;
             $$maintenances=null;
@@ -422,21 +416,15 @@ class ApiContractorMgtController extends Controller{
     public function getContractorAttachments(Request $request)
     {
 
-       
-
         try {
 
-            // return response()->json('lll');
-
-            Log::info("Call API :: ApiContractorMgtController - getContractorAttachments function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorAttachments function ");
 
             Log::info(print_r($request->all(), true));
 
-            // return response()->json($request->all());
+            //get contractor attachments
+            $attachments = ContractorDocument::where('id_contractor',$request->id_contractor)->where('contractor_document_active',1)->get();
 
-         //get contractor attachments
-         $attachments = ContractorDocument::where('id_contractor',$request->id_contractor)->where('contractor_document_active',1)->get();
-      
 
             $status = APIStatusConstants::OK;
             $message = trans('maintenance::contractor.get_contractorattachments_successfully');
@@ -445,10 +433,10 @@ class ApiContractorMgtController extends Controller{
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorAttachments function " . $e->getMessage());
             $message = trans('maintenance::contractor.get_contractorattachments_unsuccessfully');
             $status = APIStatusConstants::BAD_REQUEST;
-            $contractors = null;
+            $attachments = null;
 
 
         }
@@ -466,13 +454,9 @@ class ApiContractorMgtController extends Controller{
     public function getContractorTasks(Request $request)
     {
 
-       
-
         try {
 
-            // return response()->json('lll');
-
-            Log::info("Call API :: ApiContractorMgtController - getContractorAttachments function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorTasks function ");
 
             Log::info(print_r($request->all(), true));
 
@@ -486,16 +470,10 @@ class ApiContractorMgtController extends Controller{
                 join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
                 where('contractor.id_contractor' , $request->id_contractor)->get();
 
-                            // return response()->json($tasks);
-
-
-                            
                foreach( $tasks as $task ){
-            
+
                     $task->m_url = env('APP_URL').'/maintenance/detail/'. $task->id_maintenance_job;
                }
-
-
 
             $status = APIStatusConstants::OK;
             $message = trans('maintenance::contractor.get_contractor_tasks_successfully');
@@ -504,7 +482,7 @@ class ApiContractorMgtController extends Controller{
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorTasks function " . $e->getMessage());
             $message = trans('maintenance::contractor.get_contractor_tasks_unsuccessfully');
             $status = APIStatusConstants::BAD_REQUEST;
             $tasks = null;
@@ -524,13 +502,9 @@ class ApiContractorMgtController extends Controller{
     public function getContractorEmailInfo(Request $request)
     {
 
-       
-
         try {
 
-            // return response()->json('lll');
-
-            Log::info("Call API :: ApiContractorMgtController - getContractorEmailInfo function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorEmailInfo function " );
 
             Log::info(print_r($request->all(), true));
 
@@ -539,11 +513,10 @@ class ApiContractorMgtController extends Controller{
             $user_info = Contractor::where('contractor.id_contractor' , $request->id_contractor)->
             join('contractor_agent' , 'contractor_agent.id_contractor','contractor.id_contractor')->where('contractor_agent.contractor_agent_active' , 1)->
             join('users' , 'users.id' , 'contractor_agent.id_user' )->where('users.is_deleted' , 0)->where('users.users_active' , 1)->first();
-    
+
             //   return response()->json($user_info);
 
                 if($user_info){
-
 
                     return response()->json(
                         [
@@ -564,14 +537,11 @@ class ApiContractorMgtController extends Controller{
                         ]);
 
                 }
-                         
 
-
-          //  return response()->json($tasks);
 
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorEmailInfo function " . $e->getMessage());
             $message = trans('maintenance::contractor.get_contractor_email_unsuccessfully');
             $status = APIStatusConstants::BAD_REQUEST;
             $user_info = null;
@@ -579,7 +549,7 @@ class ApiContractorMgtController extends Controller{
 
         }
 
-          
+
     }
 
 
@@ -587,7 +557,7 @@ class ApiContractorMgtController extends Controller{
     {
 
 
-        Log::info("Call API :: ApiContractorMgtController - changeContractorLoginSetting function");
+        Log::info("In maintenance package, ApiContractorMgtController- changeContractorLoginSetting function ");
 
 
         $validator = Validator::make($request->all(), [
@@ -600,7 +570,7 @@ class ApiContractorMgtController extends Controller{
 
         if ($validator->fails()) {
 
-            Log::error("in Maintenance Package inside ApiContractorMgtController- changeContractorLoginSetting function".": ". $validator->errors()." by user ");
+            Log::error("In maintenance package, ApiContractorMgtController- changeContractorLoginSetting function ".": ". $validator->errors()." by user ");
 
             return response()->json(
                 [
@@ -640,7 +610,7 @@ class ApiContractorMgtController extends Controller{
 
                             Sentinel::update($sentinel_user, array('password' => $password));
 
-                            Log::info(" in ApiContractorMgtController- changeContractorLoginSetting function "."Password changed for user " );
+                            Log::info("In maintenance package, ApiContractorMgtController- changeContractorLoginSetting function "."Password changed for user " );
 
                             return response()->json(
                                 [
@@ -650,7 +620,7 @@ class ApiContractorMgtController extends Controller{
                         }
                         else{
 
-                            Log::error("in ContractorController- changeContractorLoginSetting function"."update user pass : "."by user:");
+                            Log::error("In maintenance package, ApiContractorMgtController- changeContractorLoginSetting function "."update user pass : "."by user:");
                             return response()->json(
                                 [
                                 'code' => ActionStatusConstants::ERROR,
@@ -690,7 +660,7 @@ class ApiContractorMgtController extends Controller{
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- changeContractorLoginSetting function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -709,13 +679,9 @@ class ApiContractorMgtController extends Controller{
     public function getContractorLocationsInfo(Request $request)
     {
 
-       
-
         try {
 
-            // return response()->json('lll');
-
-            Log::info("Call API :: ApiContractorMgtController - getContractorLocationsInfo function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorLocationsInfo function ");
 
             Log::info(print_r($request->all(), true));
 
@@ -725,22 +691,16 @@ class ApiContractorMgtController extends Controller{
             $locations = Contractor::where('contractor.id_contractor' , $request->id_contractor)->
             join('contractor_location' , 'contractor_location.id_contractor','contractor.id_contractor')->where('contractor_location.contractor_location_active' , 1)->
             join('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref' )->where('contractor_location_ref.contractor_location_ref_active' , 1)->get();
-    
-
-
 
             $status = APIStatusConstants::OK;
             $message = trans('maintenance::contractor.get_contractor_locations_successfully');
 
-          //  return response()->json($tasks);
-
         } catch (\Exception $e) {
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorLocationsInfo function " . $e->getMessage());
             $message = trans('maintenance::contractor.get_contractor_locations_unsuccessfully');
             $status = APIStatusConstants::BAD_REQUEST;
             $locations = null;
-
 
         }
 
@@ -756,11 +716,7 @@ class ApiContractorMgtController extends Controller{
     public function changeContractorLocations(Request $request)
     {
 
-        Log::info("Call API :: ApiContractorMgtController - changeContractorLocations function");
-
-
-        // return response()->json($request->all());
-
+        Log::info("In maintenance package, ApiContractorMgtController- changeContractorLocations function ");
 
         try{
 
@@ -796,11 +752,7 @@ class ApiContractorMgtController extends Controller{
                             ]);
                             $contractor_location->save();
                         }
-
-
                     }
-
-
             }
             else{
                 //insert new locations for first time
@@ -834,7 +786,7 @@ class ApiContractorMgtController extends Controller{
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getContractorLocationsInfo function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -854,13 +806,11 @@ class ApiContractorMgtController extends Controller{
 
         try {
 
-                    Log::info("Call API :: ApiContractorMgtController - getContractorSkillsInfo function");
+            Log::info("In maintenance package, ApiContractorMgtController- getContractorSkillsInfo function ");
 
-                $skills = Contractor::where('contractor.id_contractor' , $request->id_contractor)->
-                join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->
-                join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->where('contractor_skill_ref.contractor_skill_ref_active' , 1)->get();
-
-                    //    return response()->json($skills);
+            $skills = Contractor::where('contractor.id_contractor' , $request->id_contractor)->
+            join('contractor_skill' , 'contractor_skill.id_contractor','contractor.id_contractor')->where('contractor_skill.contractor_skill_active' , 1)->
+            join('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref' )->where('contractor_skill_ref.contractor_skill_ref_active' , 1)->get();
 
             } catch (\Exception $e) {
 
@@ -868,8 +818,6 @@ class ApiContractorMgtController extends Controller{
                     $message = trans('maintenance::contractor.get_contractor_skills_unsuccessfully');
                     $status = APIStatusConstants::BAD_REQUEST;
                     $contractor_skills = null;
-        
-        
              }
              return response()->json(
                 [
@@ -883,9 +831,7 @@ class ApiContractorMgtController extends Controller{
     public function changeContractorSkills(Request $request)
     {
 
-        Log::info("Call API :: ApiContractorMgtController - changeContractorSkills function");
-
-       
+        Log::info("In maintenance package, ApiContractorMgtController- changeContractorSkills function ");
 
         try{
 
@@ -905,25 +851,25 @@ class ApiContractorMgtController extends Controller{
 
                 }
 
-                if( $request->skills != null)
-                    foreach($request->skills as $skill){
-                        $contractor_skill = ContractorSkill::where('id_contractor' , $request->contractor)->where('id_contractor_skill_ref' ,$skill )->first();
-                        if($contractor_skill){
-                            $contractor_skill->update([
-                                'contractor_skill_active'=>1,
-                            ]);
-                        }
-                        else{
-                            $contractor_skill = new ContractorSkill([
-                                'id_contractor_skill_ref'=>$skill,
-                                'id_contractor'=>$request->contractor,
-                                'contractor_skill_active'=>1,
-                            ]);
-                            $contractor_skill->save();
-                        }
-
-
+            if( $request->skills != null)
+                foreach($request->skills as $skill){
+                    $contractor_skill = ContractorSkill::where('id_contractor' , $request->contractor)->where('id_contractor_skill_ref' ,$skill )->first();
+                    if($contractor_skill){
+                        $contractor_skill->update([
+                            'contractor_skill_active'=>1,
+                        ]);
                     }
+                    else{
+                        $contractor_skill = new ContractorSkill([
+                            'id_contractor_skill_ref'=>$skill,
+                            'id_contractor'=>$request->contractor,
+                            'contractor_skill_active'=>1,
+                        ]);
+                        $contractor_skill->save();
+                    }
+
+
+                }
 
 
             }
@@ -943,7 +889,7 @@ class ApiContractorMgtController extends Controller{
             }
 
 
-            Log::info(trans('maintenance::contractor.contractor_skills_updated'));
+            Log::info("In maintenance package, ApiContractorMgtController- changeContractorSkills function " . trans('maintenance::contractor.contractor_skills_updated'));
 
             DB::commit();
 
@@ -956,8 +902,7 @@ class ApiContractorMgtController extends Controller{
         }
         catch(\Exception $e){
 
-
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- changeContractorSkills function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -967,21 +912,16 @@ class ApiContractorMgtController extends Controller{
 
         }
 
-
-
-
     }
-    
+
     public Function loadContractors(){
 
 
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- ajaxLoadContractors function " . " try to load contractors data  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package, ApiContractorMgtController- loadContractors function " . " try to load contractors data  ------- by user " . $user->first_name . " " . $user->last_name);
 
         $contractors = Contractor::where('contractor_active' , 1)->where('id_saas_client_business' , $user->id_saas_client_business)->get();
-
-
 
         return response()->json(
             [
@@ -1000,6 +940,7 @@ class ApiContractorMgtController extends Controller{
     public function getDataToCreate( Request $request )
     {
 
+        Log::info("In maintenance package, ApiContractorMgtController- getDataToCreate function ");
 
             //get all maintenance category
             $maintenance_category = MaintenanceJobCategoryRef::all();
@@ -1024,54 +965,57 @@ class ApiContractorMgtController extends Controller{
 
     private function getMaintainables()
     {
-          $locations = [];
+        Log::info("In maintenance package, ApiContractorMgtController- getMaintainables function ");
 
-          $rooms = Room::all();
+        $locations = [];
 
-          foreach($rooms as $room) {
-              $property = $room->property;
-              $room->id = 'Room'.$room->id_room;
-              $room->name = '[Room] '.$property->property_short_name .'/'.$room->room_number_full;
+        $rooms = Room::all();
 
-          }
+        foreach($rooms as $room) {
+            $property = $room->property;
+            $room->id = 'Room'.$room->id_room;
+            $room->name = '[Room] '.$property->property_short_name .'/'.$room->room_number_full;
 
-          foreach($rooms as $room) {
-              $locations[] = $room;
-          }
+        }
 
-          $properties = Property::all();
+        foreach($rooms as $room) {
+            $locations[] = $room;
+        }
 
-          foreach($properties as $property) {
-              $property->id = 'Property'.$property->id_property;
-              $property->name = '[Property] '.$property->property_name;
+        $properties = Property::all();
 
-          }
+        foreach($properties as $property) {
+            $property->id = 'Property'.$property->id_property;
+            $property->name = '[Property] '.$property->property_name;
 
-          foreach($properties as $property) {
-              $locations[] = $property;
-          }
+        }
+
+        foreach($properties as $property) {
+            $locations[] = $property;
+        }
 
 
-          $sites = Site::all();
+        $sites = Site::all();
+        foreach($sites as $site) {
+            $site->id = 'Site'.$site->id_site;
+            $site->name = '[Site] '.$site->site_full_name;
 
+        }
 
-          foreach($sites as $site) {
-              $site->id = 'Site'.$site->id_site;
-              $site->name = '[Site] '.$site->site_full_name;
+        foreach($sites as $site) {
+            $locations[] = $site;
+        }
 
-          }
-
-          foreach($sites as $site) {
-              $locations[] = $site;
-          }
-
-          return $locations;
+        return $locations;
     }
 
 
     //api to load residents of location
     public function getLocationResident(Request $request)
     {
+
+        Log::info("In maintenance package, ApiContractorMgtController- getLocationResident function ");
+
         try {
 
             $rooms = [];
@@ -1101,8 +1045,7 @@ class ApiContractorMgtController extends Controller{
             );
 
         } catch (\Exception $e) {
-            Log::error("in TemplatesController- listTemplates function list templates "
-                .$e->getMessage());
+            Log::error("In maintenance package, ApiContractorMgtController- getLocationResident function ".$e->getMessage());
 
             return response()->json([ 'message' =>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful'), 400]);
 

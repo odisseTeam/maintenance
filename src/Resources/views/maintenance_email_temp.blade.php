@@ -589,7 +589,7 @@
 
             // var email_html_text = document.getElementById('maintenance_template').getAttribute('value');
 
-            // console.log(email_html_text);
+            console.log(email_html_text);
 
             send('/maintenance/contractor_email/preview', {
                 id_maintenance_job: id_maintenance_job,

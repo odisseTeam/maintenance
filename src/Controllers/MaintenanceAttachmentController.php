@@ -87,13 +87,13 @@ class MaintenanceAttachmentController extends Controller
 
           if ($validator->fails()) {
 
-            Log::error("in MaintenanceAttachmentController- uploadAttachment function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+            Log::error("In maintenance package - in MaintenanceAttachmentController- uploadAttachment function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
 
             return redirect('/maintenance/detail/'.$request->id_maintenance)
             ->with('error',trans('maintenance::maintenance.maintenance_file_is_empty'));
         }
-      
+
 
 
         $maintenance_job = MaintenanceJob::findOrFail($request->id_maintenance);
@@ -142,26 +142,27 @@ class MaintenanceAttachmentController extends Controller
 
                     $all_attachments = $all_attachments.$fileName." ";
 
-                   
-                    
+
+
 
                 }
                 catch(Exception $e){
-                    dd($e->getMessage());
+                    Log::error("In maintenance package - in MaintenanceAttachmentController- uploadAttachment function ". $e->getMessage());
+
                 }
 
             }
 
             $log_note = $user->first_name . " " . $user->last_name." upload a new maintenance document titled : ".$all_attachments ;
 
-                    //add a log for uploading a new maintenance document
-                    $maintenance_log = new MaintenanceLog();
-                    $maintenance_log->id_maintenance_job =  $request->id_maintenance;
-                    $maintenance_log->id_staff = $user->id;
-                    $maintenance_log->log_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
-                    $maintenance_log->log_note = $log_note;
+            //add a log for uploading a new maintenance document
+            $maintenance_log = new MaintenanceLog();
+            $maintenance_log->id_maintenance_job =  $request->id_maintenance;
+            $maintenance_log->id_staff = $user->id;
+            $maintenance_log->log_date_time = $now->format(SystemDateFormats::getDateTimeFormat());
+            $maintenance_log->log_note = $log_note;
 
-                    $maintenance_log->save();
+            $maintenance_log->save();
         }
 
         return redirect('/maintenance/detail/'.$request->id_maintenance)

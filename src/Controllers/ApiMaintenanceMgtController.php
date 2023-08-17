@@ -3,6 +3,7 @@
 namespace Odisse\Maintenance\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\LegalCompany;
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\Site;
@@ -30,10 +31,13 @@ use Illuminate\Support\Str;
 use Odisse\Maintenance\App\Traits\MaintenanceDetails;
 use Odisse\Maintenance\Models\MaintenanceJobCategoryRef;
 use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
+use Odisse\Maintenance\App\SLP\MaintenanceOperation;
+
 
 class ApiMaintenanceMgtController extends Controller{
 
     use MaintenanceDetails;
+    use MaintenanceOperation;
 
     public function saveNewMaintenance( Request $request)
     {
@@ -106,15 +110,41 @@ class ApiMaintenanceMgtController extends Controller{
 
     }
 
+    public function getOrderNumber($property , $maintenance_job_id){
+
+        $today = Carbon::createFromDate('now');
+
+        //get largest maintenance no;
+        $last_maintenance = MaintenanceJob::where('id_maintenance_job' ,'!=' , $maintenance_job_id)->orderBy('id_maintenance_job' , 'desc')->first();
+        if($last_maintenance){
+            $last_order_no_part3 = substr($last_maintenance->order_number , 11);
+
+        }
+        else{
+            $last_order_no_part3 = 99;
+        }
+
+        $legal_company = LegalCompany::find($property->id_legal_company);
+        if($legal_company){
+
+            $order_no = $legal_company->short_name .'-'. $today->format('ymd').'-'.(intval($last_order_no_part3) +1);
+        }
+        else{
+            $order_no =null;
+
+        }
+        return $order_no;
+
+    }
+
     private function createMaintenance( $request )
     {
 
-        $user = User::find($request->user);;
+        $user = User::find($request->user);
 
 
         try {
             DB::beginTransaction();
-
 
             //save a new maintenance job
             $maintenance_job = new MaintenanceJob();
@@ -125,9 +155,12 @@ class ApiMaintenanceMgtController extends Controller{
             $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
             $maintenance_job->id_maintenance_job_priority = $request->priority;
             $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
+            $maintenance_job->commencement_date = $request->commencement_date;
+            $maintenance_job->complete_date = $request->complete_date;
             $maintenance_job->maintenance_job_title = $request->maintenance_title;
             $maintenance_job->maintenance_job_description = $request->description;
             $maintenance_job->id_resident_reporter = $request->resident_reporter;
+            $maintenance_job->order_number = 'AAA';//by default
             $maintenance_job->maintenance_job_active = 1;
 
             $maintenance_job->save();
@@ -224,6 +257,10 @@ class ApiMaintenanceMgtController extends Controller{
             $maintenance_log->save();
 
             $locations = $request->locations;
+            $first_property = 0;
+
+
+
 
 
             //save all maintenance locations in maintainable table
@@ -282,6 +319,28 @@ class ApiMaintenanceMgtController extends Controller{
                             }
 
 
+                            $room = Room::find($maintainable_id);
+                        if($room){
+                            if($first_property == 0){
+                                $first_property = $room->id_property;
+                            }
+                            else if($first_property != $room->id_property){
+
+                                $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
+
+
+                                Log::error($message);
+
+                                DB::rollBack();
+                                return [
+                                    'status' => 'error',
+                                    'message' => $message
+                                ];
+
+                            }
+                        }
+
+
                             break;
 
                         case Str::contains($location, 'Property'):
@@ -316,6 +375,25 @@ class ApiMaintenanceMgtController extends Controller{
 
 
                                 }
+
+                            }
+
+
+                            if($first_property == 0){
+                                $first_property = $maintainable_id;
+                            }
+                            else if($first_property != $maintainable_id){
+
+                                $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
+
+
+                                Log::error($message);
+
+                                DB::rollBack();
+                                return [
+                                    'status' => 'error',
+                                    'message' => $message
+                                ];
 
                             }
 
@@ -366,6 +444,54 @@ class ApiMaintenanceMgtController extends Controller{
                 }
             }
 
+
+
+            //save assign maintenance
+            $assign_response = $this->assignJobToUser($maintenance_job->id_maintenance_job , $request->user_agent , $user->id);
+
+            if($assign_response['code'] == 'failure'){
+
+                DB::rollBack();
+                Log::error($assign_response['message']);
+
+                return [
+                    'status' => 'error',
+                    'message' => $assign_response['message']
+                ];
+            }
+
+
+
+            $property = Property::find($first_property);
+            $order_number = $this->getOrderNumber($property , $maintenance_job->id_maintenance_job);
+            if($order_number){
+              $maintenance_job->update([
+                  'order_number' => $order_number,
+                ]);
+            }
+            else{
+
+
+              $message = trans('maintenance::maintenance.set_order_number_was_unsuccessful');
+
+
+              Log::error($message);
+
+              DB::rollBack();
+              $status = 'error';
+              return [
+                'status' => 'error',
+                'message' => $message
+            ];
+
+
+            }
+
+
+
+
+
+
             // session(['success' => 'value']);
             DB::commit();
 
@@ -384,7 +510,7 @@ class ApiMaintenanceMgtController extends Controller{
 
 
             $status = 'error';
-            $message = trans('maintenance:maintenance.maintenance_not_created');
+            $message = $e->getMessage();//trans('maintenance::maintenance.maintenance_not_created');
 
             // return redirect()->back()
             //     ->withErrors($message)
@@ -504,7 +630,7 @@ class ApiMaintenanceMgtController extends Controller{
             );
 
         } catch (\Exception $e) {
-            Log::error("in TemplatesController- listTemplates function list templates "
+            Log::error("in ApiContractorMgtController- getLocationResident function list templates "
                 .$e->getMessage());
 
             return response()->json([ 'message' =>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful'), 400]);

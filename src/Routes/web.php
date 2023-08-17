@@ -12,6 +12,16 @@ use Odisse\Maintenance\Controllers\ApiContractorMgtController;
 
 
 
+Route::prefix('api/maintenance/')->group(
+    function () {
+        Route::post('save/new', [ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
+        Route::get('/get_data_to_create', [ApiMaintenanceMgtController::class, 'getDataToCreate']);
+        Route::get('/resident_reporter', [ApiMaintenanceMgtController::class,'getLocationResident']);
+    }
+);
+
+
+
 Route::group(['prefix' => 'maintenance'],function () {
 
     Route::any('/testItem', [MTestController::class,'testFunc']);
@@ -217,14 +227,6 @@ Route::middleware(['web','ProxyCAS'])->group(
 });
 
 
-
-Route::prefix('api/maintenance/')->group(
-    function () {
-        Route::post('save/new', [ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
-        Route::get('/get_data_to_create', [ApiMaintenanceMgtController::class, 'getDataToCreate']);
-        Route::get('/resident_reporter', [ApiMaintenanceMgtController::class,'getLocationResident']);
-    }
-);
 
   //API routes for portal
 Route::prefix('/api/contractor/')->group(

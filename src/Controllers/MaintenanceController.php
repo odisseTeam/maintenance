@@ -106,7 +106,7 @@ class MaintenanceController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in MaintenanceController- createNewMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package - in MaintenanceController- createNewMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
 
         try {
 
@@ -115,7 +115,7 @@ class MaintenanceController extends Controller
 
 
             //get all businesses
-            $saas_client_businesses = SaasClientBusiness::all();
+            $saas_client_businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
 
             //get all maintenance priorities
             $priorities = MaintenanceJobPriorityRef::all();
@@ -154,7 +154,7 @@ class MaintenanceController extends Controller
             );
 
         } catch (\Exception $e) {
-            Log::error("in MaintenanceController- createNewMaintenancePage function  " . " by user "
+            Log::error("In maintenance package - in MaintenanceController- createNewMaintenancePage function ".$e->getMessage() . " by user "
             . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
             return view('maintenance::create_maintenance')->with([ActionStatusConstants::ERROR=>  trans('maintenance.you_can_not_see_create_maintenance_page')]);
@@ -170,7 +170,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- ajaxUploadMaintenanceFile function " . " try  to upload an maintenance file  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package in MaintenanceController- ajaxUploadMaintenanceFile function " . " try  to upload an maintenance file  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
           try {
@@ -229,8 +229,8 @@ class MaintenanceController extends Controller
           } catch (\Exception $e) {
 
 
-              Log::error(" in MaintenanceController - ajaxUploadMaintenanceFile function " . " upload maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-              Log::error($e->getMessage());
+              Log::error("In maintenance package in MaintenanceController - ajaxUploadMaintenanceFile function " . " upload maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+              Log::error("In maintenance package in MaintenanceController - ajaxUploadMaintenanceFile function " .$e->getMessage());
 
               DB::rollBack();
 
@@ -248,7 +248,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package in MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
 
           try {
 
@@ -259,7 +259,7 @@ class MaintenanceController extends Controller
 
               $maintenace_job_title = $maintenace_job_title_only.$maintenace_job_date;
 
-              Log::info(" ine ". $maintenace_job_title." MaintenanceController- ajaxFindMaintenanceTitle function " . " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
+              Log::info("In maintenance package in MaintenanceController- ajaxFindMaintenanceTitle function ". $maintenace_job_title. " try  to get maintenance title  ------- by user " . $user->first_name . " " . $user->last_name);
 
               return response()->json(
                   [
@@ -270,7 +270,7 @@ class MaintenanceController extends Controller
               );
 
           } catch (\Exception $e) {
-              Log::error("in MaintenanceController- ajaxFindMaintenanceTitle function find maintenance title " . " by user "
+              Log::error("In maintenance package in MaintenanceController- ajaxFindMaintenanceTitle function find maintenance title " . " by user "
                   . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
               return response()->json()->with([ActionStatusConstants::ERROR=>  trans('maintenance.get_maintenance_title_was_not_successful')]);
@@ -281,10 +281,7 @@ class MaintenanceController extends Controller
 
       public function saveNewMaintenence(Request $request)
       {
-
-
           $user = Sentinel::getUser();
-
 
           $validator = Validator::make($request->all(), [
               'maintenance_title' => 'required',
@@ -297,24 +294,21 @@ class MaintenanceController extends Controller
               'locations'=>'required',
               'priority'=>'required',
 
-
             ]);
           if ($validator->fails()) {
 
-              Log::error("in MaintenanceController- saveNewMaintenence function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
-
+              Log::error("In maintenance package - in MaintenanceController- saveNewMaintenence function ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
               return redirect()->back()
               ->withErrors($validator)
               ->withInput();
           }
 
-          Log::info(" in MaintenanceController- saveNewMaintenence function " . " try  to save new maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package - in MaintenanceController- saveNewMaintenence function " . " try  to save new maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
           try {
               DB::beginTransaction();
-
 
               //save a new maintenance job
               $maintenance_job = new MaintenanceJob();
@@ -338,9 +332,6 @@ class MaintenanceController extends Controller
 
               $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
               $HistoricalMaintenanceManager->insertHistory($maintenance_job);
-
-
-
 
               $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
 
@@ -475,8 +466,7 @@ class MaintenanceController extends Controller
 
                                 $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
 
-
-                                Log::error($message);
+                                Log::error("In maintenance package - in MaintenanceController- saveNewMaintenence function " . $message);
 
                                 DB::rollBack();
                                 $status = ActionStatusConstants::ERROR;
@@ -486,8 +476,6 @@ class MaintenanceController extends Controller
 
                             }
                         }
-
-
 
                         //change room_maintenance_status field of room
                         $maintenance_status = MaintenanceJobStatusRef::find($maintenance_job->id_maintenance_job_status);
@@ -526,7 +514,6 @@ class MaintenanceController extends Controller
 
                             $maintenance_job_sla->save();
 
-
                             }
 
                         }
@@ -539,7 +526,7 @@ class MaintenanceController extends Controller
                             $message = trans('maintenance::maintenance.locations_must_be_in_same_property');
 
 
-                            Log::error($message);
+                            Log::error("In maintenance package - in MaintenanceController- saveNewMaintenence function " . $message);
 
                             DB::rollBack();
                             $status = ActionStatusConstants::ERROR;
@@ -620,7 +607,7 @@ class MaintenanceController extends Controller
                 $message = trans('maintenance::maintenance.set_order_number_was_unsuccessful');
 
 
-                Log::error($message);
+                Log::error("In maintenance package - in MaintenanceController- saveNewMaintenence function " . $message);
 
                 DB::rollBack();
                 $status = ActionStatusConstants::ERROR;
@@ -646,8 +633,8 @@ class MaintenanceController extends Controller
 
           } catch (\Exception $e) {
 
-              Log::error(" in MaintenanceController - saveNewMaintenence function : save a new maintenance  was not successful by user " . $user->first_name . " " . $user->last_name);
-              Log::error($e->getMessage());
+              Log::error("In maintenance package - in MaintenanceController - saveNewMaintenence function : save a new maintenance  was not successful by user " . $user->first_name . " " . $user->last_name);
+              Log::error("In maintenance package - in MaintenanceController - saveNewMaintenence function " .$e->getMessage());
 
               DB::rollBack();
 
@@ -678,7 +665,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- ajaxGetResidentReporter function " . " try to get list of resident reporter based on selected locations  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package - in MaintenanceController- ajaxGetResidentReporter function " . " try to get list of resident reporter based on selected locations  ------- by user " . $user->first_name . " " . $user->last_name);
 
           try {
 
@@ -709,7 +696,7 @@ class MaintenanceController extends Controller
               );
 
           } catch (\Exception $e) {
-              Log::error("in MaintenanceController- ajaxGetResidentReporter function " . " by user "
+              Log::error("In maintenance package - in MaintenanceController- ajaxGetResidentReporter function " . " by user "
                   . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
               return response()->json([ActionStatusConstants::ERROR=>  trans('maintenance::maintenance.get_resident_reporter_was_not_successful')]);
@@ -724,19 +711,24 @@ class MaintenanceController extends Controller
       public function getLocationResidents(Request $request)
       {
 
-        //TODO fix the problem on hardcoding the business id
 
+        if( $request->has('business') and $request->business != null ){
 
-        // if($request->has('business') and $request->business != null) {
-
-            //get maintenances of specific business
+            $requested_business = $request->business;
 
             $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if($business['id_saas_client_business'] == $requested_business){
+                    $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
+                    $response = Http::get($url, $request->all());
 
-            $url =$businesses[0]['maintenance_api_url'].'/api/maintenance/resident_reporter';
-            $response = Http::get($url, $request->all());
-
-            return $response;
+                    return $response;
+                }
+            }
+        }
+        else{
+            return null;
+        }
 
 
       }
@@ -747,7 +739,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- showMaintenanceDetailPage function " . " try to go to maintenance detail page  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In  aintenance package -  in MaintenanceController- showMaintenanceDetailPage function " . " try to go to maintenance detail page  ------- by user " . $user->first_name . " " . $user->last_name);
 
           try {
 
@@ -920,7 +912,7 @@ class MaintenanceController extends Controller
               )->with(['active_tab' => 'maintenanceDetail']);
 
           } catch (\Exception $e) {
-              Log::error("in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
+              Log::error("In maintenance package - in MaintenanceController- showMaintenanceDetailPage function  " . " by user "
               . $user->first_name . " " . $user->last_name . " " . $e->getMessage());
 
               return redirect('/maintenance/dashboard')->with([ActionStatusConstants::ERROR=> $e->getMessage()]); //trans('maintenance::maintenance.you_can_not_see_maintenance_detail_page')]);
@@ -934,7 +926,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- editMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package -  in MaintenanceController- editMaintenanceDetail function " . " try to save details of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
           $validator = Validator::make($request->all(), [
@@ -1070,7 +1062,7 @@ class MaintenanceController extends Controller
               //check if maintenance staff has been changed
               if($request->user_agent != null) {
 
-                Log::info("going to save new assignee");
+                Log::info("In maintenance package -  in MaintenanceController- editMaintenanceDetail function " ."going to save new assignee");
 
                 //check this task assigned to this user already
                 $check = MaintenanceJobStaffHistory::where('id_maintenance_job' ,$maintenance_old_data->id_maintenance_job )->
@@ -1375,8 +1367,8 @@ class MaintenanceController extends Controller
           } catch (\Exception $e) {
 
 
-              Log::error(" in MaintenanceController - editMaintenanceDetail function " . " edita maintenance " . $maintenance_old_data->maintenance_job_title . " was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-              Log::error($e->getMessage());
+              Log::error("In maintenance package -  in MaintenanceController - editMaintenanceDetail function " . " edita maintenance " . $maintenance_old_data->maintenance_job_title . " was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+              Log::error("In maintenance package -  in MaintenanceController- editMaintenanceDetail function " . $e->getMessage());
 
               DB::rollBack();
 
@@ -1395,7 +1387,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package -  in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
 
           //get all documents of a maintenance job
@@ -1416,7 +1408,7 @@ class MaintenanceController extends Controller
 
           $user = Sentinel::getUser();
 
-          Log::info(" in MaintenanceController- ajaxGetMaintenanceDocuments function " . " try to get documents of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package -  in MaintenanceController- ajaxGetMaintenanceTimeline function " . " try to get all logs of maintenance   ------- by user " . $user->first_name . " " . $user->last_name);
 
           $maintenance_id = $request->maintenance_id;
 
@@ -1447,7 +1439,7 @@ class MaintenanceController extends Controller
           $now = Carbon::create('now');
 
 
-          Log::info(" in MaintenanceController- ajaxDeleteMaintenanceDocument function " . " try to delete  maintenance document  ------- by user " . $user->first_name . " " . $user->last_name);
+          Log::info("In maintenance package -  in MaintenanceController- ajaxDeleteMaintenanceDocument function " . " try to delete  maintenance document  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
           try {
@@ -1499,7 +1491,7 @@ class MaintenanceController extends Controller
 
 
               Log::error(" in MaintenanceController - ajaxDeleteMaintenanceDocument function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-              Log::error($e->getMessage());
+              Log::error("In maintenance package -  in MaintenanceController- ajaxDeleteMaintenanceDocument function " . $e->getMessage());
 
               DB::rollBack();
 

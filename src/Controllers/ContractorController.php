@@ -54,7 +54,7 @@ class ContractorController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- showContractorPage function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance Package -  in ContractorController- showContractorPage function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
 
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor');
 
@@ -84,7 +84,7 @@ class ContractorController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- showContractorPage function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In Maintenance Package -  in ContractorController- showContractorPage function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
         $contractor = Contractor::findOrfail($id_contractor);
@@ -107,11 +107,9 @@ class ContractorController extends Controller
 
     public function showContractorManagementPage(){
 
-
-
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- showContractorPage function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package -  in ContractorController- showContractorManagementPage function " . " try to go to contractor management page  ------- by user " . $user->first_name . " " . $user->last_name);
 
         //$contractors = Contractor::where('contractor_active' , 1)->get();
 
@@ -119,9 +117,6 @@ class ContractorController extends Controller
         $locations = ContractorLocationRef::where('contractor_location_ref_active' , 1)->get();
 
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor_management');
-
-
-
 
         return view('maintenance::contractor_mgt',
                     [
@@ -137,6 +132,7 @@ class ContractorController extends Controller
 
     public function storeContractor(Request $request)
     {
+        Log::info("In maintenance package, ContractorController- storeContractor function "."----try to store new contractor");
         $user = Sentinel::getUser();
 
         $validator = Validator::make($request->all(), [
@@ -157,7 +153,7 @@ class ContractorController extends Controller
 
         if ($validator->fails()) {
 
-            Log::error("in Maintenance Package inside ContractorController- createNewRoom function"."create new room : ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+            Log::error("in Maintenance Package - inside ContractorController- createNewRoom function"."create new room : ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
             return redirect()->back()
                 ->withErrors($validator)
@@ -235,7 +231,7 @@ class ContractorController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ContractorController- storeContractor function " . $e->getMessage());
             DB::rollback();
             return redirect()->back()->withInput()->with(ActionStatusConstants::ERROR, $e->getMessage());//->with(ActionStatusConstants::ERROR, trans('room_mgt.new_room_not_created'));
 
@@ -249,6 +245,7 @@ class ContractorController extends Controller
 
     public function updateContractor(Request $request , $id_contractor)
     {
+        Log::info("In maintenance package, ContractorController- updateContractor function "."---try to update specific contractor");
         $user = Sentinel::getUser();
 
         $validator = Validator::make($request->all(), [
@@ -267,7 +264,7 @@ class ContractorController extends Controller
 
         if ($validator->fails()) {
 
-            Log::error("in Maintenance Package inside ContractorController- updateContractor function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+            Log::error("in Maintenance Package - inside ContractorController- updateContractor function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
             return redirect()->back()
                 ->withErrors($validator)
@@ -304,7 +301,7 @@ class ContractorController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package, ContractorController- updateContractor function " . $e->getMessage());
             DB::rollback();
             return redirect()->back()->withInput()->with(ActionStatusConstants::ERROR, trans('maintenance::contractor.contractor_not_updated'));
 
@@ -320,7 +317,7 @@ class ContractorController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- ajaxLoadContractors function " . " try to load contractors data  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package -  in ContractorController- ajaxLoadContractors function " . " try to load contractors data  ------- by user " . $user->first_name . " " . $user->last_name);
 
         $contractors = Contractor::where('contractor_active' , 1)->where('id_saas_client_business' , $user->id_saas_client_business)->get();
 
@@ -343,7 +340,7 @@ class ContractorController extends Controller
 
         $user = Sentinel::getUser();
 
-        Log::info(" in ContractorController- ajaxGetContractors function " . " try to get contractors list  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package -  in ContractorController- ajaxGetContractors function " . " try to get contractors list  ------- by user " . $user->first_name . " " . $user->last_name);
 
         $room_contractors = MaintenanceJob::where('maintenance_job.id_maintenance_job' , $request->maintenance)->
                         join('maintainable','maintenance_job.id_maintenance_job','maintainable.id_maintenance_job')->where('maintainable.maintenable_type' , 'App\Models\Rooms')->
@@ -379,10 +376,6 @@ class ContractorController extends Controller
         $contractors = array_unique(array_merge($room_contractors , $property_contractors) , SORT_REGULAR);
 
         $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
-
-
-
-
 
 
 
@@ -476,7 +469,7 @@ class ContractorController extends Controller
         try{
         DB::beginTransaction();
 
-        Log::info(" in ContractorController- ajaxDeleteContractor function " . " try to delete specific contractor  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package -  in ContractorController- ajaxDeleteContractor function " . " try to delete specific contractor  ------- by user " . $user->first_name . " " . $user->last_name);
 
         //check contractor have active task
         $tasks = MaintenanceJob::join('maintenance_job_staff_history' , 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->whereNull('maintenance_job_staff_history.staff_end_date_time')->
@@ -516,13 +509,13 @@ class ContractorController extends Controller
             ]);
         }catch(\Exception $e){
 
-            Log::error(" in ContractorController- ajaxDeleteContractor function " . $e->getMessage());
+            Log::error("In maintenance package -  in ContractorController- ajaxDeleteContractor function " . $e->getMessage());
             DB::rollBack();
 
             return response()->json(
                 [
                 'code' => ActionStatusConstants::FAILURE,
-                'message' => $e->getMessage(),//trans('maintenance::contractor.your_selected_contractor_does_not_deleted'),
+                'message' => trans('maintenance::contractor.your_selected_contractor_does_not_deleted'),
                 ]);
 
 
@@ -564,6 +557,8 @@ class ContractorController extends Controller
 
     public function ajaxChangeContractorLoginSetting(Request $request)
     {
+
+        Log::info("In maintenance package -  in ContractorController- ajaxChangeContractorLoginSetting function ");
 
         $user = Sentinel::getUser();
 
@@ -617,7 +612,7 @@ class ContractorController extends Controller
 
                             Sentinel::update($sentinel_user, array('password' => $password));
 
-                            Log::info(" in ContractorController- ajaxDeleteContractor function "."Password changed for user ". $agent_user->email .  " (user id ". $user->id ." ) on " . date('Y-m-d H:i:s'));
+                            Log::info("In maintenance Package -  in ContractorController- ajaxChangeContractorLoginSetting function "."Password changed for user ". $agent_user->email .  " (user id ". $user->id ." ) on " . date('Y-m-d H:i:s'));
 
                             return response()->json(
                                 [
@@ -667,7 +662,7 @@ class ContractorController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package -  in ContractorController- ajaxChangeContractorLoginSetting function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -706,6 +701,8 @@ class ContractorController extends Controller
     public function ajaxChangeContractorSkills(Request $request)
     {
 
+        Log::info("In maintenance package -  in ContractorController- ajaxChangeContractorSkills function ");
+
         $user = Sentinel::getUser();
 
         $validator = Validator::make($request->all(), [
@@ -717,7 +714,7 @@ class ContractorController extends Controller
 
         if ($validator->fails()) {
 
-            Log::error("in Maintenance Package inside ContractorController- ajaxChangeContractorSkills function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+            Log::error("in Maintenance Package - inside ContractorController- ajaxChangeContractorSkills function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
             return response()->json(
                 [
@@ -782,7 +779,7 @@ class ContractorController extends Controller
             }
 
 
-            Log::info(trans('maintenance::contractor.contractor_skills_updated'));
+            Log::info("In maintenance package -  in ContractorController- ajaxChangeContractorSkills function " . trans('maintenance::contractor.contractor_skills_updated'));
 
             DB::commit();
 
@@ -796,7 +793,7 @@ class ContractorController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package -  in ContractorController- ajaxChangeContractorSkills function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -833,6 +830,8 @@ class ContractorController extends Controller
 
 
     public function ajaxGetContractorsWithSkill(Request $request){
+
+        Log::info("In maintenance package -  in ContractorController- ajaxGetContractorsWithSkill function ");
 
         $user = Sentinel::getUser();
         $id_saas_client_business = $user->id_saas_client_business;
@@ -1045,6 +1044,8 @@ class ContractorController extends Controller
     public function ajaxChangeContractorLocations(Request $request)
     {
 
+        Log::info("In maintenance package -  in ContractorController- ajaxChangeContractorLocations function ");
+
         $user = Sentinel::getUser();
 
         $validator = Validator::make($request->all(), [
@@ -1056,7 +1057,7 @@ class ContractorController extends Controller
 
         if ($validator->fails()) {
 
-            Log::error("in Maintenance Package inside ContractorController- ajaxChangeContractorLocations function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+            Log::error("in Maintenance Package - inside ContractorController- ajaxChangeContractorLocations function".": ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
 
             return response()->json(
                 [
@@ -1121,7 +1122,7 @@ class ContractorController extends Controller
             }
 
 
-            Log::info(trans('maintenance::contractor.contractor_locations_updated'));
+            Log::info("In maintenance package -  in ContractorController- ajaxChangeContractorLocations function " . trans('maintenance::contractor.contractor_locations_updated'));
 
             DB::commit();
 
@@ -1135,7 +1136,7 @@ class ContractorController extends Controller
         catch(\Exception $e){
 
 
-            Log::error($e->getMessage());
+            Log::error("In maintenance package -  in ContractorController- ajaxChangeContractorLocations function " . $e->getMessage());
             DB::rollback();
             return response()->json(
                 [
@@ -1153,6 +1154,8 @@ class ContractorController extends Controller
 
 
     public function ajaxGetContractorTasks(Request $request , $id_contractor){
+
+        Log::info("In maintenance package -  in ContractorController- ajaxGetContractorTasks function ");
 
         $user = Sentinel::getUser();
 
@@ -1193,6 +1196,8 @@ class ContractorController extends Controller
 
     public function ajaxGetContractorAttachments(Request $request , $id_contractor){
 
+        Log::info("In maintenance package -  in ContractorController- ajaxGetContractorAttachments function ");
+
         $user = Sentinel::getUser();
 
 
@@ -1218,7 +1223,7 @@ class ContractorController extends Controller
 
 
 
-        Log::info(" in ContractorController- deleteContractorAttachment function " . " try to delete  Contractor document  ------- by user " . $user->first_name . " " . $user->last_name);
+        Log::info("In maintenance package -  in ContractorController- deleteContractorAttachment function " . " try to delete  Contractor document  ------- by user " . $user->first_name . " " . $user->last_name);
 
 
         try {
@@ -1257,8 +1262,8 @@ class ContractorController extends Controller
         } catch (\Exception $e) {
 
 
-            Log::error(" in ContractorController - deleteContractorAttachment function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
-            Log::error($e->getMessage());
+            Log::error("In maintenance package - in ContractorController - deleteContractorAttachment function " . " delete maintenance document was not successful " . " by user " . $user->first_name . " " . $user->last_name);
+            Log::error("In maintenance package -  in ContractorController- deleteContractorAttachment function " . $e->getMessage());
 
             DB::rollBack();
 
@@ -1279,31 +1284,23 @@ class ContractorController extends Controller
 
         $contractor_document = ContractorDocument::findOrFail($id_attachment);
 
-
             //get file name + the extension
             $file_name = $contractor_document->document_name;
 
             //calculate relative path for the file
             $file_path = $contractor_document->document_address . $file_name;
 
-            Log::info("in ContractorController- downloadDocument function " . " try to download  documents of a contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
-
+            Log::info("In maintenance package - in ContractorController- downloadAttachment function " . " try to download  documents of a contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
             //download file, use public path to calculate absolute path of the file
             return response()->download(public_path($file_path), $file_name);
-
-
-
 
     }
 
     public function uploadAttachment(Request $request)
     {
 
-
-
         $user = Sentinel::getUser();
-
 
         $validator = Validator::make($request->all(), [
             'attachments'        => 'array|required',
@@ -1318,8 +1315,6 @@ class ContractorController extends Controller
             return redirect('/maintenance/contractor/'.$request->id_contractor)
             ->with('error',trans('maintenance::maintenance.maintenance_file_is_empty'));
         }
-
-
 
         $contractor = Contractor::findOrFail($request->id_contractor);
 
@@ -1361,17 +1356,12 @@ class ContractorController extends Controller
                     $contractor_document->document_extention = $extension;
                     $contractor_document->description = $request->file_description;
                     $contractor_document->contractor_document_active = 1;
-
-
                     $contractor_document->save();
 
 
-
-
-
                 }
-                catch(Exception $e){
-                    dd($e->getMessage());
+                catch(\Exception $e){
+                    Log::info("In maintenance package -  in ContractorController- uploadAttachment function ");
                 }
 
             }
