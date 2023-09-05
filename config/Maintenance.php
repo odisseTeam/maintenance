@@ -18,23 +18,26 @@ return[
             "id_saas_client_business" => 1,
             'business_name'=>'SDR Living' ,
             'maintenance_api_url' => env('LIVING_MAINTENANCE_API', 'https://living.odisse.local'),
+            'basic_auth_user' => env('LIVING_BASIC_AUTH_USER', 'LIVING'),
+            'basic_auth_password' => env('LIVING_BASIC_AUTH_PASSWORD', 'LIVING'),
         ],
 
         [
             "id_saas_client_business"=>2,
             'business_name'=>'ASC',
             'maintenance_api_url'=> env('ASC_MAINTENANCE_API', 'https://asc.odisse.local'),
+            'basic_auth_user' => env('ASC_BASIC_AUTH_USER', 'ASC'),
+            'basic_auth_password' => env('ASC_BASIC_AUTH_PASSWORD', 'ASC'),
         ],
 
         [
             "id_saas_client_business"=>3,
             'business_name'=>'ELC',
             'maintenance_api_url'=> env('ELC_MAINTENANCE_API', 'https://elc.odisse.local'),
+            'basic_auth_user' => env('ELC_BASIC_AUTH_USER', 'ELC'),
+            'basic_auth_password' => env('ELC_BASIC_AUTH_PASSWORD', 'ELC'),
 
         ],
-        // 'Living',
-        // 'ASC',
-        // 'ELC',
 
      ],
 

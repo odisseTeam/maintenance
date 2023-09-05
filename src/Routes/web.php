@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Odisse\Maintenance\Controllers\ApiMaintenanceMgtController;
 use Odisse\Maintenance\Controllers\MaintenanceController;
@@ -10,8 +11,8 @@ use Odisse\Maintenance\Controllers\MaintenanceAttachmentController;
 use Odisse\Maintenance\Controllers\ContractorManagementController;
 use Odisse\Maintenance\Controllers\ApiContractorMgtController;
 
-Route::prefix('api/maintenance/')->group(
-    function () {
+
+Route::group(['prefix' => 'api/maintenance/', 'middleware' => ['basic.auth']], function(){
         Route::post('save/new', [ApiMaintenanceMgtController::class, 'saveNewMaintenance']);
         Route::get('/get_data_to_create', [ApiMaintenanceMgtController::class, 'getDataToCreate']);
         Route::get('/resident_reporter', [ApiMaintenanceMgtController::class,'getLocationResident']);
@@ -27,6 +28,7 @@ Route::middleware(['web','ProxyCAS'])->group(
 
 
         Route::get('/maintenance/files/{filename}', [MaintenanceAttachmentController::class, 'getAttahmentFile']);
+        Route::get('/contractor/files/{filename}', [MaintenanceAttachmentController::class, 'getContractorAttahmentFile']);
 
 
         Route::group(['prefix' => 'maintenance', 'middleware' => ['AuthenticatedUsersMiddleware']], function(){
@@ -184,8 +186,7 @@ Route::middleware(['web','ProxyCAS'])->group(
 
 
   //API routes for portal
-Route::prefix('/api/contractor/')->group(
-    function () {
+  Route::group(['prefix' => '/api/contractor/', 'middleware' => ['basic.auth']], function(){
 
         Route::any('list_details', [ApiContractorMgtController::class, 'getContractorListDetail']);
 
@@ -212,6 +213,8 @@ Route::prefix('/api/contractor/')->group(
 
     }
 );
+
+
 
 
 

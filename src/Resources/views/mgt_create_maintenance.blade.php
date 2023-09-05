@@ -31,7 +31,31 @@
 @section('content')
 
 
-    @if ($message = Session::get('message'))
+
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            {{ trans('maintenance::maintenance.page-title') }}
+        </h1>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+
+
+
+
+    <!-- [ navigation menu ] end -->
+    <div class="pcoded-content">
+
+
+
+
+
+
+        @if ($message = Session::get('message'))
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             <strong>{{ $message }}</strong>
@@ -71,22 +95,9 @@
 
     @endif
 
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        <h1>
-            {{ trans('maintenance::maintenance.page-title') }}
-        </h1>
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
 
 
 
-
-
-    <!-- [ navigation menu ] end -->
-    <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
         <div class="page-header card">
             <div class="row align-items-end">
@@ -206,9 +217,8 @@
                                                         <!-- attachments-->
 
                                                         <div class="form-group row">
-                                                            <label  style="margin-top:10px;"
-                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.attachments') }}:</label>
-                                                            <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.attachments') }}:</label>
+                                                            <div class="col-xs-10 col-sm-10 col-md-10">
                                                                 <!-- <div class=" input-group" id="contaner"> -->
 
 
@@ -240,12 +250,12 @@
 
 
                                                         <div class="row">
-                                                            <div class="col-md-8">
+                                                            <div class="col-md-7">
 
                                                                         <!-- datetime -->
                                                                         <div class="form-group row">
                                                                             <label
-                                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
+                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
                                                                             <div class="col-xs-5 col-sm-5 col-md-5">
 
                                                                                 <div class="input-group date date_place" id="id_2">
@@ -263,7 +273,7 @@
 
                                                                         <!-- commencement_date -->
                                                                         <div class="form-group row">
-                                                                            <label class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.commencement_date') }}:</label>
+                                                                            <label class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.commencement_date') }}:</label>
                                                                             <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 
                                                                                 <div class="input-group date" id="datepicker2" >
@@ -285,7 +295,7 @@
 
                                                                         <!-- complete_date -->
                                                                         <div class="form-group row">
-                                                                            <label class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.complete_date') }}:</label>
+                                                                            <label class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.complete_date') }}:</label>
                                                                             <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 
                                                                                 <div class="input-group date" id="datepicker3">
@@ -307,7 +317,7 @@
                                                                         <!-- category-->
                                                                         <div class="form-group row">
                                                                             <label
-                                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
+                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.category') }}:</label>
                                                                             <div class="col-sm-5 col-md-5 col-lg-5">
 
 
@@ -335,7 +345,7 @@
                                                                         <!-- locations-->
                                                                         <div class="form-group row">
 
-                                                                            <label class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
+                                                                            <label class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{trans('maintenance::maintenance.locations')}}:</label>
                                                                             <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
 
 
@@ -366,7 +376,7 @@
 
                                                                         <div class="form-group row">
                                                                             <label
-                                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
+                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.priority') }}:</label>
                                                                             <div class="col-sm-5 col-md-5 col-lg-5">
 
 
@@ -396,7 +406,7 @@
 
                                                                         <div class="form-group row">
                                                                             <label
-                                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.resident_reporter') }}:</label>
+                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.resident_reporter') }}:</label>
                                                                             <div class="col-sm-5 col-md-5 col-lg-5">
 
 
@@ -417,51 +427,51 @@
 
 
                                                             </div>
-                                                            <div class="col-md-4">
+                                                            <div class="col-md-5">
 
 
-                                            <div class="box card ">
-                                                <div class="box-header card-header">
-                                                    <h4><strong>{{ trans('maintenance::maintenance.assignee') }}</strong></h4>
+                                                                <div class="box card ">
+                                                                    <div class="box-header card-header">
+                                                                        <h4><strong>{{ trans('maintenance::maintenance.assignee') }}</strong></h4>
 
-                                                </div>
-                                                <div class="box-body card-body">
+                                                                    </div>
+                                                                    <div class="box-body card-body">
 
 
 
 
 
-                                                    <!-- contractor skill-->
+                                                                        <!-- contractor skill-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_skill') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <select name="contractor_skill[]" id="contractor_skill"  class="form-control select2" multiple="multiple">
-                                                                <option value="">{{ trans('maintenance::maintenance.select_contractor_skill') }}</option>
-                                                                @foreach ($skills as $skill)
-                                                                    <option value="{{ $skill->id_contractor_skill_ref}}">{{ $skill->skill_name }}</option>
-                                                                @endforeach
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_skill') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <select name="contractor_skill[]" id="contractor_skill"  class="form-control select2" multiple="multiple">
+                                                                                    <option value="">{{ trans('maintenance::maintenance.select_contractor_skill') }}</option>
+                                                                                    @foreach ($skills as $skill)
+                                                                                        <option value="{{ $skill->id_contractor_skill_ref}}">{{ $skill->skill_name }}</option>
+                                                                                    @endforeach
 
-                                                            </select>
-                                                        </div>
-                                                        {{-- <div class="col-md-2">
-                                                            <button type="button" class="btn btn-primary" onclick="search_contractors()">{{trans('maintenance::maintenance.search')}}</button>
-                                                        </div> --}}
-                                                    </div>
+                                                                                </select>
+                                                                            </div>
+                                                                            {{-- <div class="col-md-2">
+                                                                                <button type="button" class="btn btn-primary" onclick="search_contractors()">{{trans('maintenance::maintenance.search')}}</button>
+                                                                            </div> --}}
+                                                                        </div>
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right"></label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <button type="button" class="btn btn-primary" onclick="search_contractors()">{{trans('maintenance::maintenance.search')}}</button>
-                                                        </div>
-                                                    </div>
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right"></label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                            </div>
+                                                                            <div class="col-md-2">
+                                                                                <button type="button" class="btn btn-primary" onclick="search_contractors()">{{trans('maintenance::maintenance.search')}}</button>
+                                                                            </div>
+                                                                        </div>
 
 
-                                                    <hr style="border-top:3px solid #d2d6de;">
+                                                                        <hr style="border-top:3px solid #d2d6de;">
 
 
 
@@ -469,149 +479,149 @@
 
 
 
-                                                    <!-- contractor-->
+                                                                        <!-- contractor-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.business_contractor') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
-                                                                {{-- maintenance_assignee --}}
-                                                                <option value="">{{ trans('maintenance::maintenance.select_business_contractor') }}</option>
-                                                                @foreach ($businesses as $business)
-                                                                    <option value="B{{ $business['id_saas_client_business']}}"
-                                                                        @if (isset($selected_business) && $business['id_saas_client_business'] == $selected_business->id_saas_client_business) {{ 'selected' }} @endif>
-                                                                        {{ $business['business_name'] }}
-                                                                    </option>
-                                                                @endforeach
-                                                                @foreach ($contactors as $contractor)
-                                                                    <option value="C{{ $contractor['id_contractor'] }}"
-                                                                        @if (isset($selected_contractor) && $contractor['id_contractor'] == $selected_contractor->id_contractor) {{ 'selected' }} @endif>
-                                                                        {{ $contractor['name'] }}
-                                                                    </option>
-                                                                @endforeach
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.business_contractor') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
+                                                                                    {{-- maintenance_assignee --}}
+                                                                                    <option value="">{{ trans('maintenance::maintenance.select_business_contractor') }}</option>
+                                                                                    @foreach ($businesses as $business)
+                                                                                        <option value="B{{ $business['id_saas_client_business']}}"
+                                                                                            @if (isset($selected_business) && $business['id_saas_client_business'] == $selected_business->id_saas_client_business) {{ 'selected' }} @endif>
+                                                                                            {{ $business['business_name'] }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                    @foreach ($contactors as $contractor)
+                                                                                        <option value="C{{ $contractor['id_contractor'] }}"
+                                                                                            @if (isset($selected_contractor) && $contractor['id_contractor'] == $selected_contractor->id_contractor) {{ 'selected' }} @endif>
+                                                                                            {{ $contractor['name'] }}
+                                                                                        </option>
+                                                                                    @endforeach
 
-                                                            </select>
-                                                        </div>
+                                                                                </select>
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
 
-                                                    <!-- short name-->
+                                                                        <!-- short name-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.short_name') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <input class="form-control" id="contractor_short_name" readonly value="@if(isset($selected_contractor)){{$selected_contractor->short_name}}@endif" >
-                                                        </div>
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.short_name') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <input class="form-control" id="contractor_short_name" readonly value="@if(isset($selected_contractor)){{$selected_contractor->short_name}}@endif" >
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
-                                                    <!-- tel number1-->
+                                                                        <!-- tel number1-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.tel_number1') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <input class="form-control" id="contractor_tel_number1" readonly value="@if(isset($selected_contractor)){{$selected_contractor->tel_number1}}@endif" >
-                                                        </div>
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.tel_number1') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <input class="form-control" id="contractor_tel_number1" readonly value="@if(isset($selected_contractor)){{$selected_contractor->tel_number1}}@endif" >
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
 
-                                                    <!-- address line1-->
+                                                                        <!-- address line1-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
-                                                        </div>
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
-                                                    <!-- contractor_skills-->
-                                                    <div class="form-group row ">
+                                                                        <!-- contractor_skills-->
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
 
-                                                        </div>
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
 
-                                                    <!-- coverage_areas-->
-                                                    <div class="form-group row ">
+                                                                        <!-- coverage_areas-->
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
 
-                                                        </div>
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
 
-                                                    <!-- note-->
+                                                                        <!-- note-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_note') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <textarea class="form-control" rows="4" id="contractor_note" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->note}}@endif</textarea>
-                                                        </div>
+                                                                            <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_note') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <textarea class="form-control" rows="4" id="contractor_note" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->note}}@endif</textarea>
+                                                                            </div>
 
-                                                    </div>
+                                                                        </div>
 
 
 
 
-                                                    <!-- assignee-->
+                                                                        <!-- assignee-->
 
-                                                    <div class="form-group row ">
+                                                                        <div class="form-group row ">
 
-                                                        <label
-                                                            class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.user_agent') }}:</label>
-                                                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                            <select name="user_agent" id="user_agent" class="form-control select ">
-                                                                <option value="">{{trans('maintenance::maintenance.select_user_agent')}}</option>
-                                                                @if($users)
-                                                                    @foreach ($users as $user)
-                                                                        <option value="{{ $user->user_id}}"
-                                                                            @if (isset($selected_user_agent) && $user->user_id == $selected_user_agent) {{ 'selected' }} @endif>
-                                                                            @if(isset($user->first_name) || isset($user->last_name)){{ $user->first_name  }} {{$user->last_name}}
-                                                                            @else{{$user->email}}@endif
-                                                                        </option>
-                                                                    @endforeach
-                                                                @endif
-                                                                @if($agents)
-                                                                    @foreach ($agents as $agent)
-                                                                        <option value="{{ $agent->id}}"
-                                                                            @if (isset($selected_user_agent) && $agent->id == $selected_user_agent) {{ 'selected' }} @endif>
-                                                                            @if(isset($agent->first_name) || isset($agent->last_name)){{ $agent->first_name  }} {{$agent->last_name}}
-                                                                            @else{{$agent->email}}@endif
-                                                                        </option>
-                                                                    @endforeach
-                                                                @endif
+                                                                            <label
+                                                                                class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.user_agent') }}:</label>
+                                                                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                                                <select name="user_agent" id="user_agent" class="form-control select ">
+                                                                                    <option value="">{{trans('maintenance::maintenance.select_user_agent')}}</option>
+                                                                                    @if($users)
+                                                                                        @foreach ($users as $user)
+                                                                                            <option value="{{ $user->user_id}}"
+                                                                                                @if (isset($selected_user_agent) && $user->user_id == $selected_user_agent) {{ 'selected' }} @endif>
+                                                                                                @if(isset($user->first_name) || isset($user->last_name)){{ $user->first_name  }} {{$user->last_name}}
+                                                                                                @else{{$user->email}}@endif
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    @endif
+                                                                                    @if($agents)
+                                                                                        @foreach ($agents as $agent)
+                                                                                            <option value="{{ $agent->id}}"
+                                                                                                @if (isset($selected_user_agent) && $agent->id == $selected_user_agent) {{ 'selected' }} @endif>
+                                                                                                @if(isset($agent->first_name) || isset($agent->last_name)){{ $agent->first_name  }} {{$agent->last_name}}
+                                                                                                @else{{$agent->email}}@endif
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    @endif
 
-                                                            </select>
-                                                        </div>
-                                                    </div>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
 
 
 
 
 
 
-                                                </div>
-                                            </div>
+                                                                    </div>
+                                                                </div>
 
 
 

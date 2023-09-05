@@ -165,12 +165,12 @@
 
                                                         <div class="row">
 
-                                                        <div class="col-md-11 col-xs-12">
+                                                        <div class="col-md-10 col-xs-12 col-lg-10 col-sm-12">
 
 
                                                             <div class="row">
                                                                 <!-- Start Date -->
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
 
                                                                     <div class="input-group date date_place" id="id_0">
                                                                         <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="search_start_date" id="search_start_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
@@ -181,30 +181,16 @@
                                                                         </div>
                                                                     </div>
 
-
-                                                                    {{-- <div class="form-group" style="">
-                                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
-                                                                            <div class="input-group-addon">
-                                                                                <i class="fa-solid fa-calendar"></i>
-                                                                            </div>
-                                                                            <input name="search_start_date" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" type="text" class="form-control date active" id="search_start_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                                        </div>
-
-                                                                    </div> --}}
-
                                                                 </div>
 
 
                                                                 <!-- saas_client_business -->
-                                                                <div class="col-md-4">
+                                                                <div class="col-md-5">
                                                                     <div class="form-group row">
                                                                         <label class="col-xs-3 col-sm-3 col-md-3 ">{{__('maintenance::dashboard.business')}}</label>
 
                                                                         <div class="col-xs-9 col-sm-9 col-md-9 ">
                                                                             <select class="form-control pull-right select2" id="search_business" name="search_business[]" multiple="multiple"  onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                                                {{-- <option value="" selected>
-                                                                                    {{__('maintenance::dashboard.business')}}
-                                                                                </option> --}}
                                                                                 @foreach($businesses as $business)
                                                                                     <option value="{{$business['id_saas_client_business']}}">
                                                                                         {{$business['business_name']}}
@@ -261,7 +247,7 @@
 
 
                                                                 <!-- End Date -->
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
 
 
                                                                     <div class="input-group date date_place" id="id_1">
@@ -272,23 +258,12 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-
-
-                                                                    {{-- <div class="form-group" style="">
-                                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
-                                                                            <div class="input-group-addon">
-                                                                                <i class="fa-solid fa-calendar"></i>
-                                                                            </div>
-                                                                            <input name="search_end_date" type="text" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control date active" id="search_end_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                                        </div>
-
-                                                                    </div> --}}
                                                                 </div>
 
 
 
                                                                 <!-- category -->
-                                                                <div class="col-md-4">
+                                                                <div class="col-md-5">
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">

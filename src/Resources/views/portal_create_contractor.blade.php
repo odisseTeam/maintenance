@@ -28,7 +28,26 @@
 
 
 @section('content')
-    @if(session('error'))
+
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+
+
+    <!-- [ navigation menu ] end -->
+    <div class="pcoded-content">
+
+
+
+
+
+        @if(session('error'))
         <div class="box-body">
             <div class="alert alert-danger alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -58,18 +77,9 @@
 
     @endif
 
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
 
 
 
-    <!-- [ navigation menu ] end -->
-    <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
         <div class="page-header card">
             <div class="row align-items-end">
@@ -142,6 +152,39 @@
                                                                     <form action="@if(! isset($contractor)){{'/maintenance/mgt_contractor/portal/store'}}@else{{'/maintenance/contractor/'.$contractor->id_contractor}}@endif" method="post"  enctype="multipart/form-data" >
                                                                         @csrf
                                                                         <div class="box-body">
+
+
+                                                        <!-- saas client budiness-->
+                                                        <div class="form-group row">
+                                                            <label
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.saas_client_business') }}:</label>
+                                                            <div class="col-sm-10 col-md-10 col-lg-10">
+
+
+                                                                <select name="saas_client_business" id="saas_client_business"
+                                                                    class="form-control select ">
+                                                                    <option value="">
+                                                                        {{ __('maintenance::maintenance.select_saas_client_business') }}
+                                                                    </option>
+                                                                    @if (isset($businesses))
+                                                                        @foreach ($businesses as $business)
+                                                                            <option
+                                                                                value="{{ $business['id_saas_client_business'] }}"
+                                                                                @if (old('saas_client_business') == $business['id_saas_client_business']) {{ 'selected' }} @endif>
+                                                                                {{ $business['business_name'] }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    @else
+                                                                    @endif
+
+
+                                                                </select>
+
+
+                                                            </div>
+                                                        </div>
+
+
 
 
                                                                             <!-- Name -->

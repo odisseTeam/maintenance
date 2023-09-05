@@ -89,7 +89,9 @@ class ContractorManagementController extends Controller
                         ];
 
 
-                        $response = Http::post($url,$params);
+                        //$response = Http::post($url,$params);
+                        $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
                         $responseObj = json_decode($response->body());
 
                     }
@@ -115,11 +117,12 @@ class ContractorManagementController extends Controller
 
         Log::info("In Maintenance Package - in ContractorManagementController- showPageForContractorCreation function " . " try to go to create contractor page  ------- by user " . $user->first_name . " " . $user->last_name);
 
-        // $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor');
+        $businesses = config('maintenances.businesses_name');
+
 
         return view('maintenance::portal_create_contractor',
                     [
-                        // 'wiki_link'=>$wiki_link,
+                        'businesses'=>$businesses,
                     ]
                 );
     }
@@ -131,109 +134,114 @@ class ContractorManagementController extends Controller
 
         Log::info("In Maintenance package - ContractroManagementController- storeContractor function " . " try to send contractor data by API     ------- by user " . $user->first_name . " " . $user->last_name);
 
-        $business_index = 0;
+        $selected_business =  $request->saas_client_business;
+
         $businesses = config('maintenances.businesses_name');
 
-        $url = $businesses[0]['maintenance_api_url'].'/api/contractor/save/new';
+
+        foreach($businesses as $business){
+
+            if($business['id_saas_client_business'] == $selected_business ){
+
+                $url = $business['maintenance_api_url'].'/api/contractor/save/new';
 
 
-        // $contractor_files = $request->files['contractor_files'];
-        // dd($request->files[0]);
 
-        $data = [];
-        // if ($request->hasFile('files') ) {
-            if ($request->files != null ) {
+                $data = [];
 
-            // get Illuminate\Http\UploadedFile instance
-            // $files = $request->file('files');
-            $files = $request->files;
+                if ($request->files != null ) {
 
-            Log::info(" dakhele  file ");
+                    $files = $request->files;
 
-            // dd($request->files);
+                    $index = 1;
+                    foreach($files as $upload_file) {
+                        foreach($upload_file as $file) {
 
-            $index = 1;
-            foreach($files as $upload_file) {
-                foreach($upload_file as $file) {
+                            // post request with attachment
+                            Log::info(" dakhele dakhele file ");
 
-                    // post request with attachment
-                    Log::info(" dakhele dakhele file ");
+                            $name = $file->getClientOriginalName();
+                            if( file_get_contents($file) == "") continue;
+                            $data[] = [
+                                'Content-type' => 'multipart/form-data',
+                                'name' => 'files[]',
+                                'contents' => file_get_contents($file),
+                                'filename' => $name,
+                            ] ;
+                        }
+                    }
 
-                    $name = $file->getClientOriginalName();
-                    if( file_get_contents($file) == "") continue;
-                    $data[] = [
-                        'Content-type' => 'multipart/form-data',
-                        'name' => 'files[]',
-                        'contents' => file_get_contents($file),
-                        'filename' => $name,
-                    ] ;
+
                 }
+
+                $datum =  $request->all() ;
+                unset($datum['files']);
+                unset($datum['_token']);
+                $datum['user'] = $user->email;
+
+                foreach( $datum as $key=>$value){
+                    $data[] = [
+                        'name'  => $key,
+                        'contents' => $value
+                    ];
+
+                }
+
+                $client = new Client(['auth' => [$business['basic_auth_user'], $business['basic_auth_password']]]);
+
+
+                $options = [
+                    'multipart' => $data,
+                ];
+
+                try {
+
+                    $response = $client->post($url, $options);
+
+                    if($response->getStatusCode() == "220"){
+                        //validator error
+
+                        $responseObj = json_decode($response->getBody());
+
+                        return redirect()->back()
+                        ->withErrors($responseObj->message)
+                        ->withInput();
+                    }
+                    else{
+                        return redirect('/maintenance/contractor_management')->with(['success' => 'Contractor created']);
+
+                    }
+
+
+
+
+
+                }
+                catch(\Exception $e){
+
+                    Log::error("In Maintenance Package - in ContractorManagementController - storeContractor function : send data by APi was not successful ");
+                    Log::error($e->getMessage(). $e->getLine());
+
+                    DB::rollBack();
+                    // var_dump($e->getMessage());
+
+                    // dd($e->getMessage());
+
+
+                    $status = 'error';
+                    $message = $e->getMessage();//trans('maintenance::contractor.contractor_not_created');
+
+                    return redirect()->back()
+                    ->withErrors($message)
+                    ->withInput();
+
+                    // return redirect('/maintenance/new_contractor')->with([$status => $message]);
+
+
+                }
+
             }
-
-
         }
-
-        // if ($request->has('locations') ) {
-        //     // get Illuminate\Http\UploadedFile instance
-        //     $locations = $request->get('locations');
-
-        //     $index = 1;
-        //     foreach($locations as $location) {
-        //         // post request with attachment
-        //         $data[] = [
-        //             'name' => 'locations[]',
-        //             'contents' => $location,
-        //         ] ;
-        //     }
-
-        // }
-
-        Log::info(" khareje  file ");
-
-        $datum =  $request->all() ;
-        unset($datum['files']);
-        unset($datum['_token']);
-        // unset($datum['locations']);
-        $datum['user'] = $user->id;
-
-        foreach( $datum as $key=>$value){
-            $data[] = [
-                'name'  => $key,
-                'contents' => $value
-            ];
-
-        }
-
-        $client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
-        $options = [
-            'multipart' => $data,
-        ];
-
-        try {
-            Log::info(" dakhele  try ");
-
-            $response = $client->post($url, $options);
-
-            // dd($response);
-
-            // dump($response);
-
-        }
-        catch(\Exception $e){
-
-            Log::error("In Maintenance Package - in ContractorManagementController - storeContractor function : send data by APi was not successful ");
-            Log::error($e->getMessage(). $e->getLine());
-
-            DB::rollBack();
-
-
-            $status = 'error';
-            $message = trans('maintenance::contractor.contractor_not_created');
-
-        }
-        Log::info(" khareje  try ");
-
-        return redirect('/maintenance/contractor_management')->with(['success' => 'Contractor created']);
 
     }
 
@@ -257,7 +265,9 @@ class ContractorManagementController extends Controller
                     $url =$business['maintenance_api_url'].'/api/contractor/delete';
 
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -308,9 +318,11 @@ class ContractorManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->id_business){
 
-                    $url =$business['maintenance_api_url'].'/api/contractor/get_attachments/';
+                    $url =$business['maintenance_api_url'].'/api/contractor/get_attachments';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -362,9 +374,11 @@ class ContractorManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->id_business){
 
-                    $url =$business['maintenance_api_url'].'/api/contractor/get_tasks/';
+                    $url =$business['maintenance_api_url'].'/api/contractor/get_tasks';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -417,9 +431,11 @@ class ContractorManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->id_business){
 
-                    $url =$business['maintenance_api_url'].'/api/contractor/get_email/';
+                    $url =$business['maintenance_api_url'].'/api/contractor/get_email';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
                     // dd( $response);
 
@@ -477,7 +493,9 @@ class ContractorManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/contractor/change/login_setting';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -536,9 +554,11 @@ class ContractorManagementController extends Controller
             foreach($businesses as $business){
                 if($business['id_saas_client_business'] == $request->id_business){
 
-                    $url =$business['maintenance_api_url'].'/api/contractor/get_locations/';
+                    $url =$business['maintenance_api_url'].'/api/contractor/get_locations';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -592,7 +612,9 @@ class ContractorManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/contractor/mgt_locations/change';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -647,7 +669,9 @@ class ContractorManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/contractor/get_skills';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());
@@ -700,7 +724,9 @@ class ContractorManagementController extends Controller
 
                     $url =$business['maintenance_api_url'].'/api/contractor/mgt_skills/change';
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
 
                     $responseObj = json_decode($response->body());

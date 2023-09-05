@@ -722,12 +722,14 @@ class MaintenanceController extends Controller
                 foreach($businesses as $business){
                     if($business['id_saas_client_business'] == $requested_business){
                         $url =$business['maintenance_api_url'].'/api/maintenance/resident_reporter';
-                        $response = Http::get($url, $request->all());
+                        //$response = Http::get($url, $request->all());
+                        $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->get($url,$request->all());
+
 
                         return $response;
                     }
                 }
-            
+
             return null;
         }
         else{
@@ -1085,6 +1087,7 @@ class MaintenanceController extends Controller
                         foreach($check2  as $assign_staf_obj){
                             $assign_staf_obj->update([
                                 'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                                'is_last_one'    =>'0',
                             ]);
                         }
 
@@ -1098,6 +1101,7 @@ class MaintenanceController extends Controller
                         'id_maintenance_assignee'    =>  $request->user_agent,
                         'staff_assign_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
                         'staff_start_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                        'is_last_one'    =>'1',
                         'maintenance_job_staff_history_active'  =>  1,
 
                     ]);
@@ -1131,12 +1135,20 @@ class MaintenanceController extends Controller
                 where('maintenance_job_staff_history_active' , 1)->get();
 
                 if(count($check2)>0){
-                    foreach($check2  as $assign_staf_obj){
-                        $assign_staf_obj->update([
-                            'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                            'is_last_one'    =>0,
-                        ]);
-                    }
+
+
+
+
+                    return redirect()->back()
+                    ->withErrors(trans('maintenance::maintenance.you_can_not_remove_old_assignee'))
+                    ->withInput();
+
+                    // foreach($check2  as $assign_staf_obj){
+                    //     $assign_staf_obj->update([
+                    //         'staff_end_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    //         'is_last_one'    =>0,
+                    //     ]);
+                    // }
 
                 }
 

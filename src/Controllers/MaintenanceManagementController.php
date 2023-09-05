@@ -59,7 +59,10 @@ class MaintenanceManagementController extends Controller
         $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';
 
 
-        $response = Http::post($url,[]);
+        //$response = Http::post($url,[]);
+        $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,[]);
+
+
 
         $responseObj = json_decode($response->body());
 
@@ -135,6 +138,8 @@ class MaintenanceManagementController extends Controller
                     $url =$business['maintenance_api_url'].'/api/maintenancelist_details';
 
                     $params =[
+                        // 'user'=>$business['basic_auth_user'],
+                        // 'password'=>$business['basic_auth_password'],
                         'business'=>$business['id_saas_client_business'],
                         'category'=>$request->category,
                         'priority'=>$request->priority,
@@ -145,9 +150,12 @@ class MaintenanceManagementController extends Controller
                         'assignee'=>$request->assignee,
                     ];
 
+                     //dd($params);
 
 
-                    $response = Http::post($url,$params);
+
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
 
                     $responseObj = json_decode($response->body());
                     //dd($responseObj);
@@ -202,7 +210,9 @@ class MaintenanceManagementController extends Controller
                     $url =$business['maintenance_api_url'].'/api/maintenance/delete';
 
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
                     $responseObj = json_decode($response->body());
 
@@ -270,7 +280,9 @@ class MaintenanceManagementController extends Controller
 
 
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 
@@ -365,7 +377,9 @@ class MaintenanceManagementController extends Controller
                     $url =$business['maintenance_api_url'].'/api/user_agents';
 
 
-                    $response = Http::post($url,$request->all());
+                    //$response = Http::post($url,$request->all());
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$request->all());
+
 
                     $responseObj = json_decode($response->body());
 
@@ -463,7 +477,9 @@ class MaintenanceManagementController extends Controller
                     ];
 
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 
@@ -523,7 +539,9 @@ class MaintenanceManagementController extends Controller
             'user'=>$user->id,
         ];
 
-        $data = Http::get($url,$params);
+        //$data = Http::get($url,$params);
+        $data = Http::withBasicAuth($businesses[0]['basic_auth_user'], $businesses[0]['basic_auth_password'])->get($url,$params);
+
 
         $objects = json_decode( $data->body() );
 
@@ -609,7 +627,9 @@ class MaintenanceManagementController extends Controller
                         ];
 
 
-                        $response = Http::post($url,$params);
+                        //$response = Http::post($url,$params);
+                        $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                         $responseObj = json_decode($response->body());
 
@@ -660,7 +680,9 @@ class MaintenanceManagementController extends Controller
                     ];
 
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 
@@ -703,7 +725,9 @@ class MaintenanceManagementController extends Controller
         $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';
 
 
-        $response = Http::post($url,[]);
+        //$response = Http::post($url,[]);
+        $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,[]);
+
 
         $responseObj = json_decode($response->body());
 
@@ -733,7 +757,9 @@ class MaintenanceManagementController extends Controller
                         'business'=>$business['id_saas_client_business'],
                     ];
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 
@@ -791,7 +817,9 @@ class MaintenanceManagementController extends Controller
                         'business'=>$business['id_saas_client_business'],
                     ];
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 
@@ -833,80 +861,126 @@ class MaintenanceManagementController extends Controller
         $business_index = 0;
         $businesses = config('maintenances.businesses_name');
 
-        $url = $businesses[0]['maintenance_api_url'].'/api/maintenance/save/new';
+        $selected_business =  $request->saas_client_business;
 
 
-        Log::info("In Maintenance package - MaintenanceManagementController createMaintenance function - In the controller, url is " . $url);
+        foreach($businesses as $business){
 
-        $data = [];
-        if ($request->hasFile('files') ) {
-            // get Illuminate\Http\UploadedFile instance
-            $files = $request->file('files');
+            if($business['id_saas_client_business'] == $selected_business ){
 
-            $index = 1;
-            foreach($files as $file) {
-                // post request with attachment
 
-                $name = $file->getClientOriginalName();
-                if( file_get_contents($file) == "") continue;
-                $data[] = [
-                    'Content-type' => 'multipart/form-data',
-                    'name' => 'files[]',
-                    'contents' => file_get_contents($file),
-                    'filename' => $name,
-                ] ;
+
+
+                $url = $business['maintenance_api_url'].'/api/maintenance/save/new';
+
+
+                Log::info("In Maintenance package - MaintenanceManagementController createMaintenance function - In the controller, url is " . $url);
+
+                $data = [];
+                if ($request->hasFile('files') ) {
+                    // get Illuminate\Http\UploadedFile instance
+                    $files = $request->file('files');
+
+                    $index = 1;
+                    foreach($files as $file) {
+                        // post request with attachment
+
+                        $name = $file->getClientOriginalName();
+                        if( file_get_contents($file) == "") continue;
+                        $data[] = [
+                            'Content-type' => 'multipart/form-data',
+                            'name' => 'files[]',
+                            'contents' => file_get_contents($file),
+                            'filename' => $name,
+                        ] ;
+                    }
+
+
+                }
+
+                if ($request->has('locations') ) {
+                    // get Illuminate\Http\UploadedFile instance
+                    $locations = $request->get('locations');
+
+                    $index = 1;
+                    foreach($locations as $location) {
+                        // post request with attachment
+                        $data[] = [
+                            'name' => 'locations[]',
+                            'contents' => $location,
+                        ] ;
+                    }
+
+                }
+
+
+                if ($request->has('user_agent') ) {
+
+                    $data[] = [
+                        'name' => 'user_agent',
+                        'contents' => $request->user_agent,
+                    ] ;
+
+
+                }
+                if ($request->has('commencement_date') ) {
+
+                    $data[] = [
+                        'name' => 'commencement_date',
+                        'contents' => $request->commencement_date,
+                    ] ;
+
+
+                }
+
+                if ($request->has('complete_date') ) {
+
+                    $data[] = [
+                        'name' => 'complete_date',
+                        'contents' => $request->complete_date,
+                    ] ;
+
+
+                }
+
+
+                $datum =  $request->all() ;
+                unset($datum['files']);
+                unset($datum['_token']);
+                unset($datum['locations']);
+                $datum['user'] = $user->email;
+
+                foreach( $datum as $key=>$value){
+                    $data[] = [
+                        'name'  => $key,
+                        'contents' => $value
+                    ];
+
+                }
+
+                //$client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
+                $client = new Client(['auth' => [$business['basic_auth_user'], $business['basic_auth_password']]]);
+
+                $options = [
+                    'multipart' => $data,
+                ];
+                Log::info("data is " . print_r( $options, true ));
+
+                try {
+                    $response = $client->post($url, $options);
+                    $responseObj = json_decode($response->getBody());
+
+                    return redirect('/maintenance/management')->with([$responseObj->status => $responseObj->message]);
+
+
+                }
+                catch(\Exception $e){
+                    Log::info("Exception on call api ". $e->getMessage() . $e->getLine());
+                    return redirect('/maintenance/mgt/create')->with(['error' => $e->getMessage()]);
+
+                }
+
             }
-
-
-        }
-
-        if ($request->has('locations') ) {
-            // add locations as array
-            $locations = $request->get('locations');
-
-            $index = 1;
-            foreach($locations as $location) {
-                $data[] = [
-                    'name' => 'locations[]',
-                    'contents' => $location,
-                ] ;
-            }
-
-        }
-
-
-        $datum =  $request->all() ;
-        unset($datum['files']);
-        unset($datum['_token']);
-        unset($datum['locations']);
-        unset($datum['contractor_skill']);
-        $datum['user'] = $user->email;
-
-        foreach( $datum as $key=>$value){
-            $data[] = [
-                'name'  => $key,
-                'contents' => $value
-            ];
-
-        }
-
-        $client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
-        $options = [
-            'multipart' => $data,
-        ];
-
-        try {
-            $response = $client->post($url, $options);
-            $responseObj = json_decode($response->getBody());
-
-            return redirect('/maintenance/mgt/create')->with([$responseObj->status => $responseObj->message]);
-
-
-        }
-        catch(\Exception $e){
-            Log::info("Exception on call api ". $e->getMessage() . $e->getLine());
-            return redirect('/maintenance/mgt/create')->with(['error' => $e->getMessage()]);
-
         }
 
     }
@@ -946,7 +1020,9 @@ class MaintenanceManagementController extends Controller
 
 
 
-                    $response = Http::post($url,$params);
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
 
                     $responseObj = json_decode($response->body());
 

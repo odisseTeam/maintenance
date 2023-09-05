@@ -42,38 +42,44 @@ class ApiMaintenanceMgtController extends Controller{
     public function saveNewMaintenance( Request $request)
     {
 
+        $user = User::where('email' ,$request->user)->first();
+        if($user){
 
-        $validator = $this->validateMaintenance($request);
 
-        if( null != $validator) {
-            Log::info("AAAA");
-            return response()->json(['message' => $validator->errors()], 422);
+            $validator = $this->validateMaintenance($request);
+
+            if( null != $validator) {
+                Log::info("AAAA");
+                return response()->json(['message' => $validator->errors()], 422);
+            }
+
+            Log::info("BBB");
+            $result = $this->createMaintenance($request);
+
+
+            Log::info($result['status']);
+            if( $result['status'] == 'success')
+
+                return response()->json($result, 200);
+            else{
+                return response()->json($result, 400);
+
+            }
+
         }
-
-        Log::info("BBB");
-        $result = $this->createMaintenance($request);
-
-
-
-        // if( $request->hasFile('files')){
-        //     Log::info("has file");
-        // }
-        // else{
-        //     Log::info("has no file");
-        //     Log::info( print_r($request->all(), true));
-        // }
-
-
-        // foreach($request->all() as $key=>$data){
-        //     Log::info($key);
-        // }
-
-        Log::info($result['status']);
-        if( $result['status'] == 'success')
-
-            return response()->json($result, 200);
         else{
+
+
+            $status = 'error';
+            $message = trans('maintenance:maintenance.portal_user_not_exist_in_business');
+
+            $result=[
+                'status' => $status,
+                'message' => $message
+            ];
+
             return response()->json($result, 400);
+
 
         }
     }
@@ -123,7 +129,7 @@ class ApiMaintenanceMgtController extends Controller{
 
         $legal_company = LegalCompany::find($property->id_legal_company);
         if($legal_company){
-            
+
             Log::info("in legal company");
             $order_no = $legal_company->short_name .'-'. $today->format('ymd').'-'.(intval($last_order_no_part3) +1);
         }
@@ -140,7 +146,7 @@ class ApiMaintenanceMgtController extends Controller{
     private function createMaintenance( $request )
     {
 
-        $user = User::where('email','=',$request->user)->first();
+        $user = User::where('email' ,$request->user)->first();
 
 
         try {

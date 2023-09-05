@@ -939,140 +939,140 @@ class MaintenanceDashboardController extends Controller
 
             DB::beginTransaction();
 
-                Log::info("In maintenance package, MaintenanceDashboardController- sendEmailToContractor function " . " try to send email to contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
+            Log::info("In maintenance package, MaintenanceDashboardController- sendEmailToContractor function " . " try to send email to contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
-                $contractor_email = ContractorAgent::join('users','users.id','contractor_agent.id_user')->where('contractor_agent.id_contractor',$request->id_contractor)->select('users.email')->first();
+            $contractor_email = ContractorAgent::join('users','users.id','contractor_agent.id_user')->where('contractor_agent.id_contractor',$request->id_contractor)->select('users.email')->first();
 
-                $final_email_text = "";
+            $final_email_text = "";
 
-                // html text of email
-                $email_html_text = $request->html_maintenance_temp;
+            // html text of email
+            $email_html_text = $request->html_maintenance_temp;
 
-                $final_email_text = $final_email_text . $email_html_text;
+            $final_email_text = $final_email_text . $email_html_text;
 
-                // notes of email content
-                $note_list = "<h2>Notes List</h2>";
+            // notes of email content
+            $note_list = "<h2>Notes List</h2>";
 
-                $email_template_body = $request->html_maintenance_temp;
+            $email_template_body = $request->html_maintenance_temp;
 
-                if($request->notes){
+            if($request->notes){
 
-                    $notes = $request->notes;
+                $notes = $request->notes;
 
-                    $notes = MaintenanceLog::whereIn('id_maintenance_log',$notes)->get();
+                $notes = MaintenanceLog::whereIn('id_maintenance_log',$notes)->get();
 
-                        foreach($notes as $note){
-                            $note_list = $note_list."<p>".$note->log_note."</p></hr>";
+                    foreach($notes as $note){
+                        $note_list = $note_list."<p>".$note->log_note."</p></hr>";
+                    }
+            }
+            $final_email_text = $final_email_text . $note_list;
+
+            // attached_files of email content
+
+            $attached_files_list = "<h2>Attached Files List</h2>";
+
+            $message_attachment_uri = "";
+
+            if($request->job_attachments){
+                $attached_files = $request->job_attachments;
+
+                $attached_files = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$attached_files)->get();
+
+                $maintenance_file_path = config('maintenances.maintenance_file_path');
+
+                $path = $maintenance_file_path . 'uploaded_files/' ;
+
+                $i=1;
+                $message_attachment_uri = '';
+
+                $files = [];
+
+                    foreach($attached_files as $attached_file){
+
+
+                        // $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
+
+                        $files[] = public_path($path. $attached_file->document_name);
+
+                        // $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
+
+                        // $i++;
+
                         }
-                }
-                $final_email_text = $final_email_text . $note_list;
-
-                // attached_files of email content
-
-                $attached_files_list = "<h2>Attached Files List</h2>";
-
-                $message_attachment_uri = "";
-
-                if($request->job_attachments){
-                    $attached_files = $request->job_attachments;
-
-                    $attached_files = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$attached_files)->get();
-
-                    $maintenance_file_path = config('maintenances.maintenance_file_path');
-
-                    $path = $maintenance_file_path . 'uploaded_files/' ;
-
-                    $i=1;
-                    $message_attachment_uri = '';
-
-                    $files = [];
-
-                        foreach($attached_files as $attached_file){
+                        $final_message_attachment_uri = json_encode($files);
 
 
-                            // $attached_files_list = $attached_files_list."<p>".$attached_file->document_name."</p></hr>";
+            }else{
 
-                            $files[] = public_path($path. $attached_file->document_name);
+                $final_message_attachment_uri = null;
 
-                            // $message_attachment_uri = $message_attachment_uri.'"file'.$i.'":"'.$path. $attached_file->document_name.'",';
+            }
 
-                            // $i++;
+            if(($maintenance->commencement_date != $request->commencement_date)or ($maintenance->complete_date != $request->complete_date)){
 
-                            }
-                            $final_message_attachment_uri = json_encode($files);
+                $maintenance->update([
+                    'commencement_date' => $request->commencement_date,
+                    'complete_date' => $request->complete_date,
 
+                ]);
 
-                }else{
+            }
+            $final_email_text = $final_email_text . $attached_files_list;
 
-                    $final_message_attachment_uri = null;
+            // additional comment of email content
+            $comment = $request->contractor_job_attachment_text;
 
-                }
+            $final_email_text = $final_email_text . $comment;
 
-                if(($maintenance->commencement_date != $request->commencement_date)or ($maintenance->complete_date != $request->complete_date)){
-
-                    $maintenance->update([
-                        'commencement_date' => $request->commencement_date,
-                        'complete_date' => $request->complete_date,
-
-                    ]);
-
-                }
-                $final_email_text = $final_email_text . $attached_files_list;
-
-                // additional comment of email content
-                $comment = $request->contractor_job_attachment_text;
-
-                $final_email_text = $final_email_text . $comment;
-
-                $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
+            $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
 
 
-                $comms_job_queue_detail = new CommsJobQueueDetailSaas();
-                //    $comms_job_queue_detail->id_comms_job_queue_saas = $comms_job_queue->id_comms_job_queue_saas;
-                $comms_job_queue_detail->id_comms_message_type_ref = TemplateTypeConstants::Email;
-                $comms_job_queue_detail->message_subject = "Contactor's notification";
-                $comms_job_queue_detail->job_create_date_time = Carbon::now();
-                $comms_job_queue_detail->message_to = $contractor_email->email;
-                $comms_job_queue_detail->message_body = $final_email_text;
-                $comms_job_queue_detail->message_attachment_uri = $final_message_attachment_uri;
+            $comms_job_queue_detail = new CommsJobQueueDetailSaas();
+            //    $comms_job_queue_detail->id_comms_job_queue_saas = $comms_job_queue->id_comms_job_queue_saas;
+            $comms_job_queue_detail->id_comms_message_type_ref = TemplateTypeConstants::Email;
+            $comms_job_queue_detail->message_subject = "Contactor's notification";
+            $comms_job_queue_detail->job_create_date_time = Carbon::now();
+            $comms_job_queue_detail->message_to = $contractor_email->email;
+            $comms_job_queue_detail->message_body = $final_email_text;
+            $comms_job_queue_detail->message_attachment_uri = $final_message_attachment_uri;
 
-                $comms_job_queue_detail->save();
+            $comms_job_queue_detail->save();
 
 
 
 
-                //add final comment to maintenance_log table
+            //add final comment to maintenance_log table
 
-                if($comment){
-                    $now = Carbon::createFromDate('now');
-                    $maintenance_log = new MaintenanceLog([
-                        'id_maintenance_job'    =>  $request->id_maintenance_job,
-                        'id_staff'    =>  $user->id,
-                        'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                        'log_note'  =>  trans('maintenance::dashboard.comment_by_user_when_send_email').' : '.$comment ,
+            if($comment){
+                $now = Carbon::createFromDate('now');
+                $maintenance_log = new MaintenanceLog([
+                    'id_maintenance_job'    =>  $request->id_maintenance_job,
+                    'id_staff'    =>  $user->id,
+                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'log_note'  =>  trans('maintenance::dashboard.comment_by_user_when_send_email').' : '.$comment ,
 
-                    ]);
-                    $maintenance_log->save();
-                }
-
-
-                DB::commit();
-
-                return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('success', 'Email Will Be Sent In One Minute');
+                ]);
+                $maintenance_log->save();
+            }
 
 
-                } catch (\Exception $e) {
+            DB::commit();
+
+            return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('success', 'Email Will Be Sent In One Minute');
 
 
-                    Log::error('In maintenance package, MaintenanceDashboardController- sendEmailToContractor function ' . $e->getMessage());
-                    DB::rollback();
+            } catch (\Exception $e) {
 
 
-                    return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('failure', 'Email Will not be Sent ');
+                Log::error('In maintenance package, MaintenanceDashboardController- sendEmailToContractor function ' . $e->getMessage());
+                DB::rollback();
+
+
+                return redirect()->route('emailTemplateCreation',$request->id_maintenance_job)->with('failure', 'Email Will not be Sent ');
 
 
 
-                }
+            }
 
 
     }
@@ -1195,7 +1195,7 @@ class MaintenanceDashboardController extends Controller
 
         // dd($request->all());
       try {
-        
+
 
                         $user = Sentinel::getUser();
 
@@ -1204,7 +1204,7 @@ class MaintenanceDashboardController extends Controller
 
                         //change format of complete_date
                         $complete_date = $request['complete_date'];
-                       
+
 
                     Log::info("In maintenance package, MaintenanceDashboardController- downloadEmailContent function " . " try to download email content as pdf:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
@@ -1326,7 +1326,7 @@ class MaintenanceDashboardController extends Controller
                         $maintenance_job_document->save();
 
 
-                        
+
                     //record creating this pdf file in maintenance log table
                         $maintenance_log = new MaintenanceLog();
                         $maintenance_log->id_maintenance_job = $request->id_maintenance_job;

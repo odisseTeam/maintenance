@@ -67,6 +67,7 @@ return [
 
     'resident_reporter'=>'Resident Reporter ',
     'select_resident_reporter'=>'Select Resident Reporter  ',
+    'you_can_not_remove_old_assignee'=>'You can not remove old assignee!',
 
 
 
@@ -128,7 +129,7 @@ return [
     'contractor_note'=>'Contractor Note',
     'download_pdf'=>'Download PDF',
     'email_to_contractor'=>'Email to Contractor',
-
+    'portal_user_not_exist_in_business'=>'Portal user not exist in business',
 
 
 

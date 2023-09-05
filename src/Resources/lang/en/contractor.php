@@ -128,6 +128,8 @@ return [
     'send_email'=>'Send Email',
     'attached_files'=>'Attached Files',
     'selected_notes'=>'Selected Notes',
+    'contractor_not_created'=>'Contractor not created!',
+    'portal_user_not_exist_in_business'=>'Portal user not exist in business!',
 
 
 ];

@@ -1,4 +1,3 @@
-{{-- @extends('adminlte.layouts.sdr') --}}
 @extends('layouts.blank_js')
 
 
@@ -34,7 +33,31 @@
 
 
 @section('content')
-    @if(session('error'))
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            {{-- {{__('contractor.contractor_mgt')}} --}}
+        </h1>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+
+
+
+
+    <!-- [ navigation menu ] end -->
+    <div class="pcoded-content">
+
+
+
+
+
+
+
+        @if(session('error'))
         <div class="box-body">
             <div class="alert alert-danger alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -63,22 +86,6 @@
         </div>
 
     @endif
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        <h1>
-            {{-- {{__('contractor.contractor_mgt')}} --}}
-        </h1>
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
-
-
-
-
-
-    <!-- [ navigation menu ] end -->
-    <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
         <div class="page-header card">
             <div class="row align-items-end">

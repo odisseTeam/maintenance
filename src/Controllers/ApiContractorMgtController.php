@@ -128,27 +128,45 @@ class ApiContractorMgtController extends Controller{
     public function saveNewContractor( Request $request)
     {
 
-        $user = User::find($request->user);;
+        $user = User::where('email' ,$request->user)->first();
+        if($user){
 
-        Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function ");
+            Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function ");
 
 
-        $validator = $this->validateContractor($request);
+            $validator = $this->validateContractor($request);
 
-        if( null != $validator) {
-            return response()->json(['message' => $validator->errors()], 422);
+            if( null != $validator) {
+                return response()->json(['message' => $validator->errors()], 220);
+            }
+
+            $result = $this->createContractor($request);
+
+
+
+            Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function - result=" .$result['status']);
+            if( $result['status'] == 'success')
+
+                return response()->json($result, 200);
+            else{
+                return response()->json($result, 400);
+
+            }
         }
-
-        $result = $this->createContractor($request);
-
-
-
-        Log::info("In maintenance package, ApiContractorMgtController- saveNewContractor function - result=" .$result['status']);
-        if( $result['status'] == 'success')
-
-            return response()->json($result, 200);
         else{
+
+
+            $status = 'error';
+            $message = trans('maintenance:contractor.portal_user_not_exist_in_business');
+
+            $result=[
+                'status' => $status,
+                'message' => $message
+            ];
+
             return response()->json($result, 400);
+
+
 
         }
     }
@@ -187,92 +205,103 @@ class ApiContractorMgtController extends Controller{
     private function createContractor( $request )
     {
 
-        $user = User::find($request->user);;
-        $id_saas_client_business = $user->id_saas_client_business;
+        $user = User::where('email' ,$request->user)->first();
+        if($user){
+            $id_saas_client_business = $request->saas_client_business;
 
-        Log::info("In maintenance package, ApiContractorMgtController- createContractor function ");
-
-
-        try {
-            DB::beginTransaction();
+            Log::info("In maintenance package, ApiContractorMgtController- createContractor function ");
 
 
-            //save a new contractor
-            $contractor = new Contractor();
-            $contractor->id_saas_client_business =  $id_saas_client_business;
-            $contractor->name = $request->name;
-            $contractor->short_name = $request->short_name;
-            $contractor->vat_number = $request->vat_number;
-            $contractor->tel_number1 = $request->tel_number1;
-            $contractor->tel_number2 = $request->tel_number2;
-            $contractor->address_line1 = $request->address_line1;
-            $contractor->address_line2 = $request->address_line2;
-            $contractor->address_line3 = $request->address_line3;
-            $contractor->contractor_active = 1;
+            try {
+                DB::beginTransaction();
 
 
-            $contractor->save();
+                //save a new contractor
+                $contractor = new Contractor();
+                $contractor->id_saas_client_business =  $id_saas_client_business;
+                $contractor->name = $request->name;
+                $contractor->short_name = $request->short_name;
+                $contractor->vat_number = $request->vat_number;
+                $contractor->tel_number1 = $request->tel_number1;
+                $contractor->tel_number2 = $request->tel_number2;
+                $contractor->address_line1 = $request->address_line1;
+                $contractor->address_line2 = $request->address_line2;
+                $contractor->address_line3 = $request->address_line3;
+                $contractor->contractor_active = 1;
 
 
-            $contractorAgent = [
-                'login_name' => $request->email,
-                'email' => $request->email,
-                'password' => $request->password,
-                'gender'  => 'M',
-                'user_title'  => 'Mr',
-            ];
-
-            $contractor_user = Sentinel::registerAndActivate($contractorAgent);
-            $contractor_user->update(['users_active' => '1']);
-            $contractor_user->update(['id_saas_client_business' => $user->id_saas_client_business]);
-
-            $contractor_user->save();
+                $contractor->save();
 
 
-            $contractor_agent = new ContractorAgent([
-                'id_contractor'=>$contractor->id_contractor,
-                'id_user'=>$contractor_user->id,
-                'contractor_agent_active'=>1,
-            ]);
+                $contractorAgent = [
+                    'login_name' => $request->email,
+                    'email' => $request->email,
+                    'password' => $request->password,
+                    'gender'  => 'M',
+                    'user_title'  => 'Mr',
+                ];
 
-            $contractor_agent->save();
+                $contractor_user = Sentinel::registerAndActivate($contractorAgent);
+                $contractor_user->update(['users_active' => '1']);
+                $contractor_user->update(['id_saas_client_business' => $request->saas_client_business]);
+
+                $contractor_user->save();
 
 
+                $contractor_agent = new ContractorAgent([
+                    'id_contractor'=>$contractor->id_contractor,
+                    'id_user'=>$contractor_user->id,
+                    'contractor_agent_active'=>1,
+                ]);
 
-            // $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
-
-            $files = $request->files;
+                $contractor_agent->save();
 
 
 
-            $object = new Contractor();
+                // $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
 
-
-            $file_description = $request->file_description;
-
-
-            $this->uploadFile($files,$object,$file_description,$contractor);
+                $files = $request->files;
 
 
 
-
-           DB::commit();
-
-
-            $status = 'success';
-            $message = 'Contractor created successfully';
+                $object = new Contractor();
 
 
+                $file_description = $request->file_description;
 
-        } catch (\Exception $e) {
 
-            Log::error("In maintenance package, ApiContractorMgtController- createContractor function " . $e->getMessage(). $e->getLine());
+                $this->uploadFile($files,$object,$file_description,$contractor);
 
-            DB::rollBack();
+
+
+
+                DB::commit();
+
+
+                $status = 'success';
+                $message = 'Contractor created successfully';
+
+
+
+            } catch (\Exception $e) {
+
+                Log::error("In maintenance package, ApiContractorMgtController- createContractor function " . $e->getMessage(). $e->getLine());
+
+                DB::rollBack();
+
+
+                $status = 'error';
+                $message = trans('maintenance:contractor.contractor_not_created');
+
+
+            }
+        }
+        else{
 
 
             $status = 'error';
-            $message = trans('maintenance:contractor.contractor_not_created');
+            $message = trans('maintenance:contractor.portal_user_not_exist_in_business');
+
 
 
         }
@@ -281,6 +310,7 @@ class ApiContractorMgtController extends Controller{
             'status' => $status,
             'message' => $message
         ];
+
 
     }
 
@@ -546,6 +576,13 @@ class ApiContractorMgtController extends Controller{
             $status = APIStatusConstants::BAD_REQUEST;
             $user_info = null;
 
+            return response()->json(
+                [
+                'status' => ActionStatusConstants::FAILURE,
+                'message' =>$message,
+                'user_info' =>$user_info,
+
+                ]);
 
         }
 

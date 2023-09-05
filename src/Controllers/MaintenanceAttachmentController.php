@@ -175,20 +175,43 @@ class MaintenanceAttachmentController extends Controller
 
         $path = config('maintenances.maintenance_file_path');
         $path = storage_path($path.'uploaded_files/'.$filename);
-    
-   
+
+
         if (!file_exists($path)) {
             abort(404);
         }
-    
+
         $file = file_get_contents($path);
-    
+
         $headers = [
             'Content-Type' => Storage::mimeType($path),
             'Content-Disposition' => 'inline', // Instructs browser to display content instead of downloading it
         ];
-    
-        return response()->file($path, $headers);   
-    
-      }
+
+        return response()->file($path, $headers);
+
+    }
+
+
+    public function getContractorAttahmentFile($filename){
+
+        $path = config('maintenances.contractor_file_path');
+        $path = storage_path($path.'uploaded_files/'.$filename);
+
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        $file = file_get_contents($path);
+
+        $headers = [
+            'Content-Type' => Storage::mimeType($path),
+            'Content-Disposition' => 'inline', // Instructs browser to display content instead of downloading it
+        ];
+
+        return response()->file($path, $headers);
+
+    }
+
 }
