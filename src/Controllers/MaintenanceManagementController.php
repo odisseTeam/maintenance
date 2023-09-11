@@ -963,7 +963,6 @@ class MaintenanceManagementController extends Controller
                 $options = [
                     'multipart' => $data,
                 ];
-                Log::info("data is " . $business['basic_auth_user'], $business['basic_auth_password']);
 
                 try {
                     $response = $client->post($url, $options);
