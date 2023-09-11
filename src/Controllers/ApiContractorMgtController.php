@@ -57,46 +57,44 @@ class ApiContractorMgtController extends Controller{
 
             Log::info("In maintenance package, ApiContractorMgtController- getContractorListDetail function ");
 
-            Log::info(print_r($request->all(), true));
 
-
-        $contractors = Contractor::where('contractor_active' , 1)->
-        leftjoin('contractor_location' , 'contractor_location.id_contractor' , 'contractor.id_contractor')->
-        leftjoin('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->
-        leftjoin('contractor_skill' , 'contractor_skill.id_contractor' , 'contractor.id_contractor')->
-        leftjoin('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref');
+            $contractors = Contractor::where('contractor_active' , 1)->
+            leftjoin('contractor_location' , 'contractor_location.id_contractor' , 'contractor.id_contractor')->
+            leftjoin('contractor_location_ref' , 'contractor_location.id_contractor_location_ref' , 'contractor_location_ref.id_contractor_location_ref')->
+            leftjoin('contractor_skill' , 'contractor_skill.id_contractor' , 'contractor.id_contractor')->
+            leftjoin('contractor_skill_ref' , 'contractor_skill.id_contractor_skill_ref' , 'contractor_skill_ref.id_contractor_skill_ref');
 
 
 
 
-        if( $request->has('business') and $request->business != null )
-        $contractors = $contractors->whereIn('contractor.id_saas_client_business', $request->business);
+            if( $request->has('business') and $request->business != null )
+            $contractors = $contractors->whereIn('contractor.id_saas_client_business', $request->business);
 
 
-        if( $request->has('skills') and $request->skills != null )
-        $contractors = $contractors->whereIn('contractor_skill_ref.id_contractor_skill_ref', $request->skills);
+            if( $request->has('skills') and $request->skills != null )
+            $contractors = $contractors->whereIn('contractor_skill_ref.id_contractor_skill_ref', $request->skills);
 
-        if( $request->has('locations') and $request->locations != null )
-        $contractors = $contractors->whereIn('contractor_location_ref.id_contractor_location_ref', $request->locations);
+            if( $request->has('locations') and $request->locations != null )
+            $contractors = $contractors->whereIn('contractor_location_ref.id_contractor_location_ref', $request->locations);
 
-        if( $request->has('contractor_name') and $request->contractor_name != null )
-        $contractors = $contractors->where('contractor.name','ilike', "%".$request->contractor_name."%");
-
-
-        $contractors = $contractors->select('contractor.id_contractor as first_contractor','contractor_location.id_contractor as second_contractor','contractor_skill.id_contractor as third_contractor','contractor.*','contractor_location.*','contractor_location_ref.*','contractor_skill.*','contractor_skill_ref.*')->distinct();
-
-        // $contractors = $contractors->groupBy('contractor.id_saas_client_business','contractor.id_contractor','contractor_location.id_contractor_location','contractor_location_ref.id_contractor_location_ref','contractor_skill.id_contractor_skill','contractor_skill_ref.id_contractor_skill_ref');
+            if( $request->has('contractor_name') and $request->contractor_name != null )
+            $contractors = $contractors->where('contractor.name','ilike', "%".$request->contractor_name."%");
 
 
-        // $contractors = $contractors->orderBy('contractor.id_contractor');
+            $contractors = $contractors->select('contractor.id_contractor as first_contractor','contractor_location.id_contractor as second_contractor','contractor_skill.id_contractor as third_contractor','contractor.*','contractor_location.*','contractor_location_ref.*','contractor_skill.*','contractor_skill_ref.*')->distinct();
 
-        $contractors = $contractors->get()->unique('first_contractor');
+            // $contractors = $contractors->groupBy('contractor.id_saas_client_business','contractor.id_contractor','contractor_location.id_contractor_location','contractor_location_ref.id_contractor_location_ref','contractor_skill.id_contractor_skill','contractor_skill_ref.id_contractor_skill_ref');
 
 
-        foreach( $contractors as $contractor ){
+            // $contractors = $contractors->orderBy('contractor.id_contractor');
 
-            $contractor->c_url = env('APP_URL').'/maintenance/contractor/'. $contractor->first_contractor;
-        }
+            $contractors = $contractors->get()->unique('first_contractor');
+
+
+            foreach( $contractors as $contractor ){
+
+                $contractor->c_url = env('APP_URL').'/maintenance/contractor/'. $contractor->first_contractor;
+            }
 
 
 
@@ -450,8 +448,6 @@ class ApiContractorMgtController extends Controller{
 
             Log::info("In maintenance package, ApiContractorMgtController- getContractorAttachments function ");
 
-            Log::info(print_r($request->all(), true));
-
             //get contractor attachments
             $attachments = ContractorDocument::where('id_contractor',$request->id_contractor)->where('contractor_document_active',1)->get();
 
@@ -487,8 +483,6 @@ class ApiContractorMgtController extends Controller{
         try {
 
             Log::info("In maintenance package, ApiContractorMgtController- getContractorTasks function ");
-
-            Log::info(print_r($request->all(), true));
 
             // return response()->json($request->all());
 
@@ -535,8 +529,6 @@ class ApiContractorMgtController extends Controller{
         try {
 
             Log::info("In maintenance package, ApiContractorMgtController- getContractorEmailInfo function " );
-
-            Log::info(print_r($request->all(), true));
 
             // return response()->json($request->all());
 
@@ -719,8 +711,6 @@ class ApiContractorMgtController extends Controller{
         try {
 
             Log::info("In maintenance package, ApiContractorMgtController- getContractorLocationsInfo function ");
-
-            Log::info(print_r($request->all(), true));
 
             // return response()->json($request->all());
 
@@ -1058,7 +1048,6 @@ class ApiContractorMgtController extends Controller{
             $rooms = [];
             $locations = $request->locations;
 
-            Log::info(print_r($request->all(), true));
             foreach($locations as $location) {
 
                 if(Str::contains($location, 'Room')) {

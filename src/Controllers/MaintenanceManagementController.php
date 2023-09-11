@@ -958,13 +958,12 @@ class MaintenanceManagementController extends Controller
 
                 }
 
-                //$client = new Client(['headers' => ['Authorization' => 'auth_trusted_header']]);
                 $client = new Client(['auth' => [$business['basic_auth_user'], $business['basic_auth_password']]]);
 
                 $options = [
                     'multipart' => $data,
                 ];
-                Log::info("data is " . print_r( $options, true ));
+                Log::info("data is " . $business['basic_auth_user'], $business['basic_auth_password']);
 
                 try {
                     $response = $client->post($url, $options);
