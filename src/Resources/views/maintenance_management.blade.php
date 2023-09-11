@@ -1341,7 +1341,8 @@
         ////////////////////////////////////////////////////////
         function resetSearchbox() {
             //drop downs
-            $("#search_business").val($("#search_business option:first").val());
+            //$("#search_business").val($("#search_business option:first").val());
+            $('#search_business').val(null).trigger('change');
             $("#search_category").val($("#search_category option:first").val());
             $("#search_priority").val($("#search_priority option:first").val());
             $("#search_status").val($("#search_status option:first").val());

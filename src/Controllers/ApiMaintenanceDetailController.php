@@ -406,7 +406,11 @@ class ApiMaintenanceDetailController extends Controller
 
         }
         else{
-            $maintenances = $maintenances->where('is_last_one' , 1)->orWhereNull('is_last_one');
+            //$maintenances = $maintenances->where('is_last_one' , 1)->orWhereNull('is_last_one');
+            $maintenances = $maintenances->where(function ($query)  {
+                $query->where('is_last_one' , 1)
+                      ->orWhereNull('is_last_one');
+            });
 
         }
 
