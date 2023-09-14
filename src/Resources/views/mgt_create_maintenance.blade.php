@@ -151,7 +151,7 @@
 
 
                                                                 <select name="saas_client_business" id="saas_client_business"
-                                                                    class="form-control select ">
+                                                                    class="form-control select " onchange="loadLocations()">
                                                                     <option value="">
                                                                         {{ __('maintenance::maintenance.select_saas_client_business') }}
                                                                     </option>
@@ -326,7 +326,8 @@
                                                                                     <option value="" >{{trans('maintenance::maintenance.select_category')}}</option>
                                                                                     @if(isset($maintenance_categories))
                                                                                     @foreach ($maintenance_categories as $maintenance_category)
-                                                                                    <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}">
+                                                                                    <option value="{{ $maintenance_category->id_maintenance_job_category_ref }}"
+                                                                                        @if (old('maintenance_category') == $maintenance_category->id_maintenance_job_category_ref) {{ 'selected' }} @endif>
                                                                                         {{ $maintenance_category->job_category_name }}
                                                                                     </option>
                                                                                     @endforeach
@@ -447,7 +448,7 @@
 
                                                                             <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_skill') }}:</label>
                                                                             <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-                                                                                <select name="contractor_skill[]" id="contractor_skill"  class="form-control select2" multiple="multiple">
+                                                                                <select id="contractor_skill"  class="form-control select2" multiple="multiple">
                                                                                     <option value="">{{ trans('maintenance::maintenance.select_contractor_skill') }}</option>
                                                                                     @foreach ($skills as $skill)
                                                                                         <option value="{{ $skill->id_contractor_skill_ref}}">{{ $skill->skill_name }}</option>
@@ -862,9 +863,8 @@
             document.getElementById("previous_resident_value").value = OldValue;
 
 
-            console.log(window._date_format);
 
-            loadResidentReporters();
+            //loadResidentReporters();
 
 
             $('.date_place').datetimepicker({
@@ -1122,8 +1122,8 @@
             $("#attachFileModal").modal('show');
 
         }
-                ///////////////////////////////////////////////////////
-                function send( url , data , name, parameters ) {
+        ///////////////////////////////////////////////////////
+        function send( url , data , name, parameters ) {
             return_value = null;
             $.ajax({
                 'type': "POST",
@@ -1166,6 +1166,51 @@
             let attached_files = $('#file').val();
 
             // console.log(attached_files);
+
+        }
+        ///////////////////////////////////////////////////////////
+
+        function loadLocations() {
+
+            var business = $('#saas_client_business').val();
+
+            // console.log(locations);
+            send('/maintenance/mgt/load_business_locations', {
+                'business': business,
+            }, 'handleLoadLocations', []);
+        }
+        ///////////////////////////////////////////////////////////
+        function handleLoadLocations(){
+
+            //first clear old locations
+            $('#locations').empty();
+
+            let res = return_value.code;
+            let message = return_value.message;
+            var locations = return_value.locations;
+
+
+            if (res == "failure") {
+                alert(message);
+
+            }else if (locations != null && locations != "undefined") {
+
+
+                Object.keys(locations).forEach(function(k) {
+
+                    $('#locations').append($('<option>', {
+                        value: locations[k]['id'] ,
+                        text: locations[k]['name']
+                    }));
+
+                });
+
+
+            }
+
+
+
+
 
         }
         ///////////////////////////////////////////////////////////

@@ -44,6 +44,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/statuses/charts', [MaintenanceManagementController::class,'ajaxGetStatusChartData']);
            Route::post('/mgt/sla/charts', [MaintenanceManagementController::class,'ajaxGetSlaChartData']);
            Route::get('/mgt/create', [MaintenanceManagementController::class,'showCreateMaintenancePage']);
+           Route::post('/mgt/load_business_locations', [MaintenanceManagementController::class,'ajaxLoadBusinessLocations']);
            Route::post('/mgt/new/save', [MaintenanceManagementController::class,'createMaintenance']);
            Route::post('/mgt/resident_reporter', [MaintenanceController::class,'getLocationResidents']);
            Route::post('/mgt/contractor_skill/contractors', [MaintenanceManagementController::class,'ajaxGetContractorsWithSkill']);

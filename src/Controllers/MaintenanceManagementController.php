@@ -523,6 +523,74 @@ class MaintenanceManagementController extends Controller
 
     ///////////////////////////////////////////////////////////////////////////
 
+    public function ajaxLoadBusinessLocations(Request $request){
+
+
+
+        $user = Sentinel::getUser();
+        $staff_user = User::find($user->id);
+
+        Log::info("In maintenance package, MaintenanceManagementController- ajaxLoadBusinessLocations function " . " try to load business locations  ------- by user " . $user->first_name . " " . $user->last_name);
+
+        if( $request->has('business') and $request->business != null ){
+
+
+            //get maintenances of specific business
+
+            $businesses = config('maintenances.businesses_name');
+            foreach($businesses as $business){
+                if($business['id_saas_client_business'] == $request->business){
+
+                    $url =$business['maintenance_api_url'].'/api/business_location';
+
+                   // dd($request->all());
+
+                    $params =[
+                        'business'=>$request->business,
+                    ];
+
+
+
+                    //$response = Http::post($url,$params);
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
+
+                    $responseObj = json_decode($response->body());
+
+                }
+            }
+
+
+
+        }
+        else{
+            //get maintenance of all businesses
+        }
+
+        if($responseObj){
+            return response()->json(
+                [
+                  'code' => 'success',
+                  'message' => 'Ok',
+                  'locations' => $responseObj->locations,
+                ]);
+        }
+
+        else{
+            return response()->json(
+                [
+                  'code' => 'failure',
+                  'message' => trans('maintenance::maintenance.load_locations_was_not_successful'),
+                  'locations' => [],
+                ]);
+
+        }
+
+
+
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
     public function showCreateMaintenancePage()
     {
 
@@ -557,7 +625,7 @@ class MaintenanceManagementController extends Controller
          //get all maintenance priorities
          $priorities = $objects->priorities;
 
-         $locations = $objects->locations;
+         $locations = [];// $objects->locations;
 
          $jobs = $objects->jobs;
 

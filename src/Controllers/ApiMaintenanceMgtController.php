@@ -152,12 +152,14 @@ class ApiMaintenanceMgtController extends Controller{
         try {
             DB::beginTransaction();
 
+            $maintenance_date = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $request->maintenance_date)->format(SystemDateFormats::getDateTimeFormat()):Carbon::createFromDate('now')->format(SystemDateFormats::getDateTimeFormat());
+
             //save a new maintenance job
             $maintenance_job = new MaintenanceJob();
             $maintenance_job->id_saas_client_business =  $request->saas_client_business;
             $maintenance_job->id_parent_job = 1;
             $maintenance_job->id_saas_staff_reporter = $user->id;
-            // $maintenance_job->job_report_date_time =  null == $request->maintenance_date ? Carbon::now() : $request->maintenance_date ;
+            $maintenance_job->job_report_date_time = $maintenance_date;
             $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
             $maintenance_job->id_maintenance_job_priority = $request->priority;
             $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
@@ -556,6 +558,22 @@ class ApiMaintenanceMgtController extends Controller{
             );
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    public function getBusinessLocations(Request $request){
+
+        $locations = $this->getMaintainables();;
+
+
+        return response()->json(
+            [
+                'locations' => $locations,
+            ]
+        );
+
+    }
+
+    ////////////////////////////////////////////////////////////////
+
 
     private function getMaintainables()
     {
@@ -587,18 +605,18 @@ class ApiMaintenanceMgtController extends Controller{
           }
 
 
-          $sites = Site::all();
+        //   $sites = Site::all();
 
 
-          foreach($sites as $site) {
-              $site->id = 'Site'.$site->id_site;
-              $site->name = '[Site] '.$site->site_full_name;
+        //   foreach($sites as $site) {
+        //       $site->id = 'Site'.$site->id_site;
+        //       $site->name = '[Site] '.$site->site_full_name;
 
-          }
+        //   }
 
-          foreach($sites as $site) {
-              $locations[] = $site;
-          }
+        //   foreach($sites as $site) {
+        //       $locations[] = $site;
+        //   }
 
           return $locations;
     }

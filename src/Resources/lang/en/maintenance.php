@@ -130,6 +130,7 @@ return [
     'download_pdf'=>'Download PDF',
     'email_to_contractor'=>'Email to Contractor',
     'portal_user_not_exist_in_business'=>'Portal user not exist in business',
+    'load_locations_was_not_successful'=>'Load locations was not successful',
 
 
 
