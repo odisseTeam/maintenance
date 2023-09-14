@@ -573,7 +573,7 @@
 
 
 insert into system_variable_ref(id_system_variable_category_ref , variable_name , friendly_name , variable_code , variable_description , code_visible , system_variable_ref_active) values
-(8,MAINTENANCE_SITE,MAINTENANCE_SITE,%%MAINTENANCE_SITE%%,,1,1);
+(8,'MAINTENANCE_SITE','MAINTENANCE_SITE','%%MAINTENANCE_SITE%%',NULL,1,1);
 
 
 

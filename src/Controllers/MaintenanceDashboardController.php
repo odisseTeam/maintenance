@@ -1354,6 +1354,7 @@ class MaintenanceDashboardController extends Controller
                         $maintenance_job_document->document_name = $file_name.'.pdf';
                         $maintenance_job_document->document_address = $file_path;
                         $maintenance_job_document->document_extention = 'pdf';
+                        $maintenance_job_document->maintenance_job_document_active = '1';
                         $maintenance_job_document->save();
 
 
