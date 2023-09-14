@@ -888,7 +888,15 @@ class MaintenanceDashboardController extends Controller
 
             $template_body = $request['email_html_text'];
 
-            $maintenance_template_body = $this->replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor);
+            $commencement_date = $request['commencement_date'];
+
+            $complete_date = $request['complete_date'];
+
+            $complete_date = Carbon::createFromFormat('Y-m-d' , $request['complete_date'] )->format(SystemDateFormats::getDateFormat());
+
+            $commencement_date = Carbon::createFromFormat('Y-m-d' , $request['commencement_date'] )->format(SystemDateFormats::getDateFormat());
+
+            $maintenance_template_body = $this->replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor,$commencement_date,$complete_date);
 
             // dd($maintenance_template_body);
             $notes = [];
@@ -1029,7 +1037,7 @@ class MaintenanceDashboardController extends Controller
 
             $final_email_text = $final_email_text . $comment;
 
-            $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor);
+            $final_email_text = $this->replaceMaintenanceTemplateVariables($final_email_text,$request->id_maintenance_job,$request->id_contractor,$request->commencement_date,$request->complete_date);
 
 
             $comms_job_queue_detail = new CommsJobQueueDetailSaas();
@@ -1098,7 +1106,7 @@ class MaintenanceDashboardController extends Controller
 
             $template_body = $request['email_html_text'];
 
-            $maintenance_template_body = $this->replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor);
+            $maintenance_template_body = $this->replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor,$commencement_date,$complete_date);
 
             $html_text = $html_text . $maintenance_template_body;
             $notes = [];
@@ -1245,25 +1253,43 @@ class MaintenanceDashboardController extends Controller
                             $selected_document = $selected_document .$contractor_job_attachment->document_name.' .<br>';
 
                         }
+                        // $selected_document = [];
+                        // foreach ($contractor_job_attachments as $contractor_job_attachment){
+
+
+                        //     // $selected_document = "<object  href='".$contractor_job_attachment->document_address.$contractor_job_attachment->document_name."'"."\></object>";
+
+                        //     // $selected_document[] = config('app.url', 'http://localhost').$contractor_job_attachment->document_address.$contractor_job_attachment->document_name;
+
+                        // }
+
+
+                        // dd($selected_document);
                         $selected_document =  $selected_document .'</html>';
 
                     //change format of commencement_date
                         $commencement_date = $request['commencement_date'];
 
 
+                        $additional_comment = '<html>'.$request['contractor_job_attachment_text'].'</html>';
+
+                        // dd($request->html_maintenance_temp);
 
 
 
+                    $final_email_text = $this->replaceMaintenanceTemplateVariables($request->html_maintenance_temp,$request->id_maintenance_job,$request->id_contractor,$commencement_date,$complete_date);
+                    
+                    // dd($final_email_text);
 
-
-                    $final_email_text = $this->replaceMaintenanceTemplateVariables($request->html_maintenance_temp,$request->id_maintenance_job,$request->id_contractor);
                     $final_email_text = '<html>'.$final_email_text.'</html>';
+
+                    // dd($final_email_text);
 
                     $data = [
                         'id_maintenance_job'=> $request['id_maintenance_job'],
                         'id_contractor'=> $request['id_contractor'],
                         'template_message_body'=> $final_email_text,
-                        'additional_comment'=> $request['contractor_job_attachment_text'],
+                        'additional_comment'=> $additional_comment,
                         'commencement_date'=> $request['commencement_date'],
                         'complete_date'=> $request['complete_date'],
                         'maintenance'=> $maintenance_job,

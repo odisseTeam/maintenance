@@ -24,11 +24,12 @@ use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use App\SLP\Formatter\SystemDateFormats;
 use Odisse\Maintenance\Models\Maintainable;
+use Sentinel;
 
 trait ReplaceTemplateBody{
 
 
-    private function replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor){
+    private function replaceMaintenanceTemplateVariables($template_body,$id_maintenance_job,$id_contractor,$commencement_date,$complete_date){
 
 
         try{
@@ -134,6 +135,17 @@ trait ReplaceTemplateBody{
                         $legal_company = LegalCompany::find($property->id_legal_company);
                         $company_logo ="<img style='width:50px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
 
+                        $maintenance_site = $property->address_line1 .'<br/>'.$property->city.'<br/>'.$property->county.'<br/>'.$property->postcode;
+
+
+                        if(str_contains($template_body,'%%MAINTENANCE_SITE%%')){
+
+
+                            //replace the variable code with the accurate value of it in this maintenance
+                            $template_body = str_replace('%%MAINTENANCE_SITE%%', $maintenance_site, $template_body);
+
+
+                        }
 
 
                         if(str_contains($template_body,'%%MAINTENANCE_LOCATION%%')){
@@ -177,6 +189,18 @@ trait ReplaceTemplateBody{
 
 
                         $property = Property::find($room->id_property);
+
+                        $maintenance_site = $property->address_line1 .'<br/>'.$property->city.'<br/>'.$property->county.'<br/>'.$property->postcode;
+
+
+                        if(str_contains($template_body,'%%MAINTENANCE_SITE%%')){
+
+
+                            //replace the variable code with the accurate value of it in this maintenance
+                            $template_body = str_replace('%%MAINTENANCE_SITE%%', $maintenance_site, $template_body);
+
+
+                        }
 
                         if($property->id_legal_company){
 
@@ -312,7 +336,14 @@ trait ReplaceTemplateBody{
 
 
                 if($maintenance) {
-                    $commencement_date =  $maintenance->commencement_date;
+                    // $commencement_date =  $maintenance->commencement_date;
+                    if($commencement_date == null){
+
+                        $now = \Illuminate\Support\Carbon::create('now');
+                      
+                        $commencement_date = $now->format(SystemDateFormats::getDateFormat());
+
+                    }
 
                     //replace the variable code with the accurate value of it in this booking
                     $template_body = str_replace('%%COMMENCEMENT_DATE%%', $commencement_date, $template_body);
@@ -328,8 +359,17 @@ trait ReplaceTemplateBody{
 
 
                 if($maintenance) {
-                    $complete_date =  $maintenance->complete_date;
+                    // $complete_date =  $maintenance->complete_date;
 
+                    if($complete_date == null){
+
+                        $user = Sentinel::getUser();
+                       
+                        $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+
+                        $complete_date = Carbon::parse($remain_time)->format(SystemDateFormats::getDateFormat());;
+
+                    }
                     //replace the variable code with the accurate value of it in this booking
                     $template_body = str_replace('%%COMPLETE_DATE%%', $complete_date, $template_body);
                 }else{
@@ -339,6 +379,7 @@ trait ReplaceTemplateBody{
 
             }
 
+            // return $template_body;
 
             if(str_contains($template_body,'%%MAINTENANCE_DETAIL%%')){
 

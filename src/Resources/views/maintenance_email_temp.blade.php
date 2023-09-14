@@ -562,6 +562,19 @@
 
             // var email_html_text = document.getElementById('maintenance_template').getAttribute('value');
 
+            var commencement_date = $( "#datepicker2" ).datepicker("getDate");
+
+            var dm = commencement_date.getDate();
+            var mm =commencement_date.getMonth();
+            var ym =commencement_date.getFullYear();
+            var commencement_date = ym+'-' + mm +'-' + dm;
+
+            var complete_date = $( "#datepicker3" ).datepicker("getDate");
+            var dc = complete_date.getDate();
+            var mc =complete_date.getMonth();
+            var yc =complete_date.getFullYear();
+            var complete_date = yc+ '-'+mc+'-'+ dc;
+
             console.log(email_html_text);
 
             send('/maintenance/contractor_email/preview', {
@@ -571,6 +584,8 @@
                 job_attachments_output:job_attachments_output,
                 email_html_text:email_html_text,
                 additional_comment:additional_comment,
+                commencement_date:commencement_date,
+                complete_date:complete_date,
 
             }, 'handlePreviewEmailContent', []);
 
