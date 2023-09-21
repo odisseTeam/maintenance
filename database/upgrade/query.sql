@@ -577,39 +577,48 @@ insert into system_variable_ref(id_system_variable_category_ref , variable_name 
 
 
 
-update template  set template_message_body ='<h3><strong>Work Instruction</strong></h3>
+update template  set template_message_body ='<div style="height:100px;">
+<div style="float:left;display:inline-block;width:40%;height:100px;">
+<h3><strong>Work Instruction</strong></h3>
 <p><strong>Works issued on behalf of %%LEGAL_COMPANY_NAME%%</strong></p></br>
-<p style="text-align:right;margin-right:5px">%%LEGAL_COMPANY_LOGO%%</p>
-<p><br /><br /><br /></p>
-<p>Order Number: %%ORDER_NUMBER%%</p>
+</div>
+<div style="float:right;display:inline-block;width:40%;height:100px">
+<p style="text-align:right;margin-right:5px">%%LEGAL_COMPANY_LOGO%%</br></p>
+</div>
+</div>
+
+
+<p style="font-weight:bold;" ></br><br/>Order Number: %%ORDER_NUMBER%%</p>
 <p>Date: %%DATE%%</p>
+
 <p>Contact: Emma Weston</p>
 <p>Direct Dial: 07741300764</p>
-<p>Email: emma.weston@sdrgroup.co.uk</p>
-<p>&nbsp;</p>
-<p><br /><br /></p>
 
-<div style="margin: 10px auto; color: black; text-align: center; border: 3px solid #0f0f0f;"><p style="font-weight: bold;">Please address invoice to:</p>In Chorus Ltd, 48 Malling Street, Lewes, BN7 2RH <br /><strong style="font-weight: bold;">Quote order no: %%ORDER_NUMBER%% </strong> and email to: emma.weston@sdrgroup.co.uk</div>
+<p>Email: emma.weston@sdrgroup.co.uk</p>
+
+<p>&nbsp;</p>
+
+<div style="margin: 10px auto; color: black; text-align: center; border: 3px solid #0f0f0f;"><p style="font-weight: bold;">Please address invoice to:</p>%%CENTER_MAINTENANCE_SITE%% <br /><strong style="font-weight: bold;">Quote order no: %%ORDER_NUMBER%% </strong> and email to: emma.weston@sdrgroup.co.uk</div>
 <p><br /><br /></p>
 <div style="width:100%;height:100px;">
-<div style="float:left;display:inline-block;width:40%;height:100px;">
+<div style="float:left;display:inline-block;width:50%;height:100px;">
 <p style="margin:0;display:inline;text-align:left;font-weight: bold">Site Address:</p>
 <p>%%MAINTENANCE_SITE%%</p>
 
 
 </div>
-<div style="float:right;display:inline-block;width:40%;height:100px">
+<div style="float:right;display:inline-block;width:40%;height:100px;text-align:right">
 <p style="margin:0;display:inline;text-align:right">Commencement: %%COMMENCEMENT_DATE%%</p>
-<p><br /><br /></p>
+<p><br /></p>
 
 <p style="margin:0;display:inline;text-align:right">Complete By: %%COMPLETE_DATE%%</p>
 </div>
 </div>
 <p></p>
 <p><br /><br /></p>
-<p style="font-weight: bold;text-decoration: underline;"><strong> Job Title( %%MAINTENANCE_TITLE%% )</strong></p>
-<p style="font-weight: bold"><strong>%%MAINTENANCE_DETAIL%%</strong></p>
-<p>Known Hazards and Health and Safety:</p>
+<p style="font-weight: bold;text-decoration: underline;"><strong> Job Title  &nbsp;( %%MAINTENANCE_TITLE%% )</strong></p>
+<p >%%MAINTENANCE_DETAIL%%</p>
+<p style="font-weight: bold;text-decoration: underline;">Known Hazards and Health and Safety:</p>
 <p>The contractor should ensure that all works relating to this works order are carried out in accordance with Health and Safety Policies and, where applicable the provisions of the Construction and Design Management Regulations 2015. Asbestos surveys are kept onsite, and a digital copy can be sent upon request. Should you have any concerns regarding this instruction, please raise them with us before commencing works.</p>
 '
 where id_template_category = 9;

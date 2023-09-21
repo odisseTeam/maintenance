@@ -159,7 +159,7 @@
                                                                         @foreach ($businesses as $business)
                                                                             <option
                                                                                 value="{{ $business['id_saas_client_business'] }}"
-                                                                                @if (old('saas_client_business') == $business['id_saas_client_business']) {{ 'selected' }} @endif>
+                                                                                @if (old('saas_client_business') == $business['id_saas_client_business']) {{ 'selected' }} @elseif($business['id_saas_client_business'] == 1){{'selected'}} @endif>
                                                                                 {{ $business['business_name'] }}
                                                                             </option>
                                                                         @endforeach
@@ -885,6 +885,9 @@
                 // format: 'dd/mm/yy',
                 //format: window._date_format,
             });
+
+
+            loadLocations();
 
         });
         ///////////////////////////////////////////////////

@@ -124,7 +124,7 @@ return [
     'email_notes_list'=>'Notes List',
     'preview_email_content'=>'Preview Email Content',
     'additional_comment'=>'Additional Comment',
-    'preview_email_content_modal'=>'Preview Email Content Modal',
+    'preview_email_content_modal'=>' Email Preview',
     'send_email'=>'Send Email',
     'attached_files'=>'Attached Files',
     'selected_notes'=>'Selected Notes',

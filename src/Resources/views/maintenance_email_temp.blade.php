@@ -118,7 +118,9 @@
                                             <input type="hidden" name="html_maintenance_temp" id="html_maintenance_temp" value="{{$template_message_body}}" >
 
                                             <div>
-                                                {{$template_message_body}}
+
+
+                                              {!! $template_message_body !!}
                                             </div>
                                             <!-- <div id="maintenance_template"></div> -->
 
@@ -276,19 +278,19 @@
 
                                                                                     <div class="col-md-11">
 
-                                                                                        <h3>{{ __('maintenance::contractor.preview_email_content') }}</h3>
+                                                                                        <h4>{{ __('maintenance::contractor.preview_email_content') }}</h3>
                                                                                         <div id="maintenance_template_body"></div>
 
 
-                                                                                        <h4>{{ __('maintenance::contractor.additional_comment') }}</h4>
+                                                                                        <h5 style="font-weight: bold;text-decoration: underline;">{{ __('maintenance::contractor.additional_comment') }}</h5>
                                                                                         <div id="additional_comment" name="additional_comment" ></div>
 
 
-                                                                                        <h4>{{ __('maintenance::contractor.email_attachments_list') }}</h4>
+                                                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_attachments_list') }}</h5>
                                                                                         <div id="email_attachments_list" name="email_attachments_list" ></div>
 
 
-                                                                                        <h4>{{ __('maintenance::contractor.email_notes_list') }}</h4>
+                                                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_notes_list') }}</h5>
                                                                                         <div id="email_notes_list" name="email_notes_list" ></div>
 
 
@@ -575,7 +577,6 @@
             var yc =complete_date.getFullYear();
             var complete_date = yc+ '-'+mc+'-'+ dc;
 
-            console.log(email_html_text);
 
             send('/maintenance/contractor_email/preview', {
                 id_maintenance_job: id_maintenance_job,
@@ -601,7 +602,12 @@
             let notes = return_value.notes;
             let additional_comment = return_value.additional_comment;
 
-            console.log(additional_comment);
+            if( additional_comment == null){
+
+                additional_comment = 'N/A';
+            }
+
+            console.log(notes);
 
 
             if(maintenance_job_attachments != null && maintenance_job_attachments !="undefined"){
@@ -619,6 +625,12 @@
 
 
                 });
+
+                if( maintenance_job_attachments.length == 0 ){
+              
+                    htmlDocumentValue = 'N/A';
+
+             }
 
                 $('#email_attachments_list').html('');
                 $('#email_attachments_list').append(htmlDocumentValue);
@@ -641,12 +653,17 @@
 
               });
 
+              if( notes.length == 0 ){
+              
+                   htmlNoteValue = 'N/A';
+
+              }
+
               $('#email_notes_list ').html('');
                 $('#email_notes_list ').append(htmlNoteValue);
 
 
             }
-            console.log(maintenance_template_body);
 
             $('#maintenance_template_body').html('');
             $('#maintenance_template_body').append(maintenance_template_body);

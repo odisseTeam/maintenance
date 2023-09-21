@@ -133,9 +133,11 @@ trait ReplaceTemplateBody{
                         $property = Property::find($maintenance_location->maintenable_id);
 
                         $legal_company = LegalCompany::find($property->id_legal_company);
-                        $company_logo ="<img style='width:50px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
+                        $company_logo ="<img style='width:90px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
 
-                        $maintenance_site = $property->address_line1 .'<br/>'.$property->city.'<br/>'.$property->county.'<br/>'.$property->postcode;
+                        $maintenance_site = $property->address_line1 .' '.$property->city.'<br/>'.$property->county.' '.$property->postcode;
+                       
+                        $center_maintenance_site = $property->address_line1 .' '.$property->city.' '.$property->county.' '.$property->postcode;
 
 
                         if(str_contains($template_body,'%%MAINTENANCE_SITE%%')){
@@ -147,6 +149,14 @@ trait ReplaceTemplateBody{
 
                         }
 
+                        if(str_contains($template_body,'%%CENTER_MAINTENANCE_SITE%%')){
+
+
+                            //replace the variable code with the accurate value of it in this maintenance
+                            $template_body = str_replace('%%CENTER_MAINTENANCE_SITE%%', $center_maintenance_site, $template_body);
+
+
+                        }
 
                         if(str_contains($template_body,'%%MAINTENANCE_LOCATION%%')){
 
@@ -192,6 +202,7 @@ trait ReplaceTemplateBody{
 
                         $maintenance_site = $property->address_line1 .'<br/>'.$property->city.'<br/>'.$property->county.'<br/>'.$property->postcode;
 
+                        $center_maintenance_site = $property->address_line1 .' '.$property->city.' '.$property->county.' '.$property->postcode;
 
                         if(str_contains($template_body,'%%MAINTENANCE_SITE%%')){
 
@@ -201,6 +212,16 @@ trait ReplaceTemplateBody{
 
 
                         }
+                        if(str_contains($template_body,'%%CENTER_MAINTENANCE_SITE%%')){
+
+
+
+                            //replace the variable code with the accurate value of it in this maintenance
+                            $template_body = str_replace('%%CENTER_MAINTENANCE_SITE%%', $center_maintenance_site, $template_body);
+
+
+                        }
+
 
                         if($property->id_legal_company){
 
@@ -209,7 +230,7 @@ trait ReplaceTemplateBody{
 
                             $company_logo = "<br />";
                             if( $legal_company)
-                                $company_logo ="<img style='width:50px;' src='".config('app.url', 'http://localhost') . $legal_company->logo."'"."\><br>";
+                                $company_logo ="<img style='width:90px;' src='".config('app.url', 'http://localhost') . $legal_company->logo."'"."\><br>";
 
 
                                 if(str_contains($template_body,'%%LEGAL_COMPANY_LOGO%%')){
