@@ -1221,8 +1221,10 @@ class MaintenanceDashboardController extends Controller
 
 
             $base_path = config('pdf.tempDir') ;
-
-            $pdf = PDF::loadView('maintenance::download_maintenance_email', $data);
+            $config = [
+                'format'                => 'A4',            
+            ];
+            $pdf = PDF::loadView('maintenance::download_maintenance_email', $data, [] , $config);
 
 
             // put the file in determined destination path
@@ -1343,8 +1345,11 @@ class MaintenanceDashboardController extends Controller
                 }
 
 
+                $config = [
+                    'format'                => 'A4',            
+                ];
 
-            $pdf = PDF::loadView('pdf.letter_template', $data);
+            $pdf = PDF::loadView('pdf.letter_template', $data, [], $config);
 
             $base_path = config('pdf.tempDir') ;
 
@@ -1491,8 +1496,11 @@ class MaintenanceDashboardController extends Controller
 
 
                     $base_path = config('pdf.tempDir') ;
+                    $config = [
+                        'format'                => 'A4',            
+                    ];
 
-                    $pdf = PDF::loadView('maintenance::download_maintenance_email', $data);
+                    $pdf = PDF::loadView('maintenance::download_maintenance_email', $data, [], $config);
 
                     $maintainable = Maintainable::where('id_maintenance_job',$maintenance_job->id_maintenance_job)->where('maintainable_active',1)->first();
 
