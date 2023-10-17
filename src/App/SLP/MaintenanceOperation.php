@@ -13,6 +13,7 @@ use Odisse\Maintenance\Models\MaintenanceLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Odisse\Maintenance\App\SLP\HistoricalDataAppManagement\HistoricalMaintenanceAppManager;
 use Odisse\Maintenance\App\SLP\HistoricalDataManagement\HistoricalMaintenanceManager;
 use Odisse\Maintenance\Models\Maintainable;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
@@ -36,12 +37,14 @@ trait MaintenanceOperation
             //DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'INPR' )->where('maintenance_job_status_ref_active' , 1)->first();
+            
+          
             if($status){
 
 
                 $maintenance = MaintenanceJob::find($id_maintenance);
 
-
+                
 
                 $maintenance->update([
                     'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
@@ -49,9 +52,11 @@ trait MaintenanceOperation
                     'job_finish_date_time' => null,
                 ]);
 
-
+               
               $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
               $HistoricalMaintenanceManager->insertHistory($maintenance);
+
+             
                 $now = Carbon::createFromDate('now');
 
 
@@ -516,7 +521,223 @@ trait MaintenanceOperation
 
     }
 
+    private function startMaintenanceforApp($id_user , $id_maintenance , $start_datetime){
 
+        try {
+
+
+
+            //DB::beginTransaction();
+
+            $status = MaintenanceJobStatusRef::where('job_status_code' ,'INPR' )->where('maintenance_job_status_ref_active' , 1)->first();
+            
+          
+            if($status){
+
+
+                $maintenance = MaintenanceJob::find($id_maintenance);
+
+                
+
+                $maintenance->update([
+                    'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
+                    'job_start_date_time' => $start_datetime,
+                    'job_finish_date_time' => null,
+                ]);
+
+               
+              $HistoricalMaintenanceAppManager = new HistoricalMaintenanceAppManager();
+              $HistoricalMaintenanceAppManager->insertHistory($maintenance);
+
+            //   return response()->json([
+            //     'uu'=>$HistoricalMaintenanceManager
+            // ]);
+                $now = Carbon::createFromDate('now');
+
+
+                $maintenance_log = new MaintenanceLog([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_staff'    =>  $id_user,
+                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'log_note'  =>  trans('maintenance::dashboard.start_maintenance_by_user'),
+
+                ]);
+                $maintenance_log->save();
+
+
+                $old_maintenance_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job' , $maintenance->id_maintenance_job )->whereNull('maintenance_status_end_date_time')->first();
+                $old_maintenance_status_history->update([
+                    'maintenance_status_end_date_time'  =>  $now->format(SystemDateFormats::getDateTimeFormat()),
+                ]);
+
+
+                $maintenance_status_history = new MaintenanceJobStatusHistory([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_maintenance_staff'    =>  $id_user,
+                    'id_maintenance_job_status'    =>  $status->id_maintenance_job_status_ref,
+                    'maintenance_status_start_date_time'    =>  $now->format(SystemDateFormats::getDateTimeFormat()),
+                    'maintenance_job_status_history_active'    =>  1,
+                ]);
+                $maintenance_status_history->save();
+
+
+
+                //get all locations of maintenance
+                $maintainables = Maintainable::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->where('maintainable_active' , 1)->where('maintenable_type' , 'LIKE',"%Room%")->get();
+                foreach($maintainables as $maintainable){
+
+                    //change room_maintenance_status field of room
+                    $maintenance_status = MaintenanceJobStatusRef::find($maintenance->id_maintenance_job_status);
+                    $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable->maintenable_id);
+
+
+                }
+
+                //DB::commit();
+
+
+
+                return[
+                    'code'  =>  'success',
+                    'message'  =>  trans('maintenance::dashboard.maintenance_started_successfully'),
+                ];
+
+
+            }
+            else{
+                return [
+                    'code' => 'failure',
+                    'message' => trans('maintenance::dashboard.something_wrong_start_status_not_found'),
+                ];
+            }
+
+        } catch (\Exception $e) {
+
+
+            Log::error($e->getMessage());
+            //DB::rollback();
+
+
+            return
+                [
+                'code' => 'failure',
+                'message' => $e->getMessage(),//trans('maintenance::dashboard.start_maintenance_was_not_successful'),
+                ];
+
+
+        }
+
+
+
+    }
+
+    private function endMaintenanceforApp($id_user , $id_maintenance , $end_datetime){
+
+        try {
+
+
+
+            DB::beginTransaction();
+
+            $status = MaintenanceJobStatusRef::where('job_status_code' ,'CLOS' )->where('maintenance_job_status_ref_active' , 1)->first();
+            Log::info("e");
+            if($status){
+
+                Log::info("e1");
+                $maintenance = MaintenanceJob::find($id_maintenance);
+                Log::info("e5");
+                $maintenance->update([
+                    'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
+                    'job_finish_date_time' => $end_datetime,
+                ]);
+                Log::info("e6");
+
+                 
+              $HistoricalMaintenanceAppManager = new HistoricalMaintenanceAppManager();
+              $HistoricalMaintenanceAppManager->insertHistory($maintenance);
+
+
+            //   $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
+            //   $HistoricalMaintenanceManager->insertHistory($maintenance);
+              Log::info("e2");
+
+                $now = Carbon::createFromDate('now');
+
+
+                $maintenance_log = new MaintenanceLog([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_staff'    =>  $id_user,
+                    'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
+                    'log_note'  =>  trans('maintenance::dashboard.end_maintenance_by_user'),
+
+                ]);
+                $maintenance_log->save();
+
+                $old_maintenance_status_history = MaintenanceJobStatusHistory::where('id_maintenance_job' , $maintenance->id_maintenance_job )->whereNull('maintenance_status_end_date_time')->first();
+                $old_maintenance_status_history->update([
+                    'maintenance_status_end_date_time'  =>  $now->format(SystemDateFormats::getDateTimeFormat()),
+                ]);
+
+                $maintenance_status_history = new MaintenanceJobStatusHistory([
+                    'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
+                    'id_maintenance_staff'    =>  $id_user,
+                    'id_maintenance_job_status'    =>  $status->id_maintenance_job_status_ref,
+                    'maintenance_status_start_date_time'    =>  $now->format(SystemDateFormats::getDateTimeFormat()),
+                    'maintenance_job_status_history_active'    =>  1,
+                ]);
+                $maintenance_status_history->save();
+
+
+
+                //get all locations of maintenance
+                $maintainables = Maintainable::where('id_maintenance_job' ,$maintenance->id_maintenance_job )->where('maintainable_active' , 1)->where('maintenable_type' , 'LIKE',"%Room%")->get();
+                foreach($maintainables as $maintainable){
+
+                    //change room_maintenance_status field of room
+                    $maintenance_status = MaintenanceJobStatusRef::find($maintenance->id_maintenance_job_status);
+                    $this->changeRoomMaintenanceStatus($maintenance_status->job_status_code , $maintainable->maintenable_id);
+
+
+                }
+
+
+                DB::commit();
+
+
+
+                return[
+                    'code'  =>  'success',
+                    'message'  =>  trans('maintenance::dashboard.maintenance_ended_successfully'),
+                ];
+
+
+            }
+            else{
+                return [
+                    'code' => 'failure',
+                    'message' => trans('maintenance::dashboard.something_wrong_end_status_not_found'),
+                ];
+            }
+
+        } catch (\Exception $e) {
+
+
+            Log::error($e->getMessage() . $e->getLine());
+            DB::rollback();
+
+
+            return
+                [
+                'code' => 'failure',
+                'message' => $e->getMessage(),//trans('maintenance::dashboard.end_maintenance_was_not_successful'),
+                ];
+
+
+        }
+
+
+
+    }
 
 
 }

@@ -281,6 +281,7 @@
                                                                                         <h4>{{ __('maintenance::contractor.preview_email_content') }}</h3>
                                                                                         <div id="maintenance_template_body"></div>
 
+                                                                                        
 
                                                                                         <h5 style="font-weight: bold;text-decoration: underline;">{{ __('maintenance::contractor.additional_comment') }}</h5>
                                                                                         <div id="additional_comment" name="additional_comment" ></div>
@@ -293,6 +294,11 @@
                                                                                         <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_notes_list') }}</h5>
                                                                                         <div id="email_notes_list" name="email_notes_list" ></div>
 
+                                                                                        //<h4>{{ __('maintenance::contractor.commencement_date') }}</h4>
+                                                                                       // <div id="commencement_date_preview" name="commencement_date_preview" ><p id="commencement_date_preview_p" ></p></div>
+
+                                                                                        //<h4>{{ __('maintenance::contractor.complete_date') }}</h4>
+                                                                                       // <div id="complete_date_preview" name="complete_date_preview" ><p id="complete_date_preview_p" ></p></div>
 
 
 
@@ -670,6 +676,13 @@
 
             $('#additional_comment ').html('');
             $('#additional_comment ').append(additional_comment);
+
+            document.getElementsById('commencement_date_preview_p').innerhtml = $("#commencement_date").val();
+            document.getElementsById('complete_date_preview_p').innerhtml = $("#complete_date").val();
+            console.log('iuty');
+            // console.log($("#commencement_date").val(););
+            // console.log($("#complete_date").val(););
+            console.log('kkkkkkkkkkkkk');
 
             $('#previewEmailContentModal').modal('show');
 

@@ -24,6 +24,8 @@ use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
 use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 use Odisse\Maintenance\Models\MaintenanceJobStatusRef;
 use Odisse\Maintenance\Models\MaintenanceLog;
+use App\Models\Role;
+
 use PhpParser\Builder\Function_;
 use PhpParser\Node\Expr\FuncCall;
 use Sentinel;
@@ -68,6 +70,8 @@ class MaintenanceDashboardController extends Controller
 
 
         $user = Sentinel::getUser();
+
+        $request->username = 'ahuseiny';
 
         Log::info(" in Maintenance package MaintenanceDshboardController- showDashboardPage function " . " try to go to maintenance dashboard page  ------- by user " . $user->first_name . " " . $user->last_name);
 
@@ -248,7 +252,8 @@ class MaintenanceDashboardController extends Controller
     ///////////////////////////////////////////////////////////////////////////
 
 
-    public Function ajaxDeleteMaintenance(Request $request , $id_maintenance){
+    public Function ajaxDeleteMaintenance(Request $request , $id_maintenance)
+    {
 
 
         try {
@@ -301,7 +306,7 @@ class MaintenanceDashboardController extends Controller
                 ]);
 
 
-        }
+     }
 
 
 

@@ -283,6 +283,7 @@ class MaintenanceController extends Controller
       {
           $user = Sentinel::getUser();
 
+        //   dd($request->all());
           $validator = Validator::make($request->all(), [
               'maintenance_title' => 'required',
               'description'=>'required',

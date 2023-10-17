@@ -98,7 +98,7 @@
                             <img src="{{ asset('resources/dist/img/avatar.jpeg') }}" class="user-image"
                                  alt="User Image">
                             <span
-                                class="hidden-xs">{{Sentinel::getUser()->first_name}} {{Sentinel::getUser()->last_name}}</span>
+                                class="hidden-xs">{{JWTAuth::user()->first_name}} {{JWTAuth::user()->last_name}}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
@@ -107,7 +107,7 @@
                                      alt="User Image">
 
                                 <p>
-                                    {{Sentinel::getUser()->first_name}} {{Sentinel::getUser()->last_name}}
+                                    {{JWTAuth::user()->first_name}} {{JWTAuth::user()->last_name}}
                                 </p>
                             </li>
                             <li class="user-footer">
@@ -155,7 +155,7 @@
                     <img src="{{ asset('resources/dist/img/avatar.jpeg') }}" class="img-circle" alt="User Image">
                 </div>
                 <div class="pull-left info">
-                    <p>{{Sentinel::getUser()->first_name}} {{Sentinel::getUser()->last_name}}</p>
+                    <p>{{JWTAuth::user()->first_name}} {{JWTAuth::user()->last_name}}</p>
                     <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
                 </div>
             </div>
