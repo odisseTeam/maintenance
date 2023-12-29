@@ -195,7 +195,7 @@
                                                     </div>
                                                 </div>
 
-{{--
+
 
                                                 <!-- commencement_date -->
                                                 <div class="form-group row">
@@ -218,9 +218,9 @@
                                                         </div>
 
                                                     </div>
-                                                </div> --}}
+                                                </div>
 
-{{--
+
 
                                                 <!-- complete_date -->
                                                 <div class="form-group row">
@@ -243,7 +243,7 @@
                                                         </div>
 
                                                     </div>
-                                                </div> --}}
+                                                </div>
 
 
                                                 <!-- category-->
@@ -404,7 +404,7 @@
                                                                 <option
                                                                     value="{{ $staff->id }}"
                                                                     @if ( (isset($maintenance) && ($staff->id == $maintenance->id_saas_staff_reporter ))||
-                                                                            old('staff_reporter') == $staff->id) {{ 'selected' }}@elseif($staff->id == $logged_in_user){{'selected'}} @endif>
+                                                                            old('staff_reporter') == $staff->id) {{ 'selected' }} @elseif($staff->id == $logged_in_user){{'selected'}} @endif>
                                                                     @if($staff->first_name){{ $staff->first_name }} {{ $staff->last_name }}
                                                                     @else{{$staff->email}}
                                                                     @endif
@@ -443,17 +443,17 @@
 
 
                                             </div>
-                                            {{-- <div class="col-md-4"> --}}
+                                            <div class="col-md-4">
 
                                             <!-- people-->
 
 
-                                            {{-- <div class="box"> --}}
-                                                {{-- <div class="box-header">
+                                            <div class="box">
+                                                <div class="box-header">
                                                     <h4><strong>{{ trans('maintenance::maintenance.assignee') }}</strong></h4>
 
-                                                </div> --}}
-                                                {{-- <div class="box-body"> --}}
+                                                </div>
+                                                <div class="box-body">
 
 
 
@@ -461,7 +461,7 @@
 
                                                     <!-- contractor skill-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_skill') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
@@ -476,10 +476,10 @@
                                                         <div class="col-md-2">
                                                             <button type="button" class="btn btn-primary" onclick="search_contractors()">{{trans('maintenance::maintenance.search')}}</button>
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
 
 
-                                                    {{-- <hr style="border-top:3px solid #d2d6de;"> --}}
+                                                    <hr style="border-top:3px solid #d2d6de;">
 
 
 
@@ -489,11 +489,12 @@
 
                                                     <!-- contractor-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.business_contractor') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                                                             <select name="business_contractor" id="business_contractor" onchange="loadUserAgents()" class="form-control select ">
+                                                                {{-- maintenance_assignee --}}
                                                                 <option value="">{{ trans('maintenance::maintenance.select_business_contractor') }}</option>
                                                                 @foreach ($businesses as $business)
                                                                     <option value="B{{ $business->id_saas_client_business}}"
@@ -511,88 +512,88 @@
                                                             </select>
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
 
                                                     <!-- short name-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.short_name') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                                                             <input class="form-control" id="contractor_short_name" readonly value="@if(isset($selected_contractor)){{$selected_contractor->short_name}}@endif" >
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
                                                     <!-- tel number1-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.tel_number1') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                                                             <input class="form-control" id="contractor_tel_number1" readonly value="@if(isset($selected_contractor)){{$selected_contractor->tel_number1}}@endif" >
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
 
                                                     <!-- address line1-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                                                             <textarea class="form-control" rows="1" id="contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
                                                     <!-- contractor_skills-->
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="skill_place">
 
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
 
                                                     <!-- coverage_areas-->
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="coverage_area_place">
 
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
 
                                                     <!-- note-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.contractor_note') }}:</label>
                                                         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                                                             <textarea class="form-control" rows="4" id="contractor_note" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->note}}@endif</textarea>
                                                         </div>
 
-                                                    </div> --}}
+                                                    </div>
 
 
 
 
                                                     <!-- assignee-->
 
-                                                    {{-- <div class="form-group row ">
+                                                    <div class="form-group row ">
 
                                                         <label
                                                             class="col-xs-5 col-sm-5 col-md-5 control-label text-right">{{ trans('maintenance::maintenance.user_agent') }}:</label>
@@ -620,19 +621,19 @@
 
                                                             </select>
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
 
 
 
 
 
-{{--
+
                                                 </div>
                                             </div>
 
 
 
-                                            </div> --}}
+                                            </div>
                                         </div>
                                         <div class="box-footer text-right">
 

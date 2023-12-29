@@ -45,6 +45,8 @@ use Odisse\Maintenance\Models\ManintenanceJob;
 use App\Http\General\UserData;
 use App\Models\LegalCompany;
 use App\SLP\Com\LinkGenerator\WikiLinkGenerator;
+use App\SLP\Reports\Impl\BookingActivitiesHandler;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Sentinel;
 use Illuminate\Support\Facades\Validator;
@@ -102,8 +104,6 @@ class MaintenanceController extends Controller
     public function createNewMaintenancePage()
     {
 
-
-
         $user = Sentinel::getUser();
 
         Log::info("In maintenance package - in MaintenanceController- createNewMaintenancePage function " . " try to go to create maintenance page  ------- by user " . $user->first_name . " " . $user->last_name);
@@ -133,6 +133,55 @@ class MaintenanceController extends Controller
             $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('create_maintenance');
 
 
+            $staffs = User::where('users_active' , 1)->where('is_deleted' , 0)->get();
+
+            //some default values
+            $now = Carbon::createFromDate('now')->format(SystemDateFormats::getDateTimeFormat());
+            $current_business_obj = SaasClientBusiness::find($user->id_saas_client_business);
+            $current_business = $current_business_obj?$current_business_obj->id_saas_client_business:0;
+
+
+
+            $is_maintenance_user = false;
+
+            if ($user->inRole('Maintenance') || $user->inRole('admin')|| $user->inRole('super_user'))
+            {
+                $is_maintenance_user = true;
+            }
+
+            //dd($is_maintenance_user);
+
+            if($is_maintenance_user){
+
+
+            return view(
+                'maintenance::full_access_create_maintenance',
+                // UserData::getTheme().'.m.create_maintenance',
+                [
+                          'maintenance_categories' => $maintenance_category,
+                          'saas_client_businesses' => $saas_client_businesses,
+                          'priorities' => $priorities,
+                          'locations' => $locations,
+                          'skills' => $skills,
+                          'businesses' => $businesses,
+                          'contactors' => $contactors,
+                          'users' => $users,
+                          'logged_in_user' => $user->id,
+                          'agents' => $agents,
+                          'jobs' => $jobs,
+                          'now' => $now,
+                          'current_business' => $current_business,
+                          'wiki_link' => $wiki_link,
+                          'staffs' => $staffs,
+
+
+                        ]
+            );
+
+            }
+            else{
+
+
             return view(
                 'maintenance::create_maintenance',
                 // UserData::getTheme().'.m.create_maintenance',
@@ -145,13 +194,22 @@ class MaintenanceController extends Controller
                           'businesses' => $businesses,
                           'contactors' => $contactors,
                           'users' => $users,
+                          'logged_in_user' => $user->id,
                           'agents' => $agents,
                           'jobs' => $jobs,
+                          'now' => $now,
+                          'current_business' => $current_business,
                           'wiki_link' => $wiki_link,
+                          'staffs' => $staffs,
 
 
                         ]
             );
+
+            }
+
+
+
 
         } catch (\Exception $e) {
             Log::error("In maintenance package - in MaintenanceController- createNewMaintenancePage function ".$e->getMessage() . " by user "
@@ -294,6 +352,7 @@ class MaintenanceController extends Controller
               'saas_client_business'=>'required',
               'locations'=>'required',
               'priority'=>'required',
+              'staff_reporter'=>'required|numeric',
 
             ]);
           if ($validator->fails()) {
@@ -315,7 +374,8 @@ class MaintenanceController extends Controller
               $maintenance_job = new MaintenanceJob();
               $maintenance_job->id_saas_client_business =  $request->saas_client_business;
               $maintenance_job->id_parent_job = 1;
-              $maintenance_job->id_saas_staff_reporter = $user->id;
+              $maintenance_job->id_saas_staff_enter_data = $user->id;
+              $maintenance_job->id_saas_staff_reporter = $request->staff_reporter;
               $maintenance_job->job_report_date_time = $request->maintenance_date;
               $maintenance_job->commencement_date = $request->commencement_date;
               $maintenance_job->complete_date = $request->complete_date;
@@ -889,6 +949,8 @@ class MaintenanceController extends Controller
 
               $maintenance_documents = MaintenanceJobDocument::where('id_maintenance_job', $maintenanceId)->get();
 
+              $staffs = User::where('users_active' , '1')->where('is_deleted' , 0)->get();
+
               session(['active_tab' => 'maintenanceDetail']);
 
               return view(
@@ -910,6 +972,7 @@ class MaintenanceController extends Controller
 		        'selected_contractor'=>$selected_contractor,
 		        'selected_business'=>$selected_business,
 		        'users'=>$users,
+		        'staffs'=>$staffs,
 		        'agents'=>$agents,
 		        'skills'=>$skills,
 		        'wiki_link'=>$wiki_link,
@@ -999,6 +1062,19 @@ class MaintenanceController extends Controller
                         ]);
 
                $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance title to ".$request->maintenance_title."\r\n";
+
+
+               }
+
+               //check if maintenance staff reporter has been changed
+               if($maintenance_old_data->id_saas_staff_reporter != $request->staff_reporter) {
+
+                // edit title of maintenance job
+                $maintenance_old_data->update([
+                    'id_saas_staff_reporter' => $request->staff_reporter,
+                        ]);
+
+               $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance staff reporter"."\r\n";
 
 
                }

@@ -255,11 +255,11 @@
                                                                         <!-- datetime -->
                                                                         <div class="form-group row">
                                                                             <label
-                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.date_time') }}:</label>
+                                                                                class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.date_time_reported') }}:</label>
                                                                             <div class="col-xs-5 col-sm-5 col-md-5">
 
                                                                                 <div class="input-group date date_place" id="id_2">
-                                                                                    <input type="text" id="maintenance_date" name="maintenance_date" placeholder="{{ trans('maintenance::maintenance.date_time') }}" value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }} @endif"  class="form-control" name="start_datetimepicker" id="start_datetimepicker">
+                                                                                    <input type="text" id="maintenance_date" name="maintenance_date" placeholder="{{ trans('maintenance::maintenance.date_time') }}" value="@if (isset($maintenance)) {{ $maintenance->maintenance_date_time }} @elseif (old('maintenance_date')) {{ old('maintenance_date') }}@else{{$now}} @endif"  class="form-control" name="start_datetimepicker" id="start_datetimepicker">
                                                                                     <div class="input-group-addon input-group-append">
                                                                                         <div class="input-group-text">
                                                                                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
@@ -422,6 +422,37 @@
 
 
                                                                         <input type="hidden" id="previous_resident_value" name="previous_resident_value" />
+
+
+
+                                                <!-- staff reporter-->
+
+                                                <div class="form-group row">
+                                                    <label
+                                                        class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.staff_reporter') }}:</label>
+                                                    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+
+
+                                                        <select name="staff_reporter" id="staff_reporter" class="form-control select select2 ">
+                                                            @if (isset($staffs))
+                                                            @foreach ($staffs as $staff)
+                                                                <option
+                                                                    value="{{ $staff->email }}"
+                                                                    @if ( (isset($maintenance) && ($staff->id == $maintenance->id_saas_staff_reporter ))||
+                                                                            old('staff_reporter') == $staff->id) {{ 'selected' }} @elseif($staff->id == $logged_in_user){{'selected'}}@endif>
+                                                                    @if($staff->first_name){{ $staff->first_name }} {{ $staff->last_name }}
+                                                                    @else{{$staff->email}}
+                                                                    @endif
+                                                                </option>
+                                                            @endforeach
+
+                                                        @else
+                                                        @endif
+                                                        </select>
+
+
+                                                    </div>
+                                                </div>
 
 
 

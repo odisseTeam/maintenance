@@ -148,6 +148,18 @@ class ApiMaintenanceMgtController extends Controller{
 
         $user = User::where('email' ,$request->user)->first();
 
+        $staff_reporter = User::where('email' , $request->staff_reporter)->first();
+        if(!$staff_reporter){
+
+            return [
+                'status' => 'error',
+                'message' => trans('maintenance::maintenance.who_is_staff_reporter_we_dont_know')
+            ];
+
+        }
+
+        $staff_reporter_id = $staff_reporter->id;
+
 
         try {
             DB::beginTransaction();
@@ -158,7 +170,8 @@ class ApiMaintenanceMgtController extends Controller{
             $maintenance_job = new MaintenanceJob();
             $maintenance_job->id_saas_client_business =  $request->saas_client_business;
             $maintenance_job->id_parent_job = 1;
-            $maintenance_job->id_saas_staff_reporter = $user->id;
+            $maintenance_job->id_saas_staff_enter_data = $user->id;
+            $maintenance_job->id_saas_staff_reporter = $staff_reporter_id;
             $maintenance_job->job_report_date_time = $maintenance_date;
             $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
             $maintenance_job->id_maintenance_job_priority = $request->priority;

@@ -60,6 +60,7 @@ class MaintenanceJob extends Model
 		'id_saas_client_business',
 		'id_parent_job',
 		'id_saas_staff_reporter',
+		'id_saas_staff_enter_data',
 		'id_maintenance_job_category',
 		'id_maintenance_job_priority',
 		'id_maintenance_job_status',

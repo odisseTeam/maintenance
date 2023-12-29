@@ -315,7 +315,7 @@
                                                             {{__('maintenance::dashboard.status')}}
                                                         </option>
                                                         @foreach($statuses as $status)
-                                                            <option value="{{$status->id_maintenance_job_status_ref}}">
+                                                            <option value="{{$status->id_maintenance_job_status_ref}}" @if($status->id_maintenance_job_status_ref == \Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants::OPUN){{'selected'}}@endif>
                                                                 {{$status->job_status_name}}
                                                             </option>
                                                         @endforeach

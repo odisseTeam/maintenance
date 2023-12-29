@@ -313,6 +313,42 @@
 
 
 
+                                                <!-- staff reporter-->
+
+                                                <div class="form-group row">
+                                                    <label
+                                                        class="col-xs-3 col-sm-3 col-md-3 control-label text-right">{{ trans('maintenance::maintenance.staff_reporter') }}:</label>
+                                                    <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+
+                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+
+
+                                                        <select name="staff_reporter" id="staff_reporter" class="form-control select select2 ">
+                                                            @if (isset($staffs))
+                                                            @foreach ($staffs as $staff)
+                                                                <option
+                                                                    value="{{ $staff->id }}"
+                                                                    @if ( (isset($maintenance) && ($staff->id == $maintenance->id_saas_staff_reporter ))||
+                                                                            old('staff_reporter') == $staff->id) {{ 'selected' }} @endif>
+                                                                    @if($staff->first_name){{ $staff->first_name }} {{ $staff->last_name }}
+                                                                    @else{{$staff->email}}
+                                                                    @endif
+                                                                </option>
+                                                            @endforeach
+
+                                                        @else
+                                                        @endif
+                                                        </select>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+
+
+
+
+
                                         </div>
                                         <div class="col-md-6">
 

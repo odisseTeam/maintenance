@@ -599,6 +599,8 @@ class MaintenanceManagementController extends Controller
         $user = Sentinel::getUser();
 
 
+
+
         $businesses = config('maintenances.businesses_name');
 
         $url = $businesses[0]['maintenance_api_url'].'/api/maintenance/get_data_to_create';
@@ -638,6 +640,11 @@ class MaintenanceManagementController extends Controller
          $users = null;
          $agents = null;
 
+         $staffs = User::whereNull('deleted_at')->get();
+         $now = Carbon::createFromDate('now')->format('d-m-Y H:i');
+
+
+
 
         //dd($maintenance_category, $locations, $priorities);
         return view(
@@ -649,10 +656,13 @@ class MaintenanceManagementController extends Controller
                         'businesses' => $businesses,
                         'contactors' => $contactors,
                         'users' => $users,
+                        'logged_in_user' => $user->id,
                         'agents' => $agents,
+                        'staffs' => $staffs,
                         'priorities' => $priorities,
                         'locations' => $locations,
                         'jobs' => $jobs,
+                        'now' => $now,
 
 
                     ]

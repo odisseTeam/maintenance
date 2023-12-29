@@ -107,7 +107,6 @@ class MaintenanceDashboardController extends Controller
                         'contractor_agents'=>$contractor_agents,
                         'skills'=>$skills,
                         'wiki_link'=>$wiki_link,
-                        // 'message'=>$message
 
                     ]
                 );
@@ -1101,7 +1100,7 @@ class MaintenanceDashboardController extends Controller
             //  dd($maintenance_document);
 
              if( $maintenance_document ){
-                           
+
                 $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
 
                 $part_2digit_document_name = substr($maintenance_document->document_name,15,2);
@@ -1124,10 +1123,10 @@ class MaintenanceDashboardController extends Controller
 
 
                 if( $maintenance_document ){
-               
+
                     $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
-                    
-                   
+
+
                     $part_3digit_document_name = intval($part_3digit_document_name)+1;
 
                     $part_2digit_document_name = '01';
@@ -1140,7 +1139,7 @@ class MaintenanceDashboardController extends Controller
                     //file name if no pdf file for maintenance email content has been created yet
                     $part_3digit_document_name = 100;
                     $part_2digit_document_name = '01';
-                   
+
                     $file_name = $legal_company[0]->short_name.'-'.date('ymd').'-'.$part_3digit_document_name.'-'.$part_2digit_document_name;
 
 
@@ -1158,7 +1157,7 @@ class MaintenanceDashboardController extends Controller
             if($request['notes'] == null){
                 $selected_notes = 'N/A';
             }else{
-                
+
                 $notes = MaintenanceLog::whereIn('id_maintenance_log',$request['notes'])->get();
 
                 $selected_notes = '<html>';
@@ -1173,19 +1172,19 @@ class MaintenanceDashboardController extends Controller
             }
 
             if($request['job_attachments'] == null){
-                      
+
                 $selected_document = 'N/A';
             }else{
-               
+
                 $selected_document = '<html>';
 
                 $contractor_job_attachments = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$request['job_attachments'])->get();
-           
-           
+
+
                 foreach ($contractor_job_attachments as $contractor_job_attachment){
 
                     if(($contractor_job_attachment->document_extention == 'png')||($contractor_job_attachment->document_extention == 'jpg')||($contractor_job_attachment->document_extention == 'jpeg')){
-                       
+
                         $selected_document = $selected_document ."<img style='width:100px;' src='".$contractor_job_attachment->document_address.$contractor_job_attachment->document_name."'"."\>";
 
                     }else{
@@ -1227,7 +1226,7 @@ class MaintenanceDashboardController extends Controller
 
             $base_path = config('pdf.tempDir') ;
             $config = [
-                'format'                => 'A4',            
+                'format'                => 'A4',
             ];
             $pdf = PDF::loadView('maintenance::download_maintenance_email', $data, [] , $config);
 
@@ -1351,7 +1350,7 @@ class MaintenanceDashboardController extends Controller
 
 
                 $config = [
-                    'format'                => 'A4',            
+                    'format'                => 'A4',
                 ];
 
             $pdf = PDF::loadView('pdf.letter_template', $data, [], $config);
@@ -1424,7 +1423,7 @@ class MaintenanceDashboardController extends Controller
                     if($request['notes'] == null){
                         $selected_notes = 'N/A';
                     }else{
-                        
+
                         $notes = MaintenanceLog::whereIn('id_maintenance_log',$request['notes'])->get();
 
                         $selected_notes = '<html>';
@@ -1440,19 +1439,19 @@ class MaintenanceDashboardController extends Controller
 
 
                     if($request['job_attachments'] == null){
-                      
+
                         $selected_document = 'N/A';
                     }else{
-                       
+
                         $selected_document = '<html>';
 
                         $contractor_job_attachments = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$request['job_attachments'])->get();
-                   
-                   
+
+
                         foreach ($contractor_job_attachments as $contractor_job_attachment){
 
                             if(($contractor_job_attachment->document_extention == 'png')||($contractor_job_attachment->document_extention == 'jpg')||($contractor_job_attachment->document_extention == 'jpeg')){
-                               
+
                                 $selected_document = $selected_document ."<img style='width:100px;' src='".$contractor_job_attachment->document_address.$contractor_job_attachment->document_name."'"."\>";
 
                             }else{
@@ -1466,21 +1465,21 @@ class MaintenanceDashboardController extends Controller
 
                     }
 
- 
+
                         // dd($selected_document);
 
                         //change format of commencement_date
                         $commencement_date = $request['commencement_date'];
 
- 
+
 
                             $additional_comment = '<html>'.$request['contractor_job_attachment_text'].'</html>';
 
-                     
+
 
 
                     $final_email_text = $this->replaceMaintenanceTemplateVariables($request->html_maintenance_temp,$request->id_maintenance_job,$request->id_contractor,$commencement_date,$complete_date);
-                    
+
 
                     $final_email_text = '<html>'.$final_email_text.'</html>';
 
@@ -1502,7 +1501,7 @@ class MaintenanceDashboardController extends Controller
 
                     $base_path = config('pdf.tempDir') ;
                     $config = [
-                        'format'                => 'A4',            
+                        'format'                => 'A4',
                     ];
 
                     $pdf = PDF::loadView('maintenance::download_maintenance_email', $data, [], $config);
@@ -1527,8 +1526,8 @@ class MaintenanceDashboardController extends Controller
                     //count all pdf files that previously have been generated
                         $log_for_maintenance_email_pdf_file = MaintenanceLog::where('log_note',trans('maintenance::dashboard.system_created_a_pdf_file_automatically'))->get();
 
-      
-                
+
+
 
                         //get all document of pdf file of maintenance email in database that are for this maintenance job
                         $maintenance_document = MaintenanceJobDocument::where('id_maintenance_job',$request['id_maintenance_job'])->where('maintenance_job_document_active',1)
@@ -1537,7 +1536,7 @@ class MaintenanceDashboardController extends Controller
 
 
                         if( $maintenance_document ){
-                           
+
                             $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
 
                             $part_2digit_document_name = substr($maintenance_document->document_name,15,2);
@@ -1558,26 +1557,26 @@ class MaintenanceDashboardController extends Controller
                             //get all document of pdf file of maintenance email in database that are not for this maintenance job
                            $maintenance_document = MaintenanceJobDocument::where('maintenance_job_document_active',1)->where('is_uploaded_file',0)
                             ->orderBy('id_maintenance_job_document','desc')->first();
-    
+
 
                             if( $maintenance_document ){
-                           
+
                                 $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
-                                
-                               
+
+
                                 $part_3digit_document_name = intval($part_3digit_document_name)+1;
-    
+
                                 $part_2digit_document_name = '01';
-    
+
                                 $file_name = $legal_company[0]->short_name.'-'.date('ymd').'-'.$part_3digit_document_name.'-'.$part_2digit_document_name;
-    
-    
+
+
                             }else{
 
                                 //file name if no pdf file for maintenance email content has been created yet
                                 $part_3digit_document_name = 100;
                                 $part_2digit_document_name = '01';
-                               
+
                                 $file_name = $legal_company[0]->short_name.'-'.date('ymd').'-'.$part_3digit_document_name.'-'.$part_2digit_document_name;
 
 

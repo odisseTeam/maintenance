@@ -48,6 +48,7 @@ return [
     'description'=>'Description ',
     'attachments'=>'Attachments ',
     'date_time'=>'Date Time ',
+    'date_time_reported'=>'Date Time Reported',
     'category'=>'Category ',
     'saas_client_business'=>'SDR Business ',
     'select_saas_client_business'=>'Select Saas Client Business ',
@@ -66,8 +67,10 @@ return [
     'maintenance_created_successfully'=>'Maintenance Created Successfully ',
 
     'resident_reporter'=>'Resident Reporter ',
+    'staff_reporter'=>'Staff Reporter ',
     'select_resident_reporter'=>'Select Resident Reporter  ',
     'you_can_not_remove_old_assignee'=>'You can not remove old assignee!',
+    'who_is_staff_reporter_we_dont_know'=>'Who is staff reporter? we do not know!',
 
 
 
