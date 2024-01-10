@@ -71,8 +71,6 @@ class MaintenanceDashboardController extends Controller
 
         $user = Sentinel::getUser();
 
-        $request->username = 'ahuseiny';
-
         Log::info(" in Maintenance package MaintenanceDshboardController- showDashboardPage function " . " try to go to maintenance dashboard page  ------- by user " . $user->first_name . " " . $user->last_name);
 
 

@@ -294,11 +294,6 @@
                                                                                         <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_notes_list') }}</h5>
                                                                                         <div id="email_notes_list" name="email_notes_list" ></div>
 
-                                                                                        //<h4>{{ __('maintenance::contractor.commencement_date') }}</h4>
-                                                                                       // <div id="commencement_date_preview" name="commencement_date_preview" ><p id="commencement_date_preview_p" ></p></div>
-
-                                                                                        //<h4>{{ __('maintenance::contractor.complete_date') }}</h4>
-                                                                                       // <div id="complete_date_preview" name="complete_date_preview" ><p id="complete_date_preview_p" ></p></div>
 
 
 
