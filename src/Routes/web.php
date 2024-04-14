@@ -20,11 +20,18 @@ Route::group(['prefix' => 'api/maintenance/', 'middleware' => ['basic.auth']], f
 );
 
 
+Route::post('/utility/get_now_from_server', [MaintenanceDashboardController::class,'getCurrentDateTime']);
+Route::post('/mgt/utility/get_now_from_server', [MaintenanceManagementController::class,'getCurrentDateTime']);
+
+
+
 
 
 
 Route::middleware(['web','ProxyCAS'])->group(
     function () {
+
+
 
 
         Route::get('/maintenance/files/{filename}', [MaintenanceAttachmentController::class, 'getAttahmentFile']);
@@ -35,7 +42,8 @@ Route::middleware(['web','ProxyCAS'])->group(
 
            Route::get('/management', [MaintenanceManagementController::class,'showManagementPage'])->name('maintenance_management');
            Route::post('/mgt_maintenances_list', [MaintenanceManagementController::class,'ajaxLoadMaintenances'])->name('load_mgt_maintenances');
-           Route::post('/mgt/delete/{id_maintenance}', [MaintenanceManagementController::class,'ajaxMgtDeleteMaintenance'])->name('delete_maintenance');
+           Route::post('/mgt_contractor_maintenances_list', [MaintenanceManagementController::class,'ajaxLoadAssignedMaintenances'])->name('load_assigned_maintenances');
+           Route::post('/mgt/delete/{id_maintenance}', [MaintenanceManagementController::class,'ajaxMgtDeleteMaintenance'])->name('delete_mgt_maintenance');
            Route::post('/mgt/start/{id_maintenance}', [MaintenanceManagementController::class,'ajaxMgtStartMaintenance'])->name('start_maintenance');
            Route::post('/mgt/end/{id_maintenance}', [MaintenanceManagementController::class,'ajaxMgtEndMaintenance'])->name('end_maintenance');
            Route::post('/mgt/business_contractors', [MaintenanceManagementController::class,'ajaxLoadBusinessContractors']);
@@ -48,6 +56,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            Route::post('/mgt/new/save', [MaintenanceManagementController::class,'createMaintenance']);
            Route::post('/mgt/resident_reporter', [MaintenanceController::class,'getLocationResidents']);
            Route::post('/mgt/contractor_skill/contractors', [MaintenanceManagementController::class,'ajaxGetContractorsWithSkill']);
+           Route::get('/contractor_dashboard', [MaintenanceManagementController::class, 'showContractorDashboard'])->name('contractor_dashboard');
 
         });
 
@@ -115,6 +124,7 @@ Route::middleware(['web','ProxyCAS'])->group(
            //dashboard widgets
            Route::post('/statuses/charts', [MaintenanceDashboardController::class,'ajaxPrepareStatusChartData']);
            Route::post('/sla/charts', [MaintenanceDashboardController::class,'ajaxPrepareSlaChartData']);
+           Route::post('/csv_open_jobs', [MaintenanceDashboardController::class,'printOpenJobsCSV']);
 
            //load contractors for assignment
            Route::post('/contractors_for_assignment', [ContractorController::class,'ajaxGetContractors']);
@@ -173,11 +183,11 @@ Route::middleware(['web','ProxyCAS'])->group(
 
             Route::post('/mgt_contractor/location/{id_contractor}', [ContractorManagementController::class,'ajaxMgtGetContractorLocation'])->name('mgt_get_contractor_location');
 
-            Route::post('/mgt_contractor/locations/change', [ContractorManagementController::class,'ajaxMgtChangeContractorLocation'])->name('mgt_get_contractor_location');
+            Route::post('/mgt_contractor/locations/change', [ContractorManagementController::class,'ajaxMgtChangeContractorLocation'])->name('mgt_change_contractor_location');
 
             Route::post('/mgt_contractor/skill/{id_contractor}', [ContractorManagementController::class,'ajaxMgtGetContractorSkill'])->name('mgt_get_contractor_skill');
 
-            Route::post('/mgt_contractor/skills/change', [ContractorManagementController::class,'ajaxMgtChangeContractorSkills'])->name('mgt_get_contractor_location');
+            Route::post('/mgt_contractor/skills/change', [ContractorManagementController::class,'ajaxMgtChangeContractorSkills'])->name('mgt_change_contractor_skill');
 
          });
 

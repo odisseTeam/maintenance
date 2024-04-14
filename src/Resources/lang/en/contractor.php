@@ -80,6 +80,9 @@ return [
 
 
 
+    //contractor dashboard
+    'contractor_dashboard'=>'Contractor Dashboard',
+
 
 
 

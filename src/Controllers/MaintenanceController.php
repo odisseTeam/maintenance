@@ -153,10 +153,7 @@ class MaintenanceController extends Controller
 
             if($is_maintenance_user){
 
-
-            return view(
-                'maintenance::full_access_create_maintenance',
-                // UserData::getTheme().'.m.create_maintenance',
+                return view('maintenance::'.UserData::getTheme().'.full_access_create_maintenance',
                 [
                           'maintenance_categories' => $maintenance_category,
                           'saas_client_businesses' => $saas_client_businesses,
@@ -181,10 +178,7 @@ class MaintenanceController extends Controller
             }
             else{
 
-
-            return view(
-                'maintenance::create_maintenance',
-                // UserData::getTheme().'.m.create_maintenance',
+                return view('maintenance::'.UserData::getTheme().'.create_maintenance',
                 [
                           'maintenance_categories' => $maintenance_category,
                           'saas_client_businesses' => $saas_client_businesses,
@@ -953,8 +947,7 @@ class MaintenanceController extends Controller
 
               session(['active_tab' => 'maintenanceDetail']);
 
-              return view(
-                  'maintenance::maintenance_detail',
+              return view('maintenance::'.UserData::getTheme().'.maintenance_detail',
                   [
                 'maintenance' => $maintenance,
                 'saas_client_businesses' => $saas_client_businesses,
@@ -1643,4 +1636,6 @@ class MaintenanceController extends Controller
 
             return $locations;
       }
+
+
 }

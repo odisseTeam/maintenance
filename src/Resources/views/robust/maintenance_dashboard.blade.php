@@ -1,4 +1,5 @@
-@extends('adminlte.layouts.sdr')
+@extends('robust.layouts.main')
+
 
 @section('page_title', session('saas_title').' '.__('maintenance::dashboard.maintenance_dashboard'))
 
@@ -8,6 +9,8 @@
     <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('resources/select2/select2.min.css') }}" />
+    <link href="{{ asset('resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet">
+
 
     <style>
         .select2-selection--multiple {
@@ -23,6 +26,16 @@
         }
 
 
+    </style>
+
+    <style>
+        .input-group-addon {
+            min-width: 35px;
+        }
+
+        .tab-pane{
+            padding: 42px 0!important;
+        }
     </style>
 
 
@@ -105,9 +118,11 @@
             <div class="box-body">
 
 
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="box box-primary">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card box box-primary">
+
+                        <div class="row">
+
 
 
                             <div class="col-lg-3 col-md-3 col-sm-3">
@@ -142,246 +157,248 @@
                             </div>
 
                         </div>
+
+
                     </div>
-
-
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="box box-primary">
-                            <div class="box-header">
-                                <h3>{{__('maintenance::dashboard.search_options')}}</h3>
-
-                            </div>
-                            <div class="box-body">
-
-                                <div class="col-md-10 col-xs-12">
 
 
-                                    <div class="row">
-                                        <!-- Start Date -->
-                                        <div class="col-md-3">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card box box-primary">
+                        <div class="card-header box-header">
+                            <h3>{{__('maintenance::dashboard.search_options')}}</h3>
+
+                        </div>
+                        <div class="card-body box-body">
+
+                            <div class="col-md-10 col-xs-12">
 
 
-                                            <div class="input-group date date_place" id="id_0">
-                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="search_start_date" id="search_start_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                <div class="input-group-addon input-group-append">
-                                                    <div class="input-group-text">
-                                                        <i class="glyphicon glyphicon-calendar"></i>
-                                                    </div>
-                                                </div>
+                                <div class="row">
+                                    <!-- Start Date -->
+                                    <div class="col-md-3">
+
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa-solid fa-clock-desk"></i>
                                             </div>
 
-
-
-
-
-                                            {{-- <div class="form-group" style="">
-                                                <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
-                                                    <div class="input-group-addon">
-                                                        <i class="fa-solid fa-calendar"></i>
-                                                    </div>
-                                                    <input name="search_start_date" placeholder="{{__('booking.start_date')}}" type="text" class="form-control date active" id="search_start_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                </div>
-
-                                            </div> --}}
-
+                                            <input type="text" class="form-control pull-right date date_place" autocomplete="off"
+                                                    placeholder="{{__('maintenance::maintenance_mgt.start_date')}}"
+                                                    autocomplete="off"
+                                                    name="search_start_date" id="search_start_date">
                                         </div>
 
 
-                                        <!-- saas_client_business -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <select class="form-control pull-right" id="search_business" name="search_business" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                        {{-- <option value="">
-                                                            {{__('maintenance::dashboard.business')}}
-                                                        </option> --}}
-                                                        @foreach($businesses as $business)
-                                                            <option value="{{$business->id_saas_client_business}}">
-                                                                {{$business->business_name}}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
+                                        {{-- <div class="input-group date date_place" id="id_0">
+                                            <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.start_date')}}" class="form-control" name="search_start_date" id="search_start_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                            <div class="input-group-addon input-group-append">
+                                                <div class="input-group-text">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
                                                 </div>
-
                                             </div>
-                                        </div>
+                                        </div> --}}
 
-
-
-                                        <!-- priority -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <select class="form-control pull-right" id="search_priority" name="search_priority" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                        <option value="">
-                                                            {{__('maintenance::dashboard.priority')}}
-                                                        </option>
-                                                        @foreach($priorities as $priority)
-                                                            <option value="{{$priority->id_maintenance_job_priority_ref}}">
-                                                                {{$priority->priority_name}}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-
-
-                                        <!-- title -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <input name="search_room_no" placeholder="{{__('maintenance::dashboard.title')}}" type="text" class="form-control active" id="search_title" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-
-                                                </div>
-
-                                            </div>
-                                        </div>
 
                                     </div>
 
 
-                                    <div style="margin-top: 2px;" class="row">
+                                    <!-- saas_client_business -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
 
-
-                                        <!-- End Date -->
-                                        <div class="col-md-3">
-
-
-                                            <div class="input-group date date_place" id="id_1">
-                                                <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control" name="search_end_date" id="search_end_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                <div class="input-group-addon input-group-append">
-                                                    <div class="input-group-text">
-                                                        <i class="glyphicon glyphicon-calendar"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-
-
-                                            {{-- <div class="form-group" style="">
-                                                <div class="input-group col-xs-10 col-sm-10 col-md-10" style="float:left;padding-right: 15px;padding-left: 15px;">
-                                                    <div class="input-group-addon">
-                                                        <i class="fa-solid fa-calendar"></i>
-                                                    </div>
-                                                    <input name="search_end_date" type="text" placeholder="{{__('booking.end_date')}}" class="form-control date active" id="search_end_date" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                </div>
-
-                                            </div> --}}
-                                        </div>
-
-
-
-                                        <!-- category -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <select class="form-control pull-right" id="search_category" name="search_category" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                        <option value="">
-                                                            {{__('maintenance::dashboard.category')}}
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <select class="form-control pull-right" id="search_business" name="search_business" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                    {{-- <option value="">
+                                                        {{__('maintenance::dashboard.business')}}
+                                                    </option> --}}
+                                                    @foreach($businesses as $business)
+                                                        <option value="{{$business->id_saas_client_business}}">
+                                                            {{$business->business_name}}
                                                         </option>
-                                                        @foreach($categories as $category)
-                                                            <option value="{{$category->id_maintenance_job_category_ref}}">
-                                                                {{$category->job_category_name}}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
-                                                </div>
+                                                    @endforeach
+                                                </select>
 
                                             </div>
+
                                         </div>
+                                    </div>
 
 
 
-                                        <!-- status -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
+                                    <!-- priority -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
 
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <select class="form-control pull-right" id="search_status" name="search_status" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                        <option value="">
-                                                            {{__('maintenance::dashboard.status')}}
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <select class="form-control pull-right" id="search_priority" name="search_priority" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                    <option value="">
+                                                        {{__('maintenance::dashboard.priority')}}
+                                                    </option>
+                                                    @foreach($priorities as $priority)
+                                                        <option value="{{$priority->id_maintenance_job_priority_ref}}">
+                                                            {{$priority->priority_name}}
                                                         </option>
-                                                        @foreach($statuses as $status)
-                                                            <option value="{{$status->id_maintenance_job_status_ref}}" @if($status->id_maintenance_job_status_ref == \Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants::OPUN){{'selected'}}@endif>
-                                                                {{$status->job_status_name}}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
-                                                </div>
+                                                    @endforeach
+                                                </select>
 
                                             </div>
+
                                         </div>
+                                    </div>
 
 
 
+                                    <!-- title -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
 
-
-                                        <!-- assignee -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-
-                                                <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                    <input name="search_assignee" placeholder="{{__('maintenance::dashboard.assignee_contractor')}}" type="text" class="form-control active" id="search_assignee" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-
-                                                </div>
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <input name="search_room_no" placeholder="{{__('maintenance::dashboard.title')}}" type="text" class="form-control active" id="search_title" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
 
                                             </div>
-                                        </div>
 
+                                        </div>
                                     </div>
 
                                 </div>
 
 
-                                <div class="col-md-2 col-xs-12 col-sm-12 col-lg-2">
-                                    <div class="row">
-                                        <button style="min-width:150px;margin-top:1px;" id="searchbtn" onclick="searchAgain()" type="button" class="btn btn-primary">{{__('booking.search')}}</button>
-                                    </div>
-                                    <div class="row">
-                                        <button style="min-width:150px;margin-top:1px;" type="button" onclick="resetSearchbox()" class="btn btn-primary">{{__('booking.reset')}}</button>
+                                <div style="margin-top: 2px;" class="row">
+
+
+                                    <!-- End Date -->
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa-solid fa-clock-desk"></i>
+                                            </div>
+
+                                            <input type="text" class="form-control pull-right date date_place" autocomplete="off"
+                                                    placeholder="{{__('maintenance::maintenance_mgt.end_date')}}"
+                                                    autocomplete="off"
+                                                    name="search_end_date" id="search_end_date">
+                                        </div>
+
+
+                                        {{-- <div class="input-group date date_place" id="id_1">
+                                            <input type="text" value="" placeholder="{{__('maintenance::maintenance_mgt.end_date')}}" class="form-control" name="search_end_date" id="search_end_date" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                            <div class="input-group-addon input-group-append">
+                                                <div class="input-group-text">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                </div>
+                                            </div>
+                                        </div> --}}
+
                                     </div>
 
 
+
+                                    <!-- category -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <select class="form-control pull-right" id="search_category" name="search_category" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+                                                    <option value="">
+                                                        {{__('maintenance::dashboard.category')}}
+                                                    </option>
+                                                    @foreach($categories as $category)
+                                                        <option value="{{$category->id_maintenance_job_category_ref}}">
+                                                            {{$category->job_category_name}}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                    <!-- status -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <select class="form-control pull-right" multiple="multiple" id="search_status" name="search_status" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+
+                                                    @foreach($statuses as $status)
+                                                        <option value="{{$status->id_maintenance_job_status_ref}}" @if($status->id_maintenance_job_status_ref != \Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants::CLOS){{'selected'}}@endif>
+                                                            {{$status->job_status_name}}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                    <!-- assignee -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="col-xs-10 col-sm-10 col-md-10 ">
+                                                <input name="search_assignee" placeholder="{{__('maintenance::dashboard.assignee_contractor')}}" type="text" class="form-control active" id="search_assignee" value="" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-2 col-xs-12 col-sm-12 col-lg-2">
+                                <div class="row">
+                                    <button style="min-width:150px;margin-top:1px;" id="searchbtn" onclick="searchAgain()" type="button" class="btn btn-primary">{{__('booking.search')}}</button>
+                                </div>
+                                <div class="row">
+                                    <button style="min-width:150px;margin-top:1px;" type="button" onclick="resetSearchbox()" class="btn btn-primary">{{__('booking.reset')}}</button>
+                                    <form method="post" action="/maintenance/csv_open_jobs">
+                                        @csrf
+                                        <input type="hidden" name="from" id="from_open_jobs_date" />
+                                        <input type="hidden" name="to" id="to_open_jobs_date" />
+                                        <button type="button" style="min-width:150px;margin-top:1px;" id="dl_open_jobs" class="btn btn-primary">
+                                            <i class="fa-solid fa-download"></i> {{__('maintenance::dashboard.print_open_jobs')}}
+                                        </button>
+                                    </form>
                                 </div>
 
 
                             </div>
+
 
                         </div>
 
-
-
-
                     </div>
+
+
+
+
                 </div>
 
                 <div class="col-xs-12">
-                    <div class="box col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="box-header">
+                    <div class="card box col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card-header box-header">
                             <h3>{{__('maintenance::dashboard.maintenances_list')}}</h3>
                         </div>
 
-                        <div class="box-body">
+                        <div class="card-body box-body">
                             <div class="row" style="float: right;">
                                 <a style="min-width:150px;margin-top:1px;" href="/maintenance/create/page" class="btn btn-primary">{{trans('maintenance::dashboard.create_job')}}</a>
                                 <br>
                             </div>
                         </div>
-                        <div class="box-body ">
+                        <div class="card-body box-body ">
 
 
                             <div class="row table-responsive no-padding">
@@ -390,17 +407,18 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>{{__('maintenance::dashboard.category')}}</th>
-                                        <th>{{__('maintenance::dashboard.title')}}</th>
-                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.property')}}</th>
+                                        <th>{{__('maintenance::dashboard.room')}}</th>
                                         <th>{{__('maintenance::dashboard.status')}}</th>
-                                        <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.category')}}</th>
+                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.logged_by')}}</th>
+                                        <th>{{__('maintenance::dashboard.report_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_start_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                        <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                        <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                        <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
+                                        <th>{{__('maintenance::dashboard.assignee')}}</th>
                                         <th>{{__('maintenance::dashboard.operation')}}</th>
 
 
@@ -415,17 +433,18 @@
                                     <tfoot>
                                     <tr>
                                         <th>#</th>
-                                        <th>{{__('maintenance::dashboard.category')}}</th>
-                                        <th>{{__('maintenance::dashboard.title')}}</th>
-                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.property')}}</th>
+                                        <th>{{__('maintenance::dashboard.room')}}</th>
                                         <th>{{__('maintenance::dashboard.status')}}</th>
-                                        <th>{{__('maintenance::dashboard.task_report_date')}}</th>
+                                        <th>{{__('maintenance::dashboard.priority')}}</th>
+                                        <th>{{__('maintenance::dashboard.category')}}</th>
+                                        <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
+                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.logged_by')}}</th>
+                                        <th>{{__('maintenance::dashboard.report_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_start_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_end_date')}}</th>
-                                        <th>{{__('maintenance::dashboard.staff_reporter')}}</th>
-                                        <th>{{__('maintenance::dashboard.resident_reporter')}}</th>
-                                        <th>{{__('maintenance::dashboard.assigned_user_contractor')}}</th>
+                                        <th>{{__('maintenance::dashboard.assignee')}}</th>
                                         <th>{{__('maintenance::dashboard.operation')}}</th>
                                     </tr>
                                     </tfoot>
@@ -441,32 +460,14 @@
         </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <!-- Modal -->
-    <div class="modal fade" id="deleteMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="deleteMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal" id="deleteMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="deleteMaintenanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" style="max-width: 60%;">
             <div class="modal-content">
                 <div class="modal-header">
-
+                    <h4 class="modal-title" id="deleteMaintenanceModalLabel">{{trans('maintenance::dashboard.delete_maintenance')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span
                             aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="deleteMaintenanceModalLabel">{{trans('maintenance::dashboard.delete_maintenance')}}</h4>
                 </div>
 
 
@@ -496,20 +497,14 @@
         </div>
     </div>
 
-
-
-
-
-
     <!-- Modal -->
-    <div class="modal fade" id="assignMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="assignMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal" id="assignMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="assignMaintenanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" style="max-width: 60%;">
             <div class="modal-content">
                 <div class="modal-header">
-
+                    <h4 class="modal-title" id="assignMaintenanceModalLabel">{{trans('maintenance::dashboard.assign_maintenance')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span
                             aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="assignMaintenanceModalLabel">{{trans('maintenance::dashboard.assign_maintenance')}}</h4>
                 </div>
 
 
@@ -689,18 +684,14 @@
         </div>
     </div>
 
-
-
-
     <!-- Modal -->
-    <div class="modal fade" id="startMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="startMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal" id="startMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="startMaintenanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" style="max-width: 60%;">
             <div class="modal-content">
                 <div class="modal-header">
-
+                    <h4 class="modal-title" id="startMaintenanceModalLabel">{{trans('maintenance::dashboard.start_maintenance')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span
                             aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="startMaintenanceModalLabel">{{trans('maintenance::dashboard.start_maintenance')}}</h4>
                 </div>
 
 
@@ -791,17 +782,14 @@
         </div>
     </div>
 
-
-
     <!-- Modal -->
-    <div class="modal fade" id="endMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="endMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal" id="endMaintenanceModal" tabindex="-1" role="dialog" aria-labelledby="endMaintenanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" style="max-width: 60%;">
             <div class="modal-content">
                 <div class="modal-header">
-
+                    <h4 class="modal-title" id="endMaintenanceModalLabel">{{trans('maintenance::dashboard.end_maintenance')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span
                             aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="endMaintenanceModalLabel">{{trans('maintenance::dashboard.end_maintenance')}}</h4>
                 </div>
 
 
@@ -830,6 +818,18 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.note') }}:</label>
+                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                <div class="form-group">
+                                    <div id="end_note_place">
+                                        <textarea class="form-control" id="end_note"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
 
                 </div>
 
@@ -848,78 +848,75 @@
     </div>
 
     <!-- Modal -->
-              <!-- send email to contractor  -->
-            <div class="modal fade" id="sendContractorEmailModal" tabindex="-1" role="dialog"
-                                                aria-labelledby="sendContractorEmailModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-
-                                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
-                                                                    class="sr-only">{{ __('general.close') }}</span></button>
-
-                                                            <h3 class="modal-title" id="sendContractorEmailModallabel">
-                                                                {{ __('maintenance::contractor.send_contractor_email_modal') }}</h3>
+    <!-- send email to contractor  -->
+    <div class="modal" id="sendContractorEmailModal" tabindex="-1" role="dialog"
+                                        aria-labelledby="sendContractorEmailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="sendContractorEmailModallabel">
+                        {{ __('maintenance::contractor.send_contractor_email_modal') }}</h3>
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                            class="sr-only">{{ __('general.close') }}</span></button>
 
 
+                </div>
 
-                                                        </div>
 
-
-                                                            <div class="modal-body">
-                                                                <div class="alert alert-danger alert-dismissible" id="send_contractor_email_err_msg_box"
-                                                                        style="display: none;">
-                                                                        <div id="send_contractor_email_ajx_err_msg"></div>
-                                                                    </div>
-                                                                    <div class="alert alert-success alert-dismissible" id="send_contractor_email_success_msg_box"
-                                                                        style="display: none;">
-                                                                        <div id="send_contractor_email_ajx_success_msg"></div>
-                                                                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger alert-dismissible" id="send_contractor_email_err_msg_box"
+                                style="display: none;">
+                                <div id="send_contractor_email_ajx_err_msg"></div>
+                            </div>
+                            <div class="alert alert-success alert-dismissible" id="send_contractor_email_success_msg_box"
+                                style="display: none;">
+                                <div id="send_contractor_email_ajx_success_msg"></div>
+                            </div>
 
 
 
-                                                                    <form method="POST" action="/maintenance/contractor/send/email">
+                            <form method="POST" action="/maintenance/contractor/send/email">
 
-                                                                       @csrf
-                                                                        <div class="box">
-                                                                            <div class="box-body">
+                                @csrf
+                                <div class="box">
+                                    <div class="box-body">
 
-                                                                                    <div class="col-md-11">
+                                            <div class="col-md-11">
 
-                                                                                        <h4>{{ __('maintenance::contractor.select_fields_to_attach') }}</h4>
+                                                <h4>{{ __('maintenance::contractor.select_fields_to_attach') }}</h4>
 
-                                                                                        <input type="hidden" name="id_contractor" id="hidden_id_contractor" >
-                                                                                        <div id="contractor_job_attachments"></div>
+                                                <input type="hidden" name="id_contractor" id="hidden_id_contractor" >
+                                                <div id="contractor_job_attachments"></div>
 
-                                                                                        <div class="form-group ">
-                                                                                            <label for="exampleFormControlTextarea1">{{ __('maintenance::contractor.additional_comments') }} :</label>
-                                                                                            <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
-                                                                                        </div>
-                                                                                    </div>
-
-
-                                                                            </div>
-                                                                            <div class="box-footer">
-                                                                                <button type="submit" class="btn btn-primary"
-                                                                                    style="float:right;min-width:55px" >{{ __('general.yes') }}</button>
-                                                                                <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
-                                                                                    data-dismiss="modal">{{ __('general.close') }}</button>
-
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </form>
-
-
-                                                            </div>
-                                                            <div class="modal-footer">
-
-                                                            </div>
-
-                                                    </div>
+                                                <div class="form-group ">
+                                                    <label for="exampleFormControlTextarea1">{{ __('maintenance::contractor.additional_comments') }} :</label>
+                                                    <textarea class="form-control" id="contractor_job_attachment_text" name="contractor_job_attachment_text" rows="4" cols="2"></textarea>
                                                 </div>
+                                            </div>
+
+
+                                    </div>
+                                    <div class="box-footer">
+                                        <button type="submit" class="btn btn-primary"
+                                            style="float:right;min-width:55px" >{{ __('general.yes') }}</button>
+                                        <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
+                                            data-dismiss="modal">{{ __('general.close') }}</button>
+
+
+                                    </div>
+                                </div>
+
+                            </form>
+
+
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+
             </div>
+        </div>
+    </div>
 
     </section>
 
@@ -940,10 +937,60 @@
     <script src="{{ asset('resources/select2/select2.full.min.js') }}"></script>
 
 
+    <link rel="stylesheet" href="{{ asset('resources/multiselect/multiselect.css') }}" type="text/css">
+    <script type="text/javascript" src="{{ asset('resources/multiselect/multiselect.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ asset('resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker-standalone.css') }}">
+    <script type="text/javascript" src="{{ asset('resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+
+
 
     <script>
 
         $('.select2').select2();
+
+
+    $('#search_status').multiselect({
+        enableFiltering: false,
+        includeSelectAllOption: false,
+        maxHeight: 400,
+        buttonWidth: '100%',
+        dropLeft: true,
+        selectAllText: 'Select All',
+        selectAllValue: 0,
+        enableFullValueFiltering: false,
+        // onDeselectAll: function() {
+        //  //alert('onDeselectAll triggered!');
+        //  buttonText: function(options, select) {
+        //  if (options.length === 0) {
+        //  return 'No option selected ...';
+        //  }
+        //  }
+        //  },
+        //nonSelectedText: 'Check an option!',
+        //dropUp: true
+
+        buttonText: function (options, select) {
+            if (options.length === 0) {
+                return 'Not selected';
+            }
+            else if (options.length > 9) {
+                return 'More than 9 options selected!';
+            }
+            else {
+                var labels = [];
+                options.each(function () {
+                    if ($(this).attr('label') !== undefined) {
+                        labels.push($(this).attr('label'));
+                    }
+                    else {
+                        labels.push($(this).html());
+                    }
+                });
+                return labels.join(', ') + '';
+            }
+        }
+    });
 
 
         $(function () {
@@ -953,8 +1000,10 @@
                 "showClose": true,
                 "showClear": true,
                 "showTodayButton": true,
-                "format": "DD-MM-YYYY hh:mm",
+                "format": "DD-MM-YYYY HH:mm",
             });
+
+
          });
 
 
@@ -963,6 +1012,16 @@
             prepareMaintenanceStatusChartData();
             prepareMaintenanceSlaChartData();
             loadMaintenances();
+
+
+
+            $('#dl_open_jobs').on('click', function (e) {
+                $('#from_open_jobs_date').val( $( '#search_start_date' ).val() );
+                $('#to_open_jobs_date').val( $( '#search_end_date' ).val() );
+
+                $(this).closest('form').submit();
+            });
+
 
         });
         ////////////////////////////////////////////////
@@ -1192,6 +1251,8 @@
                     var counter = 1+parseInt(k);
 
 
+                    var room = maintenance_list[k]["room"]?maintenance_list[k]["room"].room_number_short:'-';
+                    var property = maintenance_list[k]["property"]?maintenance_list[k]["property"].property_short_name:'-';
                     var id_maintenance_job = maintenance_list[k]["id_maintenance_job"];
                     var category = maintenance_list[k]["job_category_name"];
                     var title = maintenance_list[k]["maintenance_job_title"];
@@ -1212,7 +1273,7 @@
                         '<i class="fa-solid fa-envelope"></i>'+
                         '</button></a>';
 
-                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
                             '<i class="fa-solid fa-play"></i>'+
                             '</button></a>';
                     }
@@ -1224,13 +1285,13 @@
 
                         if(job_start_date_time == '-'){
 
-                            var start_btn = '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                            var start_btn = '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
                             '<i class="fa-solid fa-play"></i>'+
                             '</button></a>';
 
                         }
                         else{
-                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_maintenance_job+')">'+
+                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
                             '<i class="fa-solid fa-play"></i>'+
                             '</button></a>';
                         }
@@ -1238,12 +1299,12 @@
 
                     if(job_finished_date_time == '-'){
 
-                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Finish Maintenance" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
                     else{
-                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_maintenance_job+')">'+
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Finish Maintenance" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
@@ -1263,8 +1324,8 @@
                         '</button>';
 
 
-                    htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+category+"</td><td>"+title+"</td><td>"+sla+"</td><td>"
-                        +priority+"</td><td>"+status+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+staff_reporter+"</td><td>"+resident_reporter+"</td><td>"+assignee+"</td><td>"+operation+"</td></tr>";
+                    htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+property+"</td><td>"+room+"</td><td>"+status+"</td><td>"+priority+"</td><td>"+category+"</td><td>"
+                        +sla+"</td><td>"+title+"</td><td>"+staff_reporter+"</td><td>"+job_report_date_time+"</td><td>"+job_start_date_time+"</td><td>"+job_finished_date_time+"</td><td>"+assignee+"</td><td>"+operation+"</td></tr>";
 
 
                 });
@@ -1289,7 +1350,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12] },{ "width": "25%", "targets": 12 }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12,13] },{ "width": "25%", "targets": 13 }
                 ]
             });
 
@@ -1787,8 +1848,27 @@
 
         }
         ///////////////////////////////////////////////////////
+        function getNowForStartDateTimes(id_maintenance){
 
+            send( '/utility/get_now_from_server',  {
+            }, 'showStartMaintenanceModal', [ id_maintenance]);
+        }
+
+
+        //////////////////////////////////////////////////////
         function showStartMaintenanceModal(id_maintenance){
+
+
+            let now = return_value.now;
+            console.log(now);
+
+            if(now){
+                $( '#start_datetimepicker input' ).val(now);
+            }
+            else{
+                $( '#start_datetimepicker input' ).val('');
+            }
+
 
 
             send( '/maintenance/contractors_for_assignment',  {
@@ -1938,12 +2018,32 @@
 
         }
         ///////////////////////////////////////////////////////
+        function getNowForDateTimes(id_maintenance){
+
+            send( '/utility/get_now_from_server',  {
+            }, 'showEndMaintenanceModal', [ id_maintenance]);
+        }
+        ///////////////////////////////////////////////////////
 
         function showEndMaintenanceModal(id_maintenance){
+
+
+
+            let now = return_value.now;
+            console.log(now);
+
+            if(now){
+                $( '#end_datetimepicker input' ).val(now);
+            }
+            else{
+                $( '#end_datetimepicker input' ).val('');
+            }
+
 
             $("#end_maintenance_btn").removeAttr('disabled');
 
             $('#ended_maintenance').val(id_maintenance);
+            $('#end_note').html('');
             $('#err_msg_box_end').css('display' , 'none');
             $('#suc_msg_box_end').css('display' , 'none');
             $('#endMaintenanceModal').modal('show');
@@ -1955,6 +2055,7 @@
 
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let end_date_time = $( '#end_datetimepicker input' ).val();
+            let end_note = $('textarea#end_note').val();
             $("#end_maintenance_btn").attr('disabled','disabled');
             $("#err_msg_box_end").css('display' , 'none');
 
@@ -1962,6 +2063,7 @@
 
             send( '/maintenance/end/'+ended_maintenance,  {
                 end_date_time:end_date_time,
+                end_note:end_note,
             }, 'handleEndMaintenance', []);
         }
         ////////////////////////////////////////////////////////

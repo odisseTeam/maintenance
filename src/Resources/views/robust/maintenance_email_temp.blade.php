@@ -1,4 +1,4 @@
-@extends('adminlte.layouts.sdr')
+@extends('robust.layouts.main')
 
 @section('page_title', session('saas_title').' '.__('maintenance::dashboard.maintenance_email_page'))
 
@@ -24,6 +24,18 @@
 
 
     </style>
+
+
+<style>
+    .input-group-addon {
+        min-width: 35px;
+    }
+
+    .tab-pane{
+        padding: 42px 0!important;
+    }
+</style>
+
 
 
     <style>
@@ -90,13 +102,13 @@
 
 
     <section>
-        <div class="box">
-            <div class="box-header">
+        <div class="box card">
+            <div class="card-header box-header">
                 <h1>
                     {{__('maintenance::dashboard.create_email_template')}}
                 </h1>
             </div>
-            <div class="box-body">
+            <div class="card-body box-body">
 
 
 
@@ -107,8 +119,8 @@
                         <form id="maintenance_content_email"  method="POST" action="">
 
                             @csrf
-                            <div class="box">
-                                <div class="box-body" id="main_text">
+                            <div class="box card">
+                                <div class="card-body box-body" id="main_text">
 
                                         <div class="col-md-11">
 
@@ -126,30 +138,30 @@
 
                                             <hr>
 
-                                                 <!-- commencement_date -->
-                                                 <div class="form-group row ">
-                                                    <div class="col-sm-10 col-md-10 col-xs-10 col-lg-10">
-                                                        <label
-                                                            class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.commencement_date') }}:</label>
-                                                            <div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+                                            <!-- commencement_date -->
+                                            <div class="form-group row ">
+                                            <div class="col-sm-10 col-md-10 col-xs-10 col-lg-10">
+                                                <label
+                                                    class="col-xs-2 col-sm-2 col-md-2 col-lg-2 control-label text-right">{{ trans('maintenance::maintenance.commencement_date') }}:</label>
+                                                    <div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
 
-                                                            <div class="">
-                                                                    <div class="form-group">
-                                                                        <div class="input-group date" id="datepicker2" >
-                                                                        <input type="text" class="form-control"  value="{{ $maintenance->commencement_date }}"
-                                                                        value="@if (isset($maintenance)) {{ $maintenance->commencement_date }} @elseif (old('commencement_date')) {{ old('commencement_date') }} @endif"
-                                                                        placeholder="{{ trans('maintenance::maintenance.commencement_date') }}"
-                                                                        id="commencement_date" name="commencement_date"   >
-                                                                        <span class="input-group-addon">
-                                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                                        </span>
-                                                                        </div>
-                                                                    </div>
+                                                    <div class="">
+                                                            <div class="form-group">
+                                                                <div class="input-group date" id="datepicker2" >
+                                                                <input type="text" class="form-control"  value="{{ $maintenance->commencement_date }}"
+                                                                value="@if (isset($maintenance)) {{ $maintenance->commencement_date }} @elseif (old('commencement_date')) {{ old('commencement_date') }} @endif"
+                                                                placeholder="{{ trans('maintenance::maintenance.commencement_date') }}"
+                                                                id="commencement_date" name="commencement_date"   >
+                                                                <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
                                                                 </div>
-
                                                             </div>
+                                                        </div>
+
                                                     </div>
-                                                </div>
+                                            </div>
+                                            </div>
 
 
 
@@ -218,7 +230,7 @@
                                         </div>
 
                                 </div>
-                                <div class="box-footer">
+                                <div class="card-footer box-footer">
                                     <button type="button" id="send_email_btn" onclick="sendEmail()" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right"  >{{ __('maintenance::contractor.send_email') }}</button>
                                     <button type="button"  id="download_btn" onclick="downloadPdf()" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right;margin-right:2px"  >{{ __('maintenance::maintenance.download_pdf') }}</button>
                                     <button type="button" class="btn btn-primary col-md-1 col-sm-1 col-xs-1 col-lg-1" style="float:right;margin-right:2px" onclick="previewEmailContent()" >{{ __('general.preview') }}</button>
@@ -244,85 +256,80 @@
         </div>
 
               <!-- preview email content of contractor  -->
-              <div class="modal fade" id="previewEmailContentModal" tabindex="-1" role="dialog"
+            <div class="modal" id="previewEmailContentModal" tabindex="-1" role="dialog"
                                                 aria-labelledby="previewEmailContentModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-
-                                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
-                                                                    class="sr-only">{{ __('general.close') }}</span></button>
-
-                                                            <h3 class="modal-title" id="previewEmailContentModallabel">
-                                                                {{ __('maintenance::contractor.preview_email_content_modal') }}</h3>
-
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="previewEmailContentModallabel">
+                                {{ __('maintenance::contractor.preview_email_content_modal') }}</h3>
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                                    class="sr-only">{{ __('general.close') }}</span></button>
+                        </div>
 
 
-                                                        </div>
-
-
-                                                            <div class="modal-body">
-                                                                <div class="alert alert-danger alert-dismissible" id="preview_email_content_err_msg_box"
-                                                                        style="display: none;">
-                                                                        <div id="preview_email_content_ajx_err_msg"></div>
-                                                                    </div>
-                                                                    <div class="alert alert-success alert-dismissible" id="preview_email_content_success_msg_box"
-                                                                        style="display: none;">
-                                                                        <div id="preview_email_content_ajx_success_msg"></div>
-                                                                    </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger alert-dismissible" id="preview_email_content_err_msg_box"
+                                        style="display: none;">
+                                        <div id="preview_email_content_ajx_err_msg"></div>
+                                    </div>
+                                    <div class="alert alert-success alert-dismissible" id="preview_email_content_success_msg_box"
+                                        style="display: none;">
+                                        <div id="preview_email_content_ajx_success_msg"></div>
+                                    </div>
 
 
 
-                                                                        <div class="box">
-                                                                            <div class="box-body">
+                                        <div class="box">
+                                            <div class="box-body">
 
-                                                                                    <div class="col-md-11">
+                                                    <div class="col-md-11">
 
-                                                                                        <h4>{{ __('maintenance::contractor.preview_email_content') }}</h3>
-                                                                                        <div id="maintenance_template_body"></div>
-
-
-
-                                                                                        <h5 style="font-weight: bold;text-decoration: underline;">{{ __('maintenance::contractor.additional_comment') }}</h5>
-                                                                                        <div id="additional_comment" name="additional_comment" ></div>
-
-
-                                                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_attachments_list') }}</h5>
-                                                                                        <div id="email_attachments_list" name="email_attachments_list" ></div>
-
-
-                                                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_notes_list') }}</h5>
-                                                                                        <div id="email_notes_list" name="email_notes_list" ></div>
+                                                        <h4>{{ __('maintenance::contractor.preview_email_content') }}</h3>
+                                                        <div id="maintenance_template_body"></div>
 
 
 
-
-                                                                                    </div>
-
-                                                                                    <div id="email_content" name="email_content">
-
-                                                                                    </div>
+                                                        <h5 style="font-weight: bold;text-decoration: underline;">{{ __('maintenance::contractor.additional_comment') }}</h5>
+                                                        <div id="additional_comment" name="additional_comment" ></div>
 
 
-                                                                            </div>
-                                                                            <div class="box-footer">
-
-                                                                                <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
-                                                                                    data-dismiss="modal">{{ __('general.close') }}</button>
+                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_attachments_list') }}</h5>
+                                                        <div id="email_attachments_list" name="email_attachments_list" ></div>
 
 
-                                                                            </div>
-                                                                        </div>
+                                                        <h5 style="font-weight: bold;text-decoration: underline;" >{{ __('maintenance::contractor.email_notes_list') }}</h5>
+                                                        <div id="email_notes_list" name="email_notes_list" ></div>
 
 
 
-                                                            </div>
-                                                            <div class="modal-footer">
-
-                                                            </div>
 
                                                     </div>
-                                                </div>
+
+                                                    <div id="email_content" name="email_content">
+
+                                                    </div>
+
+
+                                            </div>
+                                            <div class="box-footer">
+
+                                                <button style="float:right;margin-right:5px" type="button" id="close_btn" class="btn btn-warning"
+                                                    data-dismiss="modal">{{ __('general.close') }}</button>
+
+
+                                            </div>
+                                        </div>
+
+
+
+                            </div>
+                            <div class="modal-footer">
+
+                            </div>
+
+                    </div>
+                </div>
             </div>
     </section>
 

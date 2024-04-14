@@ -301,26 +301,8 @@ class ApiMaintenanceDetailController extends Controller
     public function getMaintenancesListDetail(Request $request)
     {
 
-        //return response()->json($request->all());
-
         try {
 
-        //$user =  JWTAuth::parseToken()->authenticate();
-
-
-        // if(! $user){
-
-        //     $status = APIStatusConstants::UNAUTHORIZED;
-        //     $message = trans('general.you_have_to_login_first');
-
-        //     return response()->json(
-        //         [
-        //             'status' => $status,
-        //             'message'   => $message,
-        //             'data'  => ''
-        //         ]
-        //     );
-        // }
             Log::info("In maintenance package - in ApiMaintenanceDetailController - getMaintenanceListDetail function");
 
 
@@ -363,16 +345,6 @@ class ApiMaintenanceDetailController extends Controller
         }
 
 
-        // return response()->json(
-        //     [
-        //         'status' => 'ok',
-        //         'message'   => $maintenances->toSql(),
-        //         'maintenances'  => [],
-        //     ]
-        // );
-
-
-
 
         if( $request->has('business') and $request->business != null )
         $maintenances = $maintenances->where('maintenance_job.id_saas_client_business','=', $request->business);
@@ -384,7 +356,7 @@ class ApiMaintenanceDetailController extends Controller
         $maintenances = $maintenances->where('maintenance_job_priority_ref.id_maintenance_job_priority_ref','=', $request->priority);
 
         if( $request->has('status') and $request->status != null )
-        $maintenances = $maintenances->where('maintenance_job_status_ref.id_maintenance_job_status_ref','=', $request->status);
+        $maintenances = $maintenances->whereIn('maintenance_job_status_ref.id_maintenance_job_status_ref', explode(',' , $request->status));
 
         if( $request->has('title') and $request->title != null )
         $maintenances = $maintenances->where('maintenance_job.maintenance_job_title','ilike', "%".$request->title."%");
@@ -434,8 +406,7 @@ class ApiMaintenanceDetailController extends Controller
 
                 }
             }
-            //unset($maintenance->password);
-            //unset($maintenance->permissions);
+
 
             $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
             $maintenance->mail_url = env('APP_URL').'/maintenance/create/email_temp/'. $maintenance->id_maintenance_job;
@@ -477,6 +448,117 @@ class ApiMaintenanceDetailController extends Controller
                 'status' => $status,
                 'message'   => $message,
                 'maintenances'  => $maintenances,
+            ]
+        );
+    }
+
+
+
+    public function getAssignedMaintenancesListDetail(Request $request)
+    {
+
+        try {
+
+            $user = User::where('email' , $request->assignee)->first();
+            $contractor_agent = ContractorAgent::where('id_user' , $user->id)->where('contractor_agent_active' , 1)->first();
+            $contractor_id = $contractor_agent?$contractor_agent->id_contractor:null;
+
+
+            Log::info("In maintenance package - in ApiMaintenanceDetailController - getAssignedMaintenancesListDetail function");
+
+
+        $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->
+        join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
+        join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+        join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
+        join('users as u1' , 'u1.id' , 'maintenance_job.id_saas_staff_reporter')->
+        join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
+
+
+
+
+            $maintenances = $maintenances->
+            join('maintenance_job_staff_history', 'maintenance_job.id_maintenance_job' , 'maintenance_job_staff_history.id_maintenance_job')->where('maintenance_job_staff_history_active' , 1)->
+            join('contractor_agent', 'maintenance_job_staff_history.id_maintenance_assignee' , 'contractor_agent.id_user')->
+            join('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+            $maintenances = $maintenances->where('contractor.id_contractor','=', $contractor_id);
+
+            $maintenances = $maintenances->select('maintenance_job_staff_history.*' ,'contractor_agent.*' , 'contractor.name AS contractor_name' ,'maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
+
+
+
+            $maintenances = $maintenances->whereNull('staff_end_date_time')->where('is_last_one' , 1);
+
+
+
+            $s = $maintenances->toSql();
+
+        // Log::debug($maintenances->toSql());
+
+
+        $maintenances = $maintenances->get();
+
+
+        $businesses = config('maintenances.businesses_name');
+
+
+        foreach($maintenances as $maintenance){
+
+            $maintenance_obj = MaintenanceJob::find($maintenance->id_maintenance_job);
+
+            $maintenance->id_business = $maintenance_obj->id_saas_client_business;
+            foreach($businesses as $business){
+                if($maintenance_obj->id_saas_client_business == $business['id_saas_client_business']){
+                    $maintenance->business_name = $business['business_name'];
+
+                }
+            }
+
+
+            $maintenance->m_url = env('APP_URL').'/maintenance/detail/'. $maintenance->id_maintenance_job;
+            $maintenance->mail_url = env('APP_URL').'/maintenance/create/email_temp/'. $maintenance->id_maintenance_job;
+
+            $remain_time = $this->calculateSlaRemainTime($request->business , $maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+
+            if($remain_time){
+                $maintenance->remain_time = $remain_time;
+            }
+            else{
+                $maintenance->remain_time = '-';
+
+            }
+
+
+        }
+
+
+
+
+
+
+            $status = APIStatusConstants::OK;
+            $message = trans('maintenance::maintenance_mgt.load_maintenances_successfully');
+
+
+        } catch (\Exception $e) {
+
+            Log::error("In maintenance package - in ApiMaintenanceDetailController - getMaintenanceListDetail function" . $e->getMessage());
+            $message = trans('roomView.unsuccessful_getRoomsListDetail');
+            $status = APIStatusConstants::BAD_REQUEST;
+            $$maintenances=null;
+
+
+        }
+
+        return response()->json(
+            [
+                'status' => $status,
+                'message'   => $message,
+                'maintenances'  => $maintenances,
+                //'query'  => $s,
             ]
         );
     }
@@ -528,7 +610,7 @@ class ApiMaintenanceDetailController extends Controller
 
 
         if( $request->has('maintenable_id') and $request->maintenable_id != null )
-        $maintenances = $maintenances->where('maintainable.maintenable_id','=', $request->maintenable_id);
+        $maintenances = $maintenances->where('maintainable.maintenable_id','=', $request->maintenable_id)->where('maintainable_active' , 1);
 
 
         if( $request->has('maintenable_type') and $request->maintenable_type != null )
@@ -587,7 +669,7 @@ class ApiMaintenanceDetailController extends Controller
             Log::error("In maintenance package - in ApiMaintenanceDetailController - getMaintenancesListHistory function" . $e->getMessage());
             $message = trans('maintenance::maintenance_mgt.unsuccessful_getMaintenanceListHistory');
             $status = APIStatusConstants::BAD_REQUEST;
-            $$maintenances=null;
+            $maintenances=null;
 
 
         }
@@ -1257,27 +1339,12 @@ class ApiMaintenanceDetailController extends Controller
 
         try {
 
-        //$user =  JWTAuth::parseToken()->authenticate();
-
-
-        // if(! $user){
-
-        //     $status = APIStatusConstants::UNAUTHORIZED;
-        //     $message = trans('general.you_have_to_login_first');
-
-        //     return response()->json(
-        //         [
-        //             'status' => $status,
-        //             'message'   => $message,
-        //             'data'  => ''
-        //         ]
-        //     );
-        // }
             Log::info("In maintenance package, ApiMaintenanceDetailController - endMaintenanceApi function ");
 
             $validator = Validator::make($request->all(), [
 
                 'end_date_time' => 'required|date_format:'.$this->getDateTimeFormat('date_time_format_validation'),
+                'end_note' => 'nullable|string',
 
             ]);
 
@@ -1336,7 +1403,7 @@ class ApiMaintenanceDetailController extends Controller
             else{
                 //get api user
                 $api_user = User::where('email' , 'api.user@sdr.uk')->first();
-                $result = $this->endMaintenance($api_user->id ,$request->maintenance ,$request->end_date_time);
+                $result = $this->endMaintenance($api_user->id ,$request->maintenance ,$request->end_date_time , $request->end_note);
 
 
             }
@@ -1353,7 +1420,7 @@ class ApiMaintenanceDetailController extends Controller
         } catch (\Exception $e) {
 
             Log::error("In maintenance package, ApiMaintenanceDetailController- endMaintenanceApi function " . $e->getMessage() . " " . $e->getLine() );
-            $message = $e->getMessage();//trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
+            $message = trans('maintenance::maintenance_mgt.end_maintenance_was_unsuccessful');
             $status = APIStatusConstants::BAD_REQUEST;
 
             return response()->json(

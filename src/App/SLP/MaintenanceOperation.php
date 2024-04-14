@@ -37,14 +37,14 @@ trait MaintenanceOperation
             //DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'INPR' )->where('maintenance_job_status_ref_active' , 1)->first();
-            
-          
+
+
             if($status){
 
 
                 $maintenance = MaintenanceJob::find($id_maintenance);
 
-                
+
 
                 $maintenance->update([
                     'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
@@ -52,11 +52,11 @@ trait MaintenanceOperation
                     'job_finish_date_time' => null,
                 ]);
 
-               
+
               $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
               $HistoricalMaintenanceManager->insertHistory($maintenance);
 
-             
+
                 $now = Carbon::createFromDate('now');
 
 
@@ -139,7 +139,7 @@ trait MaintenanceOperation
 
 
 
-    private function endMaintenance($id_user , $id_maintenance , $end_datetime){
+    private function endMaintenance($id_user , $id_maintenance , $end_datetime, $end_note){
 
         try {
 
@@ -148,30 +148,27 @@ trait MaintenanceOperation
             DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'CLOS' )->where('maintenance_job_status_ref_active' , 1)->first();
-            Log::info("e");
             if($status){
 
-                Log::info("e1");
                 $maintenance = MaintenanceJob::find($id_maintenance);
-                Log::info("e5");
                 $maintenance->update([
                     'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
                     'job_finish_date_time' => $end_datetime,
                 ]);
-                Log::info("e6");
 
               $HistoricalMaintenanceManager = new HistoricalMaintenanceManager();
               $HistoricalMaintenanceManager->insertHistory($maintenance);
-              Log::info("e2");
 
                 $now = Carbon::createFromDate('now');
+
+                $note = $end_note?trans('maintenance::dashboard.end_maintenance_by_user').trans('maintenance::dashboard.user_note_is').$end_note:trans('maintenance::dashboard.end_maintenance_by_user');
 
 
                 $maintenance_log = new MaintenanceLog([
                     'id_maintenance_job'    =>  $maintenance->id_maintenance_job,
                     'id_staff'    =>  $id_user,
                     'log_date_time'    =>$now->format(SystemDateFormats::getDateTimeFormat()),
-                    'log_note'  =>  trans('maintenance::dashboard.end_maintenance_by_user'),
+                    'log_note'  =>  $note,
 
                 ]);
                 $maintenance_log->save();
@@ -256,10 +253,11 @@ trait MaintenanceOperation
         $api_url = config('app.url').'/api/get_holidays';
         $holiday_objs = $this->getHolidaysOfBusiness($id_saas_client_business , $now->format('Y') , $api_url);
         $holidays=[];
-        foreach($holiday_objs as $obj){
-            $holidays[] = $obj->calendar_date;
+        if($holidays){
+            foreach($holiday_objs as $obj){
+                $holidays[] = $obj->calendar_date;
+            }
         }
-
 
         if($expected_target_minutes){
             $expected_target_hour = $expected_target_minutes /60;
@@ -530,14 +528,14 @@ trait MaintenanceOperation
             //DB::beginTransaction();
 
             $status = MaintenanceJobStatusRef::where('job_status_code' ,'INPR' )->where('maintenance_job_status_ref_active' , 1)->first();
-            
-          
+
+
             if($status){
 
 
                 $maintenance = MaintenanceJob::find($id_maintenance);
 
-                
+
 
                 $maintenance->update([
                     'id_maintenance_job_status' => $status->id_maintenance_job_status_ref,
@@ -545,7 +543,7 @@ trait MaintenanceOperation
                     'job_finish_date_time' => null,
                 ]);
 
-               
+
               $HistoricalMaintenanceAppManager = new HistoricalMaintenanceAppManager();
               $HistoricalMaintenanceAppManager->insertHistory($maintenance);
 
@@ -652,7 +650,7 @@ trait MaintenanceOperation
                 ]);
                 Log::info("e6");
 
-                 
+
               $HistoricalMaintenanceAppManager = new HistoricalMaintenanceAppManager();
               $HistoricalMaintenanceAppManager->insertHistory($maintenance);
 

@@ -34,6 +34,8 @@ use Odisse\Maintenance\App\Traits\MaintenanceDetails;
 use Odisse\Maintenance\Models\ContractorDocument;
 use Illuminate\Support\Carbon;
 use Odisse\Maintenance\Models\Maintainable;
+use App\Http\General\UserData;
+
 
 class ContractorController extends Controller
 {
@@ -58,8 +60,7 @@ class ContractorController extends Controller
 
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor');
 
-
-        return view('maintenance::create_contractor',
+        return view('maintenance::'.UserData::getTheme().'.create_contractor',
                     [
                         'wiki_link'=>$wiki_link,
                     ]
@@ -90,8 +91,7 @@ class ContractorController extends Controller
         $contractor = Contractor::findOrfail($id_contractor);
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor');
 
-
-        return view('maintenance::create_contractor',
+        return view('maintenance::'.UserData::getTheme().'.create_contractor',
                     [
 
                         'contractor' => $contractor,
@@ -118,7 +118,7 @@ class ContractorController extends Controller
 
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('contractor_management');
 
-        return view('maintenance::contractor_mgt',
+        return view('maintenance::'.UserData::getTheme().'.contractor_mgt',
                     [
                         'skills' => $skills,
                         'locations' => $locations,

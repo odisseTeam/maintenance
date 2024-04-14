@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Jenssegers\Date\Date;
 use Odisse\Maintenance\Models\Contractor;
 use App\Models\Room;
+use App\Models\User;
 use Odisse\Maintenance\Models\MaintenanceJob;
 use Odisse\Maintenance\Models\MaintenanceJobCategoryRef;
 use Odisse\Maintenance\Models\MaintenanceJobPriorityRef;
@@ -26,6 +27,8 @@ use App\SLP\Formatter\SystemDateFormats;
 use Odisse\Maintenance\Models\Maintainable;
 use Sentinel;
 use JWTAuth;
+use Odisse\Maintenance\Models\ContractorAgent;
+use Odisse\Maintenance\Models\MaintenanceJobStaffHistory;
 
 trait ReplaceTemplateBody{
 
@@ -137,7 +140,7 @@ trait ReplaceTemplateBody{
                         $company_logo ="<img style='width:90px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
 
                         $maintenance_site = $property->address_line1 .' '.$property->city.'<br/>'.$property->county.' '.$property->postcode;
-                       
+
                         $center_maintenance_site = $property->address_line1 .' '.$property->city.' '.$property->county.' '.$property->postcode;
 
 
@@ -362,7 +365,7 @@ trait ReplaceTemplateBody{
                     if($commencement_date == null){
 
                         $now = \Illuminate\Support\Carbon::create('now');
-                      
+
                         $commencement_date = $now->format(SystemDateFormats::getDateFormat());
 
                     }
@@ -387,7 +390,7 @@ trait ReplaceTemplateBody{
 
                         $user = Sentinel::getUser();
 
-                       
+
                         $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
                         $complete_date = Carbon::parse($remain_time)->format(SystemDateFormats::getDateFormat());;
@@ -552,6 +555,42 @@ trait ReplaceTemplateBody{
                     $template_body = str_replace('%%CONTRACTOR_NOTE%%', $contractor_note, $template_body);
                 }else{
                     $template_body = str_replace('%%CONTRACTOR_NOTE%%', '', $template_body);
+
+                }
+
+            }
+
+
+
+            if(str_contains($template_body,'%%CONTRACTOR_EMAIL%%')){
+
+
+                if($contractor) {
+
+                    $contractor_agent = ContractorAgent::where('id_contractor' , $contractor->id_contractor)->where('contractor_agent_active' , 1)->first();
+                    $contractor_user = User::where('id' , $contractor_agent->id_user)->first();
+                    $contractor_email =  $contractor_user->email  ;
+
+                    //replace the variable code with the accurate value of it in this contractor
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', $contractor_email, $template_body);
+                }
+                elseif($maintenance){
+                    $maintenance_staff = MaintenanceJobStaffHistory::where('id_maintenance_job' , $maintenance->id_maintenance)->where('maintenance_job_staff_history_active' , 1);
+                    $maintenance_staff = $maintenance_staff->where(function ($query)  {
+                        $query->where('is_last_one' , 1)
+                              ->orWhereNull('is_last_one');
+                    });
+                    $maintenance_staff = $maintenance_staff->first();
+                    $staff = User::where('id_user', $maintenance_staff->id_maintenance_staff)->first();
+                    $staff_email = $staff->email;
+
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', $staff_email, $template_body);
+
+
+                }
+                else{
+
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', '', $template_body);
 
                 }
 
@@ -681,7 +720,7 @@ trait ReplaceTemplateBody{
                         $company_logo ="<img style='width:90px;' src='".config('app.url', 'http://localhost')  . $legal_company->logo."'"."\><br>";
 
                         $maintenance_site = $property->address_line1 .' '.$property->city.'<br/>'.$property->county.' '.$property->postcode;
-                       
+
                         $center_maintenance_site = $property->address_line1 .' '.$property->city.' '.$property->county.' '.$property->postcode;
 
 
@@ -906,7 +945,7 @@ trait ReplaceTemplateBody{
                     if($commencement_date == null){
 
                         $now = \Illuminate\Support\Carbon::create('now');
-                      
+
                         $commencement_date = $now->format(SystemDateFormats::getDateFormat());
 
                     }
@@ -931,7 +970,7 @@ trait ReplaceTemplateBody{
 
                         $user = JWTAuth::user();
 
-                       
+
                         $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
 
                         $complete_date = Carbon::parse($remain_time)->format(SystemDateFormats::getDateFormat());;
@@ -1096,6 +1135,43 @@ trait ReplaceTemplateBody{
                     $template_body = str_replace('%%CONTRACTOR_NOTE%%', $contractor_note, $template_body);
                 }else{
                     $template_body = str_replace('%%CONTRACTOR_NOTE%%', '', $template_body);
+
+                }
+
+            }
+
+
+
+
+            if(str_contains($template_body,'%%CONTRACTOR_EMAIL%%')){
+
+
+                if($contractor) {
+
+                    $contractor_agent = ContractorAgent::where('id_contractor' , $contractor->id_contractor)->where('contractor_agent_active' , 1)->first();
+                    $contractor_user = User::where('id' , $contractor_agent->id_user)->first();
+                    $contractor_email =  $contractor_user->email  ;
+
+                    //replace the variable code with the accurate value of it in this contractor
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', $contractor_email, $template_body);
+                }
+                elseif($maintenance){
+                    $maintenance_staff = MaintenanceJobStaffHistory::where('id_maintenance_job' , $maintenance->id_maintenance)->where('maintenance_job_staff_history_active' , 1);
+                    $maintenance_staff = $maintenance_staff->where(function ($query)  {
+                        $query->where('is_last_one' , 1)
+                              ->orWhereNull('is_last_one');
+                    });
+                    $maintenance_staff = $maintenance_staff->first();
+                    $staff = User::where('id_user', $maintenance_staff->id_maintenance_staff)->first();
+                    $staff_email = $staff->email;
+
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', $staff_email, $template_body);
+
+
+                }
+                else{
+
+                    $template_body = str_replace('%%CONTRACTOR_EMAIL%%', '', $template_body);
 
                 }
 

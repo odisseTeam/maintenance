@@ -38,7 +38,15 @@ class MaintenanceManagementController extends Controller
 
     use MaintenanceOperation;
 
+    public function getCurrentDateTime(Request $request){
 
+        $now = Carbon::createFromDate('now')->format('d-m-Y H:i');
+        return response()->json([
+            'code' => 'success',
+            'now' => $now,
+        ]);
+
+      }
 
 
     /**
@@ -110,6 +118,75 @@ class MaintenanceManagementController extends Controller
                 );
 
     }
+
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showContractorDashboard(){
+
+
+
+        $user = Sentinel::getUser();
+
+        Log::info("In Maintenance package MaintenanceManagementController- showContractorDashboard function " . " try to go to contractor dashboard page  ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+        // $businesses = config('maintenances.businesses_name');
+        // $business = $businesses[0];
+
+        // $url =$business['maintenance_api_url'].'/api/maintenance/get_ref_date';
+
+        // $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,[]);
+
+
+
+        // $responseObj = json_decode($response->body());
+
+        // if($responseObj){
+
+        //     $categories = $responseObj->categories;
+        //     $priorities = $responseObj->priorities;
+        //     $statuses = $responseObj->statuses;
+        //     $skills = $responseObj->skills;
+
+        // }
+        // else{
+
+        // $categories = [];
+        // $priorities = [];
+        // $statuses = [];
+        // $skills = [];
+
+
+        // }
+
+
+        // $maintenance_users = User::where('users_active' , 1)->
+        // join('role_users','role_users.user_id','users.id')->
+        // join('roles','roles.id','role_users.role_id')->where('roles.name','maintenance')->get();
+
+        // $contractor_agents = [];
+
+        // $contractors = Contractor::where('contractor_active' , 1)->get();
+
+        return view('maintenance::contractor_dashboard',
+                    [
+
+
+                        // 'businesses'=>$businesses,
+                        // 'categories'=>$categories,
+                        // 'priorities'=>$priorities,
+                        // 'statuses'=>$statuses,
+                        // 'contractors'=>$contractors,
+                        // 'maintenance_users'=>$maintenance_users,
+                        // 'contractor_agents'=>$contractor_agents,
+                        // 'skills'=>$skills,
+
+                    ]
+                );
+
+    }
     /////////////////////////////////////////////////////////////////////////////
 
 
@@ -159,6 +236,68 @@ class MaintenanceManagementController extends Controller
 
                     $responseObj = json_decode($response->body());
                     //dd($responseObj);
+                    $maintenances = array_merge($responseObj->maintenances , $maintenances);
+
+
+                }
+
+
+            }
+
+
+
+        }
+
+
+
+        return response()->json(
+            [
+            'code' => 'success',
+            'maintenances'=>$maintenances,
+
+            'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
+            ]);
+
+
+    }
+
+
+
+
+
+    public Function ajaxLoadAssignedMaintenances(Request $request){
+
+
+        Log::info("In Maintenance package MaintenanceManagementController- ajaxLoadAssignedMaintenances function ");
+
+        $user = Sentinel::getUser();
+        $user_email = 'cpmlimited@outlook.com';//$user->email;
+        $assignee = $user_email;
+
+        $responseObj= null;
+
+        $maintenances = [];
+        if( $request->has('business') and $request->business != null ){
+
+
+            //get maintenances of specific business
+
+            $businesses = config('maintenances.businesses_name');
+            //dd($businesses);
+            foreach($businesses as $business){
+                if(in_array($business['id_saas_client_business'] , $request->business)){
+                    //dd($request->business);
+
+                    $url =$business['maintenance_api_url'].'/api/contractor_maintenancelist_details';
+
+                    $params =[
+                        'assignee'=>$assignee,
+                    ];
+
+                    $response = Http::withBasicAuth($business['basic_auth_user'], $business['basic_auth_password'])->post($url,$params);
+
+                    $responseObj = json_decode($response->body());
+                    //dd($responseObj->maintenances);
                     $maintenances = array_merge($responseObj->maintenances , $maintenances);
 
 
@@ -754,7 +893,8 @@ class MaintenanceManagementController extends Controller
                     $params =[
                         'maintenance'=>$id_maintenance,
                         'staff_user'=>$staff_user->email,
-                        'end_date_time'=>$request->end_date_time
+                        'end_date_time'=>$request->end_date_time,
+                        'end_note'=>$request->end_note
                     ];
 
 

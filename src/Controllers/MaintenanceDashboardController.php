@@ -7,6 +7,7 @@ use App\SLP\Enum\ActionStatusConstants;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\General\UserData;
 use App\Models\Template;
 use App\Models\SaasClientBusiness;
 use App\Models\User;
@@ -52,6 +53,12 @@ use Illuminate\Support\Facades\Storage;
 
 use Odisse\Maintenance\Models\ContractorLocation;
 use Odisse\Maintenance\Models\ContractorSkill;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Illuminate\Support\Facades\Redirect;
+use Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+
 
 
 class MaintenanceDashboardController extends Controller
@@ -60,6 +67,16 @@ class MaintenanceDashboardController extends Controller
     use MaintenanceOperation;
 
     use ReplaceTemplateBody;
+
+    public function getCurrentDateTime(Request $request){
+
+        $now = Carbon::createFromDate('now')->format(SystemDateFormats::getDateTimeFormat());
+        return response()->json([
+            'code' => ActionStatusConstants::SUCCESS,
+            'now' => $now,
+        ]);
+
+      }
 
 
 
@@ -92,7 +109,8 @@ class MaintenanceDashboardController extends Controller
         $wiki_link = WikiLinkGenerator::GetWikiLinkOfPage('maintenance_dashboard');
 
 
-        return view('maintenance::maintenance_dashboard',
+        return view('maintenance::'.UserData::getTheme().'.maintenance_dashboard',
+        //return view('maintenance::.maintenance_dashboard_2',
                     [
 
 
@@ -174,7 +192,7 @@ class MaintenanceDashboardController extends Controller
 
         if( $request->has('status') and $request->status != null ){
             //dd($request->status);
-            $maintenances = $maintenances->where('maintenance_job.id_maintenance_job_status','=', $request->status);
+            $maintenances = $maintenances->whereIn('maintenance_job.id_maintenance_job_status', explode(",",$request->status) );
 
         }
 
@@ -212,6 +230,23 @@ class MaintenanceDashboardController extends Controller
         $maintenances = $maintenances->get();
 
         foreach($maintenances as $maintenance){
+
+            $room = null;
+            $property = null;
+            $maintainable = Maintainable::where('maintenable_type' , 'App\Models\Rooms')->where('id_maintenance_job' , $maintenance->id_maintenance_job)->where('maintainable_active' , 1)->first();
+            //dd($maintainable);
+            if($maintainable){
+                $room = Room::find($maintainable->maintenable_id);
+                $property = Property::find($room->id_property);
+
+            }
+            else{
+                $maintainable = Maintainable::where('maintenable_type' , 'App\Models\Property')->where('id_maintenance_job' , $maintenance->id_maintenance_job)->where('maintainable_active' , 1)->first();
+                $property = $maintainable ?Property::find($maintainable->maintenable_id):null;
+
+            }
+            $maintenance->room = $room;
+            $maintenance->property = $property;
             //$remain_time = null;
 
             $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
@@ -219,14 +254,21 @@ class MaintenanceDashboardController extends Controller
 
             if($remain_time){
                 $maintenance->remain_time = $remain_time;
+                $maintenance->sorted_remain_time = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time)->format('Y-m-d H:i:s');
             }
             else{
                 $maintenance->remain_time = '-';
+                $maintenance->sorted_remain_time = '-';
 
             }
 
+
         }
 
+        $col1 = collect($maintenances);
+        $sortedCollection = $col1->sortBy([
+            ['sorted_remain_time','asc'],
+        ])->values();
 
 
 
@@ -238,7 +280,7 @@ class MaintenanceDashboardController extends Controller
         return response()->json(
             [
             'code' => ActionStatusConstants::SUCCESS,
-            'maintenances'=>$maintenances,
+            'maintenances'=>$sortedCollection,
 
             'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
             ]);
@@ -522,6 +564,7 @@ class MaintenanceDashboardController extends Controller
         $validator = Validator::make($request->all(), [
 
             'end_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
+            'end_note' => 'nullable|string',
 
         ]);
 
@@ -578,7 +621,7 @@ class MaintenanceDashboardController extends Controller
         $now = Carbon::createFromDate('now');
 
 
-        $result = $this->endMaintenance($user->id ,$id_maintenance ,$request->end_date_time);
+        $result = $this->endMaintenance($user->id ,$id_maintenance ,$request->end_date_time , $request->end_note);
 
 
         return response()->json(
@@ -840,8 +883,7 @@ class MaintenanceDashboardController extends Controller
 
                         }
 
-
-                        return view('maintenance::maintenance_email_temp',
+                        return view('maintenance::'.UserData::getTheme().'.maintenance_email_temp',
                         [
 
 
@@ -1636,6 +1678,291 @@ class MaintenanceDashboardController extends Controller
                 }
 
     }
+
+    public function printOpenJobsCSV(Request $request){
+
+        $user = Sentinel::getUser();
+        $saas_client_id = $user->id_saas_client_business;
+
+
+        //validate inputs
+        $validator = Validator::make($request->all(), [
+            'from'  => 'nullable|date_format:'.SystemDateFormats::getDateTimeFormat(),
+            'to' => 'nullable|date_format:'.SystemDateFormats::getDateFormat().'|after_or_equal:from',
+        ]);
+
+
+        if ($validator->fails()) {
+
+            Log::error("in MaintenanceDashboardController- printOpenJobsCSV function". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+            return redirect()->back()
+                ->withErrors(trans('maintenance::dashboard.selected_time_is_wrong'))
+                ->withInput();
+
+        }
+
+
+
+
+        $maintenances = MaintenanceJob::where('maintenance_job_active' , 1)->where('maintenance_job.id_saas_client_business' , $user->id_saas_client_business)->
+        join('maintenance_job_category_ref' , 'maintenance_job_category_ref.id_maintenance_job_category_ref' , 'maintenance_job.id_maintenance_job_category')->
+        join('maintenance_job_status_ref' , 'maintenance_job_status_ref.id_maintenance_job_status_ref' , 'maintenance_job.id_maintenance_job_status')->
+        join('maintenance_job_priority_ref' , 'maintenance_job_priority_ref.id_maintenance_job_priority_ref' , 'maintenance_job.id_maintenance_job_priority')->
+        join('users as u1' , 'u1.id' , 'maintenance_job.id_saas_staff_reporter')->
+        join('maintenance_job_sla', 'maintenance_job_sla.id_maintenance_job' , 'maintenance_job.id_maintenance_job')->where('maintenance_job_sla_active' , 1)->
+        join('maintenance_job_sla_ref', 'maintenance_job_sla_ref.id_maintenance_job_sla_ref' , 'maintenance_job_sla.id_maintenance_job_sla_ref')->where('maintenance_job_sla_ref_active' , 1)->
+        leftjoin('resident', 'maintenance_job.id_resident_reporter' , 'resident.id_resident');
+
+
+        $maintenances = $maintenances->
+        leftjoin('maintenance_job_staff_history', function($join) {
+            $join->on('maintenance_job.id_maintenance_job', 'maintenance_job_staff_history.id_maintenance_job')
+            ->where('maintenance_job_staff_history.maintenance_job_staff_history_active' , 1);
+            })->
+        leftjoin('users AS u2', 'maintenance_job_staff_history.id_maintenance_assignee' , 'u2.id')->
+        leftjoin('contractor_agent', 'contractor_agent.id_user' , 'u2.id')->
+        leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
+
+        $maintenances = $maintenances->select('contractor.name AS contractor_name','maintenance_job_staff_history.*' , 'u2.first_name AS assignee_first_name' ,'u2.last_name AS assignee_last_name','u2.email AS assignee_email','maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
+
+
+
+        if( $request->has('from') and $request->from != null )
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_start_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->from)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_start_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->from)->format('Y-m-d 23:59:59'));
+
+        if( $request->has('to') and $request->to != null )
+            $maintenances = $maintenances
+                ->where('maintenance_job.job_finish_date_time','>=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->to)->format('Y-m-d 00:00:00'))
+                ->where('maintenance_job.job_finish_date_time','<=', Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->to)->format('Y-m-d 23:59:59'));
+
+
+
+
+        $maintenances = $maintenances->whereIn('maintenance_job.id_maintenance_job_status', [MaintenanceStatusConstants::OPAS , MaintenanceStatusConstants::OPUN] );
+
+
+
+        $maintenances = $maintenances->where(function ($query)  {
+            $query->where('is_last_one' , 1)
+                    ->orWhereNull('is_last_one');
+        });
+
+
+
+        $maintenances = $maintenances->get();
+
+
+        foreach($maintenances as $maintenance){
+
+            $room = null;
+            $property = null;
+            $maintainable = Maintainable::where('maintenable_type' , 'App\Models\Rooms')->where('id_maintenance_job' , $maintenance->id_maintenance_job)->where('maintainable_active' , 1)->first();
+            if($maintainable){
+                $room = Room::find($maintainable->maintenable_id);
+                $property = Property::find($room->id_property);
+
+            }
+            else{
+                $maintainable = Maintainable::where('maintenable_type' , 'App\Models\Property')->where('id_maintenance_job' , $maintenance->id_maintenance_job)->where('maintainable_active' , 1)->first();
+                $property = $maintainable ?Property::find($maintainable->maintenable_id):null;
+
+            }
+            $maintenance->room = $room;
+            $maintenance->property = $property;
+            $remain_time = $this->calculateSlaRemainTime($user->id_saas_client_business,$maintenance->id_maintenance_job , $maintenance->job_report_date_time , $maintenance->expected_target_minutes);
+
+
+            if($remain_time){
+                $maintenance->remain_time = $remain_time;
+                $maintenance->sorted_remain_time = Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat() , $remain_time)->format('Y-m-d H:i:s');
+
+            }
+            else{
+                $maintenance->remain_time = '-';
+                $maintenance->sorted_remain_time = '-';
+
+            }
+
+        }
+
+
+
+        $col1 = collect($maintenances);
+        $sortedCollection = $col1->sortBy([
+            ['sorted_remain_time','asc'],
+        ])->values();
+
+
+
+
+
+
+
+        $today = date('Y-m-d');
+        $now = Carbon::createFromDate('now');
+
+
+
+
+        $spreadsheet = new Spreadsheet();
+
+        // Set document properties
+        $spreadsheet->getProperties()->setCreator($user->login_name)
+            ->setLastModifiedBy($user->login_name)
+            ->setTitle(trans('maintenance::dashboard.open_jobs_report'))
+            ->setSubject(trans('maintenance::dashboard.open_jobs_report', ['today' => $today]) )
+            ->setDescription(trans('maintenance::dashboard.open_jobs_report', ['today' => $today]) )
+            ->setKeywords(trans('reports.office_2007_openxml_php'))
+            ->setCategory(trans('maintenance::dashboard.open_jobs_report'));
+
+
+        //set font style for first row
+        $spreadsheet->getActiveSheet()
+            ->getStyle('A1:M1')
+            ->getFont()->setBold(true)->setSize(16);
+
+        $spreadsheet->getActiveSheet()
+            ->getStyle('A2:M2')
+            ->getFont()->setBold(true)->setSize(14);
+
+
+        $spreadsheet->setActiveSheetIndex(0)
+            ->setCellValue('A1','Property');
+
+        $spreadsheet->setActiveSheetIndex(0)
+            ->setCellValue('A1',"Report ".$now->format('Y-m-d H:i:s'))
+            ->setCellValue('A2','Property')
+            ->setCellValue('B2','Room')
+            ->setCellValue('C2','Status')
+            ->setCellValue('D2','Priority')
+            ->setCellValue('E2','Category')
+            ->setCellValue('F2' , 'SLA Expire'.PHP_EOL.'Time')
+            ->setCellValue('G2' , 'Title')
+            ->setCellValue('H2' , 'Logged By')
+            ->setCellValue('I2' , 'Report'.PHP_EOL.'Date')
+            ->setCellValue('J2' , 'Task Start'.PHP_EOL.'Date')
+            ->setCellValue('K2' , 'Task End'.PHP_EOL.'Date')
+            ->setCellValue('L2' , 'Assignee')
+            ->setCellValue('M2' , 'Description');
+
+
+        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(11);
+        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(8);
+        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+        $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(11);
+        $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(13);
+        $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+        $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(13);
+        $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(10);
+        $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(13);
+        $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(13);
+        $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(12);
+        $spreadsheet->getActiveSheet()->getColumnDimension('M')->setWidth(40);
+
+
+        $spreadsheet->getActiveSheet()->getRowDimension(1)->setRowHeight(40);
+        $spreadsheet->getActiveSheet()->mergeCells('A1:M1');
+        $spreadsheet->getActiveSheet()->getStyle('A1:M1')->getAlignment()->setHorizontal('center');
+        $spreadsheet->getActiveSheet()->getStyle('A1:M1')->getAlignment()->setVertical('center');
+
+
+        $spreadsheet->getActiveSheet()->getRowDimension(2)->setRowHeight(40);
+        $spreadsheet->getActiveSheet()->getStyle('A2:M2')->getAlignment()->setHorizontal('center');
+        $spreadsheet->getActiveSheet()->getStyle('A2:M2')->getAlignment()->setVertical('center');
+
+
+        $i = 3;
+        foreach( $sortedCollection as $key=>$report ) {
+
+            $status = explode(' ' , $report->job_status_name);
+            $description = chunk_split($report->maintenance_job_description, 40, PHP_EOL);
+
+            //find maximum height line
+            $len = substr_count($description, PHP_EOL);
+            $height_len = max(30 , 20*$len);
+
+
+            $status = $status[1]?$status[0].PHP_EOL.$status[1]:$status[0];
+
+            $assignee = $report->assignee_first_name?$report->assignee_first_name.' '.$report->assignee_last_name:($report->contractor_name?$report->contractor_name:'-');
+
+
+            $spreadsheet->setActiveSheetIndex(0)
+                ->setCellValue('A' . $i, $report->property?$report->property->property_short_name:'-')
+                ->setCellValue('B' . $i, $report->room?$report->room->room_number_short:'-')
+                ->setCellValue('C' . $i, $status)
+                ->setCellValue('D' . $i, $report->priority_name)
+                ->setCellValue('E' . $i, $report->job_category_name)
+                ->setCellValue('F' . $i, substr($report->remain_time , 0 , 10).PHP_EOL.substr($report->remain_time , 10 , 5))
+                ->setCellValue('G' . $i, $report->maintenance_job_title)
+                ->setCellValue('H' . $i, $report->staff_first_name.' '.$report->staff_last_name)
+                ->setCellValue('I' . $i, substr($report->job_report_date_time , 0 , 10).PHP_EOL.substr($report->job_report_date_time , 10 , 5))
+                ->setCellValue('J' . $i, $report->job_start_date_time?substr($report->job_start_date_time, 0 , 10).PHP_EOL.substr($report->job_start_date_time,11 , 5):'-')
+                ->setCellValue('K' . $i, $report->job_finish_date_time?substr($report->job_finish_date_time, 0 , 10).PHP_EOL.substr($report->job_finish_date_time, 11 , 5):'-')
+                ->setCellValue('L' . $i, $assignee)
+                ->setCellValue('M' . $i, $description);
+
+            $spreadsheet->getActiveSheet()->getStyle('A'.$i.':M'.$i)->getAlignment()->setHorizontal('center');
+            $spreadsheet->getActiveSheet()->getStyle('A'.$i.':M'.$i)->getAlignment()->setVertical('center');
+
+            $stl =[
+                'borders' => [
+                    'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+                ],
+            ];
+            $spreadsheet->getActiveSheet()->getStyle('A'.$i.':M'.$i)->applyFromArray($stl);
+
+            $pValue = new \PhpOffice\PhpSpreadsheet\Worksheet\PageMargins();
+            $pValue->setRight(0.4);
+            $pValue->setLeft(0.4);
+            $pValue->setTop(0.5);
+            $pValue->setBottom(0.5);
+            $spreadsheet->getActiveSheet()->setPageMargins($pValue);
+            $spreadsheet->getActiveSheet()->getPageSetup()->setHorizontalCentered(true);
+
+            $spreadsheet->getActiveSheet()->getRowDimension($i)->setRowHeight($height_len);
+
+
+            $i++;
+        }
+
+
+        // Redirect output to a client’s web browser (Xls)
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="open-jobs-report---' . $this->setDate($today).'.xls"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+        $writer->save('php://output');
+
+        $message = trans('maintenance::dashboard.open_jobs_report_downloaded');
+        $status = ActionStatusConstants::SUCCESS;
+        return Redirect::back()->with($status, $message);
+
+
+
+    }
+
+
+    function setDate($date, $format = 'd-m-y')
+    {
+        if (!empty($date)) {
+            return date($format, strtotime($date));
+        } else return 'N/A';
+    }
+
 
 }
 

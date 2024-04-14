@@ -21,6 +21,10 @@ return [
     'start_maintenance'=>'Start Maintenance',
     'select_start_date_of_job'=>'Select start date of Maintenance job',
     'create_email_template'=>'Create Email',
+    'print_open_jobs'=>'Print Open Jobs',
+    'selected_time_is_wrong'=>'Selected time is wrong',
+    'open_jobs_report'=>'Open jobs report',
+    'open_jobs_report_downloaded'=>'Open jobs report downloaded',
 
 
 
@@ -38,6 +42,12 @@ return [
     'assignee_contractor'  =>'Assignee Contractor',
     'maintenance_per_status'  =>'Maintenance Per Status',
     'expired_maintenance_count'  =>'Expired Maintenance Count',
+    'property'  =>'Property',
+    'room'  =>'Room',
+    'report_date'  =>'Report Date',
+    'logged_by'  =>'Logged By',
+    'assignee'  =>'Assignee',
+    'note'  =>'Note',
 
 
 
@@ -54,7 +64,8 @@ return [
     'delete_maintenance_was_not_successful'=>'Delete maintenance was not successful!',
     'start_maintenance_by_user'=>'Start maintenance by user',
     'maintenance_started_successfully'=>'Maintenance started successfully',
-    'end_maintenance_by_user'=>'End maintenance by user',
+    'end_maintenance_by_user'=>'End maintenance by user ',
+    'user_note_is'=>', user note is: ',
     'maintenance_ended_successfully'=>'Maintenance ended successfully',
     'something_wrong_start_status_not_found'=>'Something wrong start status not found',
     'something_wrong_end_status_not_found'=>'Something wrong end status not found',

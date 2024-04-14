@@ -290,12 +290,10 @@
                                                                     <div class="form-group">
 
                                                                         <div class="col-xs-10 col-sm-10 col-md-10 ">
-                                                                            <select class="form-control pull-right" id="search_status" name="search_status" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
-                                                                                <option value="">
-                                                                                    {{__('maintenance::dashboard.status')}}
-                                                                                </option>
+                                                                            <select class="form-control pull-right select2" multiple="multiple" id="search_status" name="search_status[]" onkeydown = "if (event.keyCode == 13)document.getElementById('searchbtn').click()">
+
                                                                                 @foreach($statuses as $status)
-                                                                                    <option value="{{$status->id_maintenance_job_status_ref}}">
+                                                                                    <option value="{{$status->id_maintenance_job_status_ref}}" @if($status->id_maintenance_job_status_ref != \Odisse\Maintenance\App\SLP\Enum\MaintenanceStatusConstants::CLOS){{'selected'}}@endif>
                                                                                         {{$status->job_status_name}}
                                                                                     </option>
                                                                                 @endforeach
@@ -806,15 +804,23 @@
 
 
 
-                                                        {{--
-                                                            <div class="form-group">
-                                                                <div class="input-group date" id="end_datetimepicker">
-                                                                    <input type="text" class="form-control">
-                                                                    <span class="input-group-addon">
-                                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                                    </span>
-                                                                </div>
-                                                            </div> --}}
+
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="form-group row">
+                                                        <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::dashboard.note') }}:</label>
+                                                        <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                                            <div id="end_note_place">
+                                                                <textarea class="form-control" id="end_note"></textarea>
+                                                            </div>
+
+
+
+
                                                         </div>
                                                     </div>
 
@@ -874,10 +880,61 @@
     <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/select2.full.min.js') }}"></script>
 
+{{--
+    <link rel="stylesheet" href="{{ asset('resources/multiselect/multiselect.css') }}" type="text/css">
+    <script type="text/javascript" src="{{ asset('resources/multiselect/multiselect.js') }}"></script> --}}
+
+
+
+
 
     <script>
 
         $(document).ready(function () {
+
+
+
+    // $('#search_status').multiselect({
+    //     enableFiltering: false,
+    //     includeSelectAllOption: false,
+    //     maxHeight: 400,
+    //     buttonWidth: '100%',
+    //     dropLeft: true,
+    //     selectAllText: 'Select All',
+    //     selectAllValue: 0,
+    //     enableFullValueFiltering: false,
+    //     // onDeselectAll: function() {
+    //     //  //alert('onDeselectAll triggered!');
+    //     //  buttonText: function(options, select) {
+    //     //  if (options.length === 0) {
+    //     //  return 'No option selected ...';
+    //     //  }
+    //     //  }
+    //     //  },
+    //     //nonSelectedText: 'Check an option!',
+    //     //dropUp: true
+
+    //     buttonText: function (options, select) {
+    //         if (options.length === 0) {
+    //             return 'Not selected';
+    //         }
+    //         else if (options.length > 9) {
+    //             return 'More than 9 options selected!';
+    //         }
+    //         else {
+    //             var labels = [];
+    //             options.each(function () {
+    //                 if ($(this).attr('label') !== undefined) {
+    //                     labels.push($(this).attr('label'));
+    //                 }
+    //                 else {
+    //                     labels.push($(this).html());
+    //                 }
+    //             });
+    //             return labels.join(', ') + '';
+    //         }
+    //     }
+    // });
 
 
         $('.select2').select2();
@@ -887,7 +944,7 @@
                 "showClose": true,
                 "showClear": true,
                 "showTodayButton": true,
-                "format": "DD-MM-YYYY hh:mm",
+                "format": "DD-MM-YYYY HH:mm",
             });
 
             //loadMaintenances();
@@ -1180,7 +1237,7 @@
                         '<i class="fa fa-solid fa-envelope"></i>'+
                         '</a>';
 
-                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_business +','+ id_maintenance_job+')"> '+
                         '<i class="fa fa-solid fa-play"></i>'+
                         '</a>';
                     }
@@ -1191,13 +1248,13 @@
 
                         if(job_start_date_time == '-'){
 
-                            var start_btn = '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                            var start_btn = '<a href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_business +','+ id_maintenance_job+')"> '+
                             '<i class="fa fa-solid fa-play"></i>'+
                             '</a>';
 
                         }
                         else{
-                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="showStartMaintenanceModal('+id_business +','+ id_maintenance_job+')"> '+
+                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#" class="btn btn-primary allign-btn sdr-primary" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_business +','+ id_maintenance_job+')"> '+
                             '<i class="fa fa-solid fa-play"></i>'+
                             '</a>';
                         }
@@ -1205,12 +1262,12 @@
 
                     if(job_finished_date_time == '-'){
 
-                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business +','+id_maintenance_job+')">'+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Finish Maintenance" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
                         '<i class="fa fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
                     else{
-                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Stop Maintenance" onclick="showEndMaintenanceModal('+id_business +','+id_maintenance_job+')">'+
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Finish Maintenance" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
                         '<i class="fa fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
@@ -1709,8 +1766,28 @@
 
         }
         ///////////////////////////////////////////////////////
+        function getNowForStartDateTimes(id_business , id_maintenance){
+
+            send( '/mgt/utility/get_now_from_server',  {
+            }, 'showStartMaintenanceModal', [ id_business, id_maintenance]);
+        }
+
+        ///////////////////////////////////////////////////////
 
         function showStartMaintenanceModal(id_business , id_maintenance){
+
+            let now = return_value.now;
+            console.log(return_value);
+            console.log("now=");
+            console.log(now);
+
+            if(now){
+                $( '#start_datetimepicker' ).val(now);
+            }
+            else{
+                $( '#start_datetimepicker' ).val('');
+            }
+
 
 
             $('#user_agent_start').find('option').remove();
@@ -1794,7 +1871,6 @@
 
             $("#start_maintenance_btn").removeAttr('disabled');
 
-            $('#start_datetimepicker').val('');
             $('#started_maintenance').val(id_maintenance);
             $('#started_business').val(id_business);
 
@@ -1867,14 +1943,30 @@
 
         }
         ///////////////////////////////////////////////////////
+        function getNowForDateTimes(id_business , id_maintenance){
+
+            send( '/mgt/utility/get_now_from_server',  {
+            }, 'showEndMaintenanceModal', [ id_business , id_maintenance]);
+        }
+        ///////////////////////////////////////////////////////
 
         function showEndMaintenanceModal(id_business , id_maintenance){
 
+            let now = return_value.now;
+            console.log(now);
+
+            if(now){
+                $( '#end_datetimepicker' ).val(now);
+            }
+            else{
+                $( '#end_datetimepicker' ).val('');
+            }
+
             $("#end_maintenance_btn").removeAttr('disabled');
 
-            $('#end_datetimepicker').val('');
             $('#ended_maintenance').val(id_maintenance);
             $('#ended_business').val(id_business);
+            $('#end_note').html('');
 
             $('#err_msg_box_end').css('display' , 'none');
             $('#suc_msg_box_end').css('display' , 'none');
@@ -1894,13 +1986,14 @@
 
             let ended_maintenance = $( '#ended_maintenance' ).val();
             let ended_business = $( '#ended_business' ).val();
-
+            let end_note = $('textarea#end_note').val();
             let end_date_time = $( '#end_datetimepicker' ).val();
 
 
             send( '/maintenance/mgt/end/'+ended_maintenance,  {
                 business:ended_business,
                 end_date_time:end_date_time,
+                end_note:end_note,
             }, 'handleEndMaintenance', []);
         }
         ////////////////////////////////////////////////////////
