@@ -138,7 +138,18 @@
 
                                                     <div class="col-xs-10 col-sm-10 col-md-10 text-left">
                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
-                                                            <input type="text" class="form-control pull-right" placeholder="{{trans('maintenance::contractor.email_placeholder')}}" autocomplete="off" id="email" name="email" value="@if(old('email')){{old('email')}}@endif">
+                                                            <input type="text" class="form-control pull-right" onblur="checkEmailContractor()" placeholder="{{trans('maintenance::contractor.email_placeholder')}}" autocomplete="off" id="email" name="email" value="@if(old('email')){{old('email')}}@endif">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label class="col-xs-2 col-sm-2 col-md-2  text-right"></label>
+
+                                                    <div class="col-xs-10 col-sm-10 col-md-10 text-left">
+                                                        <div class="input-group col-xs-10 col-sm-10 col-md-10">
+                                                            <span class="text-red" id="email_alarm" ></span>
                                                         </div>
 
                                                     </div>
@@ -538,6 +549,52 @@
     $('#password').val(generatePassword());
 
     }
+
+        ////////////////////////////////////////////////
+        function checkEmailContractor() {
+
+    let email = $('#email').val();
+    let contractor_id = $('#id_contractor').val();
+
+
+    send( '/maintenance/check_contractor/email',  {
+        email:email,
+        contractor_id:contractor_id
+    }, 'handleCheckEmailContractor',[]);
+
+    }
+    ////////////////////////////////////////////
+    function handleCheckEmailContractor(){
+    let code = return_value.code;
+    let message = return_value.message;
+    if (code == "failure") {
+
+
+
+
+    var textmessage = "";
+
+    if(typeof message == "object"){
+
+        var messages2 = Object.values(message);
+        for(var i=0;i<messages2.length;i++){
+            textmessage=textmessage+messages2[i];
+        }
+    }
+    else{
+        textmessage = message;
+
+    }
+
+    $('#email_alarm').html(textmessage);
+
+
+    } else{
+    $('#email_alarm').html(message);
+    }
+
+    }
+
     ////////////////////////////////////////////////
         function prepareContractorDocumentsTable() {
 

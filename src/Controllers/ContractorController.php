@@ -139,7 +139,7 @@ class ContractorController extends Controller
 
             'name' => 'required|string',
             'short_name' => 'nullable|string',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email',
             'password' => 'required|string|min:8',
             'vat_number' => 'nullable|string',
             'tel_number1' => 'nullable|uk_phone',
@@ -182,27 +182,60 @@ class ContractorController extends Controller
             $HistoricalContractorManager->insertHistory($contractor);
 
 
-            $contractorAgent = [
-                'login_name' => $request->email,
-                'email' => $request->email,
-                'password' => $request->password,
-                'gender'  => 'M',
-                'user_title'  => 'Mr',
-            ];
-
-            $contractor_user = Sentinel::registerAndActivate($contractorAgent);
-            $contractor_user->update(['users_active' => '1']);
-            $contractor_user->update(['id_saas_client_business' => $user->id_saas_client_business]);
-
-            $contractor_user->save();
+            $check_email = User::where('email' , $request->email)->first();
+            $another_contractor = ContractorAgent::where('id_user', $check_email->id)->where('contractor_agent_active' , 1)->first();
+            if($check_email){
 
 
+                if($another_contractor){
 
-            $contractor_agent = new ContractorAgent([
-                'id_contractor'=>$contractor->id_contractor,
-                'id_user'=>$contractor_user->id,
-                'contractor_agent_active'=>1,
-            ]);
+                    Log::error("In maintenance package, ContractorController- storeContractor function " . trans('maintenance::contractor.email_belong_to_another_contractor'));
+                    DB::rollback();
+
+                    return redirect()->back()->withInput()->with(ActionStatusConstants::ERROR, trans('maintenance::contractor.email_belong_to_another_contractor'));
+
+                }
+                else{
+
+                    $contractor_agent = new ContractorAgent([
+                        'id_contractor'=>$contractor->id_contractor,
+                        'id_user'=>$check_email->id,
+                        'contractor_agent_active'=>1,
+                    ]);
+
+                }
+
+
+
+            }
+            else{
+
+
+                $contractorAgent = [
+                    'login_name' => $request->email,
+                    'email' => $request->email,
+                    'password' => $request->password,
+                    'gender'  => 'M',
+                    'user_title'  => 'Mr',
+                ];
+
+                $contractor_user = Sentinel::registerAndActivate($contractorAgent);
+                $contractor_user->update(['users_active' => '1']);
+                $contractor_user->update(['id_saas_client_business' => $user->id_saas_client_business]);
+
+                $contractor_user->save();
+
+
+
+                $contractor_agent = new ContractorAgent([
+                    'id_contractor'=>$contractor->id_contractor,
+                    'id_user'=>$contractor_user->id,
+                    'contractor_agent_active'=>1,
+                ]);
+
+            }
+
+
 
             $contractor_agent->save();
 
@@ -308,6 +341,78 @@ class ContractorController extends Controller
 
         }
 
+
+    }
+
+    public function ajaxCheckEmail(Request $request){
+
+        $user = Sentinel::getUser();
+
+        Log::info("In maintenance package -  in ContractorController- ajaxCheckEmail function " . " try to check contractors data  ------- by user " . $user->first_name . " " . $user->last_name);
+
+
+
+        $validator = Validator::make($request->all(), [
+
+            'email' => 'required|email',
+            'contractor_id' => 'nullable|numeric',
+
+        ]);
+
+        if ($validator->fails()) {
+
+            Log::error("in Maintenance Package - inside ContractorController- createNewRoom function"."create new room : ". $validator->errors()." by user ".$user->first_name . " " . $user->last_name);
+
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::FAILURE,
+
+                'message' => $validator->errors(),
+                ]);
+        }
+
+
+        $user  = User::where('email' , $request->email)->first();
+        if($user){
+
+            $contractor_agent = ContractorAgent::where('id_user' , $user->id)->where('id_contractor' ,'!=', $request->contractor_id)->first();
+            if($contractor_agent){
+
+                return response()->json(
+                    [
+                    'code' => ActionStatusConstants::FAILURE,
+
+                    'message' => trans('maintenance::contractor.your_email_is_used_already_for_another_contractor_you_must_change_it'),
+                    ]);
+
+            }
+            else{
+
+
+                return response()->json(
+                    [
+                    'code' => ActionStatusConstants::WARNING,
+
+                    'message' => trans('maintenance::contractor.your_email_is_used_already_you_can_change_it'),
+                    ]);
+
+
+            }
+
+        }
+        else{
+
+
+
+            return response()->json(
+                [
+                'code' => ActionStatusConstants::SUCCESS,
+
+                'message' => trans('maintenance::contractor.your_email_is_ready_to_use'),
+                ]);
+
+        }
 
     }
 

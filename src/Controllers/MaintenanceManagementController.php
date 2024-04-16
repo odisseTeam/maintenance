@@ -271,7 +271,7 @@ class MaintenanceManagementController extends Controller
         Log::info("In Maintenance package MaintenanceManagementController- ajaxLoadAssignedMaintenances function ");
 
         $user = Sentinel::getUser();
-        $user_email = 'cpmlimited@outlook.com';//$user->email;
+        $user_email = $user->email;
         $assignee = $user_email;
 
         $responseObj= null;

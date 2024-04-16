@@ -1266,12 +1266,12 @@
 
                     if(job_finished_date_time == '-'){
 
-                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Finish Maintenance" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Complete maintenance job" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }
                     else{
-                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Finish Maintenance" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Complete maintenance job" onclick="getNowForDateTimes('+id_maintenance_job+')">'+
                         '<i class="fa-solid fa-stop"></i>'+
                         '</button></a>';
                     }

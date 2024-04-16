@@ -82,6 +82,9 @@ return [
 
     //contractor dashboard
     'contractor_dashboard'=>'Contractor Dashboard',
+    'your_email_is_used_already_you_can_change_it'=>'your email already is used, You can change it.',
+    'your_email_is_used_already_for_another_contractor_you_must_change_it'=>'your email already is used for another contractor, You must change it!',
+    'email_belong_to_another_contractor'=>'email belong to another contractor!',
 
 
 

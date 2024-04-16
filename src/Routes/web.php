@@ -138,6 +138,7 @@ Route::middleware(['web','ProxyCAS'])->group(
 
             //get  attachments of contractor
             Route::post('/contractor/attachments/{id_contractor}', [ContractorController::class,'ajaxGetContractorAttachments']);
+            Route::post('/check_contractor/email', [ContractorController::class,'ajaxCheckEmail']);
 
            //delete  attachment of a contractor
            Route::post('/contractor_document/delete', [ContractorController::class,'deleteContractorAttachment']);
