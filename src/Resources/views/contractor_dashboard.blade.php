@@ -330,13 +330,13 @@
 
                     if(job_finished_date_time == '-'){
 
-                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Complete maintenance job" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
-                        '<i class="fa fa-solid fa-stop"></i>'+
+                        var stop_btn ='<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-success allign-btn sdr-success" title="Complete maintenance job" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
+                        '<i class="fa fa-solid fa-check"></i>'+
                         '</button></a>';
                     }
                     else{
-                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn sdr-primary" title="Complete maintenance job" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
-                        '<i class="fa fa-solid fa-stop"></i>'+
+                        var stop_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-success allign-btn sdr-success" title="Complete maintenance job" onclick="getNowForDateTimes('+id_business +','+id_maintenance_job+')">'+
+                        '<i class="fa fa-solid fa-check"></i>'+
                         '</button></a>';
                     }
 
