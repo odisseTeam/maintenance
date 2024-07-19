@@ -126,7 +126,7 @@
 
                                             <!-- maintenance title-->
                                             <div class="form-group row ">
-                                                <label class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.maintenance_title') }}:</label>
+                                                <label class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-right">{{ trans('maintenance::maintenance.description') }}:</label>
 
                                                 <div class="col-xs-9 col-sm-9 col-md-9">
                                                     <div class="input-group col-xs-10 col-sm-10 col-md-10">

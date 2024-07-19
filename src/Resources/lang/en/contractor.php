@@ -76,6 +76,7 @@ return [
     'confirm_password'=>'Confirm Password',
     'confirm_password_placeholder'=>'Please Enter Password Again',
     'are_you_sure_to_delete_contractor_document'=>'Are you sure to delete this Contractor document?',
+    'your_email_is_ready_to_use'=>'Your email is ready to use.',
 
 
 

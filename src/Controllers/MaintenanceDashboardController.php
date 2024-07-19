@@ -272,6 +272,18 @@ class MaintenanceDashboardController extends Controller
 
 
 
+        //dd($sortedCollection);
+
+
+
+        $final_collection = $this->swapRowsCollection($sortedCollection);
+
+
+
+        //dd($final_collection);
+
+
+
 
 
 
@@ -280,7 +292,7 @@ class MaintenanceDashboardController extends Controller
         return response()->json(
             [
             'code' => ActionStatusConstants::SUCCESS,
-            'maintenances'=>$sortedCollection,
+            'maintenances'=>$final_collection,
 
             'message' => trans('maintenance::dashboard.your_maintenances_loaded'),
             ]);
@@ -479,7 +491,8 @@ class MaintenanceDashboardController extends Controller
         $validator = Validator::make($request->all(), [
 
             'start_date_time' => 'required|date_format:'.SystemDateFormats::getDateTimeFormat(),
-            'user' => 'required|numeric',
+            'business_user' => 'required_without:contractor_user',
+            'contractor_user' => 'required_without:business_user',
 
 
         ]);
@@ -501,10 +514,11 @@ class MaintenanceDashboardController extends Controller
 
         Log::info("In maintenance package, MaintenanceDashboardController- ajaxStartMaintenance function " . " try to start specific maintenance  ------- by user " . $user->first_name . " " . $user->last_name);
 
+        $selected_user = $request->business_user?$request->business_user:$request->contractor_user;
 
         try{
             DB::beginTransaction();
-            $response = $this->assignJobToUser($id_maintenance , $request->user ,$user->id );
+            $response = $this->assignJobToUser($id_maintenance , $selected_user ,$user->id );
             $result = $this->startMaintenance($user->id ,$id_maintenance ,$request->start_date_time);
             if($result['code']== 'success'){
 

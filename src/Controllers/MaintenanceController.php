@@ -115,15 +115,15 @@ class MaintenanceController extends Controller
 
 
             //get all businesses
-            $saas_client_businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
+            $saas_client_businesses = SaasClientBusiness::where('id_saas_client_business' , $user->id_saas_client_business)->where('saas_client_business_active' , 1)->get();
 
             //get all maintenance priorities
             $priorities = MaintenanceJobPriorityRef::all();
 
-            $locations = $this->getMaintainables();;
+            $locations = $this->getMaintainables($user->id_saas_client_business);
 
             $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
-            $businesses = SaasClientBusiness::where('saas_client_business_active' , 1)->get();
+            $businesses = SaasClientBusiness::where('id_saas_client_business' , $user->id_saas_client_business)->where('saas_client_business_active' , 1)->get();
             $contactors = [];
             $users = null;
             $agents = null;
@@ -144,7 +144,7 @@ class MaintenanceController extends Controller
 
             $is_maintenance_user = false;
 
-            if ($user->inRole('Maintenance') || $user->inRole('admin')|| $user->inRole('super_user'))
+            if ($user->inRole('admin')|| $user->inRole('super_user'))
             {
                 $is_maintenance_user = true;
             }
@@ -337,8 +337,8 @@ class MaintenanceController extends Controller
 
         //   dd($request->all());
           $validator = Validator::make($request->all(), [
-              'maintenance_title' => 'required',
-              'description'=>'required',
+              'description' => 'required',
+              'comment'=>'required',
               'maintenance_date'=>'required|date_format:' . SystemDateFormats::getDateTimeFormat(),
               'commencement_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat(),
               'complete_date'=>'nullable|date_format:' . SystemDateFormats::getDateFormat().'|after_or_equal:commencement_date',
@@ -376,8 +376,8 @@ class MaintenanceController extends Controller
               $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
               $maintenance_job->id_maintenance_job_priority = $request->priority;
               $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
-              $maintenance_job->maintenance_job_title = $request->maintenance_title;
-              $maintenance_job->maintenance_job_description = $request->description;
+              $maintenance_job->maintenance_job_title = $request->description;
+              $maintenance_job->maintenance_job_description = $request->comment;
               $maintenance_job->id_resident_reporter = $request->resident_reporter;
               $maintenance_job->order_number = 'AAA';//by default
               $maintenance_job->maintenance_job_active = 1;
@@ -932,7 +932,7 @@ class MaintenanceController extends Controller
 
             }
 
-            $locations = $this->getMaintainables();
+            $locations = $this->getMaintainables($user->id_saas_client_business);
             $skills = ContractorSkillRef::where('contractor_skill_ref_active' , 1)->get();
 
 
@@ -993,7 +993,7 @@ class MaintenanceController extends Controller
 
 
           $validator = Validator::make($request->all(), [
-            'maintenance_title' => 'required',
+            'description' => 'required',
             'maintenance_category'=>'required',
             'locations'=>'required',
             'priority'=>'required',
@@ -1047,14 +1047,14 @@ class MaintenanceController extends Controller
                 }
 
                //check if maintenance title has been changed
-               if($maintenance_old_data->maintenance_job_title != $request->maintenance_title) {
+               if($maintenance_old_data->maintenance_job_title != $request->description) {
 
                 // edit title of maintenance job
                 $maintenance_old_data->update([
-                    'maintenance_job_title' => $request->maintenance_title,
+                    'maintenance_job_title' => $request->description,
                         ]);
 
-               $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance title to ".$request->maintenance_title."\r\n";
+               $note = $note. " ". $user->first_name . " " . $user->last_name." changed maintenance title to ".$request->description."\r\n";
 
 
                }
@@ -1591,11 +1591,17 @@ class MaintenanceController extends Controller
       }
 
 
-      private function getMaintainables()
+      private function getMaintainables($saas_client_id)
       {
             $locations = [];
 
-            $rooms = Room::all();
+            $rooms = Room::where('room_active' , 1)->
+            join('property' , 'room.id_property' , 'property.id_property')->
+            join('site' , 'property.id_site' , 'site.id_site')->
+            where('site.site_active' , 1)->
+            where('site.id_site' , $saas_client_id)
+            ->get();
+
 
             foreach($rooms as $room) {
                 $property = $room->property;
@@ -1608,7 +1614,11 @@ class MaintenanceController extends Controller
                 $locations[] = $room;
             }
 
-            $properties = Property::all();
+            $properties = Property::where('property_active' , 1)->
+            join('site' , 'property.id_site' , 'site.id_site')->
+            where('site.site_active' , 1)->
+            where('site.id_site' , $saas_client_id)
+            ->get();
 
             foreach($properties as $property) {
                 $property->id = 'Property'.$property->id_property;
@@ -1619,20 +1629,6 @@ class MaintenanceController extends Controller
             foreach($properties as $property) {
                 $locations[] = $property;
             }
-
-
-            // $sites = Site::all();
-
-
-            // foreach($sites as $site) {
-            //     $site->id = 'Site'.$site->id_site;
-            //     $site->name = '[Site] '.$site->site_full_name;
-
-            // }
-
-            // foreach($sites as $site) {
-            //     $locations[] = $site;
-            // }
 
             return $locations;
       }

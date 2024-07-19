@@ -31,8 +31,8 @@ trait MaintenanceTrait
     {
 
         $validator = Validator::make($request->all(), [
-            'maintenance_title' => 'required',
-            'description'=>'required',
+            'description' => 'required',
+            'comment'=>'required',
             'maintenance_date'=>'required|date_format:' . SystemDateFormats::getDateTimeFormat(),
             'maintenance_category'=>'required',
             'saas_client_business'=>'required',
@@ -342,11 +342,11 @@ trait MaintenanceTrait
 
     }
 
-   
+
     public function createMaintenanceForApp( $request )
     {
 
-        
+
         $user = JWTAuth::user();
 
         try {
@@ -354,7 +354,7 @@ trait MaintenanceTrait
             // return response()->json([
             //     'hh'=>$request->resident_reporter
             // ]);
-            
+
             //save a new maintenance job
             $maintenance_job = new MaintenanceJob();
             $maintenance_job->id_saas_client_business =  $request->saas_client_business;
@@ -364,8 +364,8 @@ trait MaintenanceTrait
             $maintenance_job->id_maintenance_job_category = $request->maintenance_category;
             $maintenance_job->id_maintenance_job_priority = $request->priority;
             $maintenance_job->id_maintenance_job_status = MaintenanceStatusConstants::OPUN;
-            $maintenance_job->maintenance_job_title = $request->maintenance_title;
-            $maintenance_job->maintenance_job_description = $request->description;
+            $maintenance_job->maintenance_job_title = $request->description;
+            $maintenance_job->maintenance_job_description = $request->comment;
             $maintenance_job->id_resident_reporter = $request->resident_reporter;
             $maintenance_job->order_number = 'AAA';//by default
             $maintenance_job->maintenance_job_active = 1;
@@ -373,8 +373,8 @@ trait MaintenanceTrait
             $maintenance_job->save();
 
 
-            
-    
+
+
             $date_time = $request->maintenance_date ? Carbon::createFromFormat(SystemDateFormats::getDateTimeFormat(), $request->maintenance_date)->format('Y-m-d') : null;
 
 

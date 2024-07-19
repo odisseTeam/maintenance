@@ -6,7 +6,7 @@
 
 @section('css')
 
-    <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('resources/datatables.net-bs/css/dataTables.bootstrap.min.css') }}"> --}}
     <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('resources/select2/select2.min.css') }}" />
     <link href="{{ asset('resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet">
@@ -386,13 +386,13 @@
 
                 </div>
 
-                <div class="col-xs-12">
-                    <div class="card box col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="col-12">
+                    <div class="card box col-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="card-header box-header">
                             <h3>{{__('maintenance::dashboard.maintenances_list')}}</h3>
                         </div>
 
-                        <div class="card-body box-body">
+                        <div class="card-header box-header">
                             <div class="row" style="float: right;">
                                 <a style="min-width:150px;margin-top:1px;" href="/maintenance/create/page" class="btn btn-primary">{{trans('maintenance::dashboard.create_job')}}</a>
                                 <br>
@@ -401,7 +401,7 @@
                         <div class="card-body box-body ">
 
 
-                            <div class="row table-responsive no-padding">
+                            <div class="table-responsive no-padding" style="text-align: left;">
 
                                 <table id="maintenances_table" class="table table-bordered table-hover dataTable text-center">
                                     <thead>
@@ -413,7 +413,7 @@
                                         <th>{{__('maintenance::dashboard.priority')}}</th>
                                         <th>{{__('maintenance::dashboard.category')}}</th>
                                         <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.description')}}</th>
                                         <th>{{__('maintenance::dashboard.logged_by')}}</th>
                                         <th>{{__('maintenance::dashboard.report_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_start_date')}}</th>
@@ -439,7 +439,7 @@
                                         <th>{{__('maintenance::dashboard.priority')}}</th>
                                         <th>{{__('maintenance::dashboard.category')}}</th>
                                         <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
-                                        <th>{{__('maintenance::dashboard.title')}}</th>
+                                        <th>{{__('maintenance::dashboard.description')}}</th>
                                         <th>{{__('maintenance::dashboard.logged_by')}}</th>
                                         <th>{{__('maintenance::dashboard.report_date')}}</th>
                                         <th>{{__('maintenance::dashboard.task_start_date')}}</th>
@@ -723,45 +723,205 @@
 
 
 
+                        <div id="user_place_1" style="display: none;">
+                            <!-- Business/contractor -->
+                            <div class="form-group row">
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.business_contractor')}}:</label>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
 
-                        <!-- Business/contractor -->
-                        <div class="form-group row">
-                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.business_contractor')}}:</label>
-                            <div class="col-sm-5 col-md-5 col-lg-5">
+
+                                    <span name="business_contractor_readonly" id="business_contractor_readonly">
+
+                                    </span>
+                                </div>
+                            </div>
 
 
-                                <span name="business_contractor_readonly" id="business_contractor_readonly">
 
-                                </span>
+
+                            <!-- User / agent -->
+                            <div class="form-group row">
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.user_agent')}}:</label>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                    <select name="user_agent_start" id="user_agent_start" class="form-control select ">
+                                        @foreach ($maintenance_users as $maintenance_user)
+                                        <option value="{{ $maintenance_user->id }}">
+                                            {{ $maintenance_user->first_name }} {{ $maintenance_user->last_name }}
+                                        </option>
+                                        @endforeach
+                                        @foreach ($contractor_agents as $contractor_agent)
+                                        <option value="{{ $contractor_agent->id }}">
+                                            @if(isset($contractor_agent->first_name) || isset($contractor_agent->last_name))){{ $contractor_agent->first_name }} {{ $contractor_agent->last_name }}@else{{$contractor_agent->login_name}}@endif
+                                        </option>
+                                        @endforeach
+
+
+
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
 
 
 
-                        <!-- User / agent -->
-                        <div class="form-group row">
-                            <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.user_agent')}}:</label>
-                            <div class="col-sm-5 col-md-5 col-lg-5">
 
-
-                                <select name="user_agent_start" id="user_agent_start" class="form-control select ">
-                                    @foreach ($maintenance_users as $maintenance_user)
-                                     <option value="{{ $maintenance_user->id }}">
-                                        {{ $maintenance_user->first_name }} {{ $maintenance_user->last_name }}
-                                     </option>
-                                    @endforeach
-                                    @foreach ($contractor_agents as $contractor_agent)
-                                     <option value="{{ $contractor_agent->id }}">
-                                        @if(isset($contractor_agent->first_name) || isset($contractor_agent->last_name))){{ $contractor_agent->first_name }} {{ $contractor_agent->last_name }}@else{{$contractor_agent->login_name}}@endif
-                                     </option>
-                                    @endforeach
+                        <div id="user_place_2" style="display:none;">
 
 
 
-                                </select>
+
+                            <!-- contractor skill-->
+
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.contractor_skill') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <select name="contractor_skill[]" id="start_contractor_skill"  class="form-control select2" multiple="multiple">
+                                        <option value="">{{ trans('maintenance::maintenance.select_contractor_skill') }}</option>
+                                        @foreach ($skills as $skill)
+                                            <option value="{{ $skill->id_contractor_skill_ref}}">{{ $skill->skill_name }}</option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-primary" onclick="search_contractors(2)">{{trans('maintenance::maintenance.search')}}</button>
+                                </div>
                             </div>
+
+
+                            <hr style="border-top:3px solid #d2d6de;">
+
+
+
+
+
+                            <!-- Business/contractor -->
+                            <div class="form-group row">
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.business_contractor')}}:</label>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                    <select name="business_contractor" id="start_business_contractor" onchange="loadUserAgents(2)" class="form-control select ">
+                                        <option value="">{{trans('maintenance::dashboard.select_business_contractor')}}</option>
+
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+
+                            <!-- short name-->
+
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.short_name') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <input class="form-control" id="start_contractor_short_name" readonly value="@if(isset($selected_contractor)){{$selected_contractor->short_name}}@endif" >
+                                </div>
+
+                            </div>
+
+
+
+
+                            <!-- tel number1-->
+
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.tel_number1') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <input class="form-control" id="start_contractor_tel_number1" readonly value="@if(isset($selected_contractor)){{$selected_contractor->tel_number1}}@endif" >
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- address line1-->
+
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.address') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <textarea class="form-control" rows="1" id="start_contractor_address_line1" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->address_line1}}@endif</textarea>
+                                </div>
+
+                            </div>
+
+                            <!-- contractor_skills-->
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.skills') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="start_skill_place">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- coverage_areas-->
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::contractor.coverage_area') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="start_coverage_area_place">
+
+                                </div>
+
+                            </div>
+
+
+
+
+                            <!-- note-->
+
+                            <div class="form-group row ">
+
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{ trans('maintenance::maintenance.contractor_note') }}:</label>
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <textarea class="form-control" rows="4" id="start_contractor_note" readonly column="40">@if(isset($selected_contractor)){{$selected_contractor->note}}@endif</textarea>
+                                </div>
+
+                            </div>
+
+
+
+
+
+                            <!-- User / agent -->
+                            <div class="form-group row">
+                                <label class="col-xs-4 col-sm-4 col-md-4 control-label text-right">{{trans('maintenance::dashboard.user_agent')}}:</label>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+
+
+                                    <select name="user_agent" id="start_user_agent" class="form-control select ">
+                                        <option value="">{{trans('maintenance::dashboard.select_user_agent')}}</option>
+                                        @foreach ($maintenance_users as $maintenance_user)
+                                        <option value="{{ $maintenance_user->id }}">
+                                            {{ $maintenance_user->first_name }} {{ $maintenance_user->last_name }}
+                                        </option>
+                                        @endforeach
+                                        @foreach ($contractor_agents as $contractor_agent)
+                                        <option value="{{ $contractor_agent->id }}">
+                                            @if(isset($contractor_agent->first_name) || isset($contractor_agent->last_name))){{ $contractor_agent->first_name }} {{ $contractor_agent->last_name }}@else{{$contractor_agent->login_name}}@endif
+                                        </option>
+                                        @endforeach
+
+
+
+                                    </select>
+                                </div>
+                            </div>
+
+
                         </div>
+
+
 
 
 
@@ -931,8 +1091,8 @@
     {{--    <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>--}}
     <script src="{{ asset('resources/modalLoading/modalLoading.min.js') }}"></script>
 
-    <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    {{-- <script src="{{ asset('resources/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('resources/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script> --}}
     <script src="{{ asset('resources/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <script src="{{ asset('resources/select2/select2.full.min.js') }}"></script>
 
@@ -1011,7 +1171,9 @@
 
             prepareMaintenanceStatusChartData();
             prepareMaintenanceSlaChartData();
-            loadMaintenances();
+            setTimeout(function() {
+                loadMaintenances();
+            }, 1000);
 
 
 
@@ -1025,29 +1187,49 @@
 
         });
         ////////////////////////////////////////////////
-        function search_contractors() {
+        function search_contractors(type) {
 
             var spinHandle = loadingOverlay.activate();
+            let maintenance_id;
+            let contractor_skill;
 
 
-            let maintenance_id = $('#assigned_maintenance').val();
-            let contractor_skill = $('#contractor_skill').val();
+            if(type == 2){
+
+                maintenance_id = $('#started_maintenance').val();
+                contractor_skill = $('#start_contractor_skill').val();
+
+            }
+            else{
+
+                maintenance_id = $('#assigned_maintenance').val();
+                contractor_skill = $('#contractor_skill').val();
+
+
+            }
+
 
 
             send('/maintenance/contractor_skill/contractors', {
                 maintenance_id: maintenance_id,
                 contractor_skill: contractor_skill,
 
-            }, 'handleSearchContractors', []);
+            }, 'handleSearchContractors', [type]);
 
         }
         ///////////////////////////////////////////////////////
-        function handleSearchContractors()
-        {
+        function handleSearchContractors(type){
             let message = return_value.message;
             let res = return_value.code;
             let contractor_list = return_value.contractors;
             let business_list = return_value.businesses;
+
+
+            $("#start_contractor_note").html('');
+            $("#start_contractor_address_line1").html('');
+            $("#start_contractor_tel_number1").val('');
+            $("#start_contractor_short_name").val('');
+
 
 
             $("#contractor_note").html('');
@@ -1062,6 +1244,35 @@
             }
 
             else{
+
+                if(type == 2){
+
+
+                $('#start_business_contractor').find('option').not(':first').remove();
+                $('#start_user_agent').find('option').not(':first').remove();
+                if(business_list){
+                    business_list.forEach(item => {
+                    var item_name = item.business_name;
+                    $('#start_business_contractor').append(new Option(item_name ,'B'+item.id_saas_client_business));
+                    });
+                }
+
+                if(contractor_list){
+                    contractor_list.forEach(item => {
+                    var item_name = item['name'];
+                    $('#start_business_contractor').append(new Option(item_name ,'C'+item['id_contractor']));
+                    });
+                }
+
+
+
+                $("#start_contractor_note").html("");
+
+
+
+                }
+                else{
+
 
                 $('#business_contractor').find('option').not(':first').remove();
                 $('#user_agent').find('option').not(':first').remove();
@@ -1084,12 +1295,14 @@
                 $("#contractor_note").html("");
 
 
+
+                }
+
             }
 
             loadingOverlay.cancelAll();
 
         }
-
         ///////////////////////////////////////////////////////////////////////////
         let prepareMaintenanceStatusChartData = function () {
             let spinHandle = loadingOverlay.activate();
@@ -1273,9 +1486,9 @@
                         '<i class="fa-solid fa-envelope"></i>'+
                         '</button></a>';
 
-                        var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
-                            '<i class="fa-solid fa-play"></i>'+
-                            '</button></a>';
+                        // var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
+                        //     '<i class="fa-solid fa-play"></i>'+
+                        //     '</button></a>';
                     }
                     else{
                         var email_btn = '<a href="/maintenance/create/email_temp/' + id_maintenance_job + '"  target="_blank" data-toggle="tooltip"  title="Send Email To Contractor" >'+
@@ -1283,19 +1496,23 @@
                         '<i class="fa-solid fa-envelope"></i>'+
                         '</button></a>';
 
-                        if(job_start_date_time == '-'){
+                        // if(job_start_date_time == '-'){
 
-                            var start_btn = '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
-                            '<i class="fa-solid fa-play"></i>'+
-                            '</button></a>';
+                        //     var start_btn = '<a href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
+                        //     '<i class="fa-solid fa-play"></i>'+
+                        //     '</button></a>';
 
-                        }
-                        else{
-                            var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
-                            '<i class="fa-solid fa-play"></i>'+
-                            '</button></a>';
-                        }
+                        // }
+                        // else{
+                        //     var start_btn = '<a style="opacity: .4;cursor: default !important;pointer-events: none;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
+                        //     '<i class="fa-solid fa-play"></i>'+
+                        //     '</button></a>';
+                        // }
                     }
+
+                    var start_btn = '<a style="margin-right: 1px;" href="#"><button style="margin-right: 1px;" type="button" class="btn btn-primary allign-btn" title="Start Maintenance" onclick="getNowForStartDateTimes('+id_maintenance_job+')">'+
+                    '<i class="fa-solid fa-play"></i>'+
+                    '</button></a>';
 
                     if(job_finished_date_time == '-'){
 
@@ -1330,8 +1547,6 @@
 
                 });
 
-
-
                 $('#maintenances_table').DataTable().clear().destroy();
                 $('#maintenances_table #maintenance_tbl_body').html('');
                 $('#maintenances_table #maintenance_tbl_body').append(htmlValue);
@@ -1340,33 +1555,36 @@
                     //$(this).html( '<input type="text" placeholder="Search '+title+'" />' );
                 } );
 
-            //datatable
-            var table = $('#maintenances_table').DataTable({
-                'paging'      : true,
-                'lengthChange': true,
-                'searching'   : true,
-                'ordering'    : true,
-                'info'        : true,
-                'autoWidth'   : true,
-                "aoColumnDefs": [
+                //datatable
+                var table = $('#maintenances_table').DataTable({
+                    'paging'      : true,
+                    "iDisplayLength": 25,
+                    "aLengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    //'lengthChange': true,
+                    'searching'   : true,
+                    'ordering'    : true,
+                    'info'        : true,
+                    'autoWidth'   : true,
+                    'stateSave'   : true,
+                    "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12,13] },{ "width": "25%", "targets": 13 }
-                ]
-            });
+                        { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7,8,9,10,11,12,13] },{ "width": "25%", "targets": 13 },{ "width": "17%", "targets": 7 }
+                    ]
+                });
 
 
-            // Apply the search
-            table.columns().every( function () {
-                var that = this;
+                // Apply the search
+                table.columns().every( function () {
+                    var that = this;
 
-                $( 'input', this.footer() ).on( 'keyup change', function () {
-                    if ( that.search() !== this.value ) {
-                        that
-                            .search( this.value )
-                            .draw();
-                    }
+                    $( 'input', this.footer() ).on( 'keyup change', function () {
+                        if ( that.search() !== this.value ) {
+                            that
+                                .search( this.value )
+                                .draw();
+                        }
+                    } );
                 } );
-            } );
 
 
             }
@@ -1682,21 +1900,29 @@
 
         }
         ///////////////////////////////////////////////////////
-        function loadUserAgents(){
+        function loadUserAgents(type){
 
             var spinHandle = loadingOverlay.activate();
-            business_contractor = $('#business_contractor').val();
-            $("#ajx_err_msg_assign_maintenance").html('');
-            $("#err_msg_box_assign_maintenance").css('display' , 'none');
+
+            if(type == 2){
+                business_contractor = $('#start_business_contractor').val();
+                $("#ajx_err_msg_start").html('');
+                $("#err_msg_box_start").css('display' , 'none');
+            }
+            else{
+                business_contractor = $('#business_contractor').val();
+                $("#ajx_err_msg_assign_maintenance").html('');
+                $("#err_msg_box_assign_maintenance").css('display' , 'none');
+
+            }
 
             send( '/maintenance/business_contractor/user_agents',  {
                 business_contractor :business_contractor,
-            }, 'handleLoadUserAgents', []);
+            }, 'handleLoadUserAgents', [type]);
 
         }
         ///////////////////////////////////////////////////////
-        function handleLoadUserAgents()
-        {
+        function handleLoadUserAgents(type){
             let message = return_value.message;
             let res = return_value.code;
             let user_list = return_value.result;
@@ -1708,80 +1934,167 @@
             if(res == "failure"){
                 var textmessage = message;
 
-                $("#ajx_err_msg_assign_maintenance").html(textmessage);
-                $("#err_msg_box_assign_maintenance").css('display' , 'block');
-                $("#contractor_note").html('');
-                $("#contractor_address_line1").html('');
-                $("#contractor_tel_number1").val('');
-                $("#contractor_short_name").val('');
+                if(type == 2){
 
-                $('#user_agent').find('option').remove();
-                $('#user_agent').append(new Option('Select User/Agent' ,''));
+                    $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                    $("#err_msg_box_assign_maintenance").css('display' , 'block');
+                    $("#start_contractor_note").html('');
+                    $("#start_contractor_address_line1").html('');
+                    $("#start_contractor_tel_number1").val('');
+                    $("#start_contractor_short_name").val('');
 
+                    $('#start_user_agent').find('option').remove();
+                    $('#start_user_agent').append(new Option('Select User/Agent' ,''));
 
-            }
-
-            else{
-                business_contractor = $('#business_contractor').val();
-
-
-                if(business_contractor.charAt(0) == 'C'){
-                    $('#user_agent').find('option').remove();
-
-                    $("#contractor_note").html(contractor.note);
-                    $("#contractor_address_line1").html(contractor.address_line1);
-                    $("#contractor_tel_number1").val(contractor.tel_number1);
-                    $("#contractor_short_name").val(contractor.short_name);
-
-                    var contractor_skill = "";
-
-                    if(contractor_skills){
-                        contractor_skills.forEach(item => {
-                        var item_name = item.skill_name;
-                        contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
-                        });
-                    }
-
-                    $("#skill_place").html(contractor_skill);
-
-                    var coverage_area = "";
-
-                    if(coverage_areas){
-                        coverage_areas.forEach(item => {
-                        var item_name = item.location;
-                        coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
-                        });
-                    }
-
-                    $("#coverage_area_place").html(coverage_area);
                 }
                 else{
+
+                    $("#ajx_err_msg_assign_maintenance").html(textmessage);
+                    $("#err_msg_box_assign_maintenance").css('display' , 'block');
                     $("#contractor_note").html('');
                     $("#contractor_address_line1").html('');
                     $("#contractor_tel_number1").val('');
                     $("#contractor_short_name").val('');
 
-                    $("#skill_place").html('');
-                    $("#coverage_area_place").html('');
-
                     $('#user_agent').find('option').remove();
-                    //$('#user_agent').append(new Option('Select User/Agent' ,''));
+                    $('#user_agent').append(new Option('Select User/Agent' ,''));
+
                 }
 
-                if(user_type == 'user'){
-                    user_list.forEach(item => {
-                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
-                    $('#user_agent').append(new Option(item_name ,item.user_id));
-                });
+            }
+
+            else{
+
+                if(type == 2){
+
+                    business_contractor = $('#start_business_contractor').val();
+
+                    if(business_contractor.charAt(0) == 'C'){
+                        $('#start_user_agent').find('option').remove();
+
+                        $("#start_contractor_note").html(contractor.note);
+                        $("#start_contractor_address_line1").html(contractor.address_line1);
+                        $("#start_contractor_tel_number1").val(contractor.tel_number1);
+                        $("#start_contractor_short_name").val(contractor.short_name);
+                        console.log(contractor.short_name);
+
+                        var contractor_skill = "";
+
+                        if(contractor_skills){
+                            contractor_skills.forEach(item => {
+                                var item_name = item.skill_name;
+                                contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                            });
+                        }
+
+                        $("#start_skill_place").html(contractor_skill);
+
+                        var coverage_area = "";
+
+                        if(coverage_areas){
+                            coverage_areas.forEach(item => {
+                                var item_name = item.location;
+                                coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                            });
+                        }
+
+                        $("#start_coverage_area_place").html(coverage_area);
+                    }
+                    else{
+                        $("#start_contractor_note").html('');
+                        $("#start_contractor_address_line1").html('');
+                        $("#start_contractor_tel_number1").val('');
+                        $("#start_contractor_short_name").val('');
+
+                        $("#start_skill_place").html('');
+                        $("#start_coverage_area_place").html('');
+
+                        $('#start_user_agent').find('option').remove();
+                        //$('#user_agent').append(new Option('Select User/Agent' ,''));
+                    }
+
+                    if(user_type == 'user'){
+                        user_list.forEach(item => {
+                            var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                            $('#start_user_agent').append(new Option(item_name ,item.user_id));
+                        });
+
+                    }
+                    else{
+                        user_list.forEach(item => {
+                            var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                            $('#start_user_agent').append(new Option(item_name ,item.id));
+                        });
+
+                    }
+
 
                 }
                 else{
-                    user_list.forEach(item => {
-                    var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
-                    $('#user_agent').append(new Option(item_name ,item.id));
-                });
+
+                    business_contractor = $('#business_contractor').val();
+
+                    if(business_contractor.charAt(0) == 'C'){
+                        $('#user_agent').find('option').remove();
+
+                        $("#contractor_note").html(contractor.note);
+                        $("#contractor_address_line1").html(contractor.address_line1);
+                        $("#contractor_tel_number1").val(contractor.tel_number1);
+                        $("#contractor_short_name").val(contractor.short_name);
+
+                        var contractor_skill = "";
+
+                        if(contractor_skills){
+                            contractor_skills.forEach(item => {
+                            var item_name = item.skill_name;
+                            contractor_skill = contractor_skill +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                            });
+                        }
+
+                        $("#skill_place").html(contractor_skill);
+
+                        var coverage_area = "";
+
+                        if(coverage_areas){
+                            coverage_areas.forEach(item => {
+                            var item_name = item.location;
+                            coverage_area = coverage_area +"<button type='button' class='btn btn-primary'>"+item_name+"</button>";
+                            });
+                        }
+
+                        $("#coverage_area_place").html(coverage_area);
+                    }
+                    else{
+                        $("#contractor_note").html('');
+                        $("#contractor_address_line1").html('');
+                        $("#contractor_tel_number1").val('');
+                        $("#contractor_short_name").val('');
+
+                        $("#skill_place").html('');
+                        $("#coverage_area_place").html('');
+
+                        $('#user_agent').find('option').remove();
+                        //$('#user_agent').append(new Option('Select User/Agent' ,''));
+                    }
+
+                    if(user_type == 'user'){
+                        user_list.forEach(item => {
+                            var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                            $('#user_agent').append(new Option(item_name ,item.user_id));
+                        });
+
+                    }
+                    else{
+                        user_list.forEach(item => {
+                            var item_name = item.first_name || item.last_name ? item.first_name + " "+ item.last_name : (item.login_name?item.login_name:item.email);
+                            $('#user_agent').append(new Option(item_name ,item.id));
+                        });
+
+                    }
+
 
                 }
+
 
 
             }
@@ -1880,6 +2193,7 @@
         ///////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         function handelShowStartMaintenanceModal(id_maintenance){
+
             let message = return_value.message;
             let res = return_value.code;
             let contractors = return_value.contractors;
@@ -1903,18 +2217,22 @@
                 $('#user_agent_start').find('option').remove();
                 if(selected_business){
 
-                    console.log(selected_business);
+                    // console.log(selected_business);
 
                     var item_name = selected_business.business_name ;
                     $('#business_contractor_readonly').html(item_name);
 
                     if(users){
                         users.forEach(item => {
-                        var item_name = item.first_name +' '+item.last_name;
-                        var item_id = item.user_id ;
-                        $('#user_agent_start').append(new Option(item_name ,item_id));
-                    });
+                            var item_name = item.first_name +' '+item.last_name;
+                            var item_id = item.user_id ;
+                            $('#user_agent_start').append(new Option(item_name ,item_id));
+                        });
                     }
+
+
+                    $("#user_place_1").css('display' , 'block');
+                    $("#user_place_2").css('display' , 'none');
 
                 }
                 else if(selected_contractor ){
@@ -1923,8 +2241,6 @@
                     var item_name = selected_contractor.name ;
                     $('#business_contractor_readonly').html(item_name);
 
-
-
                     if(agents){
                         agents.forEach(item => {
                             var item_name = item.email;
@@ -1932,18 +2248,32 @@
                             $('#user_agent_start').append(new Option(item_name ,item_id));
                         });
                     }
+
+
+                    $("#user_place_1").css('display' , 'block');
+                    $("#user_place_2").css('display' , 'none');
                 }
-
-
+                else{
+                    $("#user_place_1").css('display' , 'none');
+                    $("#user_place_2").css('display' , 'block');
+                }
 
                 if(selected_user_agent){
+
                     $('#user_agent_start').val(selected_user_agent);
+
+                    $("#user_place_1").css('display' , 'block');
+                    $("#user_place_2").css('display' , 'none');
                 }
+                else{
+                    $("#user_place_1").css('display' , 'none');
+                    $("#user_place_2").css('display' , 'block');
 
-
+                }
 
 
             }
+
             $("#start_maintenance_btn").removeAttr('disabled');
 
             $('#started_maintenance').val(id_maintenance);
@@ -1951,11 +2281,10 @@
             $('#suc_msg_box_start').css('display' , 'none');
             $('#startMaintenanceModal').modal('show');
 
-
-
             loadingOverlay.cancelAll();
 
         }
+
 
         ///////////////////////////////////////////////////////
         function startMaintenance(){
@@ -1963,15 +2292,16 @@
             $("#start_maintenance_btn").attr('disabled','disabled');
             $("#err_msg_box_start").css('display' , 'none');
 
-
-
             let started_maintenance = $( '#started_maintenance' ).val();
             let start_date_time = $( '#start_datetimepicker input' ).val();
-            user = $('#user_agent_start').val();
+            old_assign_user = $('#user_agent_start').val();
+            new_assign_user = $('#start_user_agent').val();
+
 
             send( '/maintenance/start/'+started_maintenance,  {
                 start_date_time:start_date_time,
-                user:user,
+                business_user:old_assign_user,
+                contractor_user:new_assign_user,
             }, 'handleStartMaintenance', []);
         }
         ////////////////////////////////////////////////////////

@@ -179,14 +179,14 @@
 
                                                         <div class="form-group row">
                                                             <label
-                                                                    class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.maintenance_title') }}:</label>
+                                                                    class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.description') }}:</label>
 
                                                                     <div class="col-xs-10 col-sm-10 col-md-10">
                                                                         <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                                            <input class="form-control" name="maintenance_title"
+                                                                            <input class="form-control" name="description"
                                                                                 id="maintenance_title"
-                                                                                value="@if (old('maintenance_title')) {{ old('maintenance_title') }} @endif" />
+                                                                                value="@if (old('description')) {{ old('description') }} @endif" />
 
 
                                                                         </div>
@@ -204,11 +204,11 @@
 
                                                         <div class="form-group row">
                                                             <label
-                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.description') }}:</label>
+                                                                class="col-xs-2 col-sm-2 col-md-2 control-label text-right">{{ trans('maintenance::maintenance.comments') }}:</label>
                                                             <div class="col-xs-10 col-sm-10 col-md-10">
                                                                 <div class="input-group col-xs-10 col-sm-10 col-md-10">
 
-                                                                    <textarea class="form-control" rows="4" name="description" id="description" column="40">{{ null !== old('description') ? old('description'): "" }}</textarea>
+                                                                    <textarea class="form-control" rows="4" name="comment" id="description" column="40">{{ null !== old('comment') ? old('comment'): "" }}</textarea>
                                                                 </div>
 
                                                             </div>

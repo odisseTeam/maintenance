@@ -100,7 +100,7 @@ class ApiMaintenanceAppController extends Controller
             leftjoin('users AS u2', 'maintenance_job_staff_history.id_maintenance_assignee' , 'u2.id')->
             leftjoin('contractor_agent', 'contractor_agent.id_user' , 'u2.id')->
             leftjoin('contractor', 'contractor_agent.id_contractor' , 'contractor.id_contractor');
-           
+
             $maintenances = $maintenances->select('contractor.name AS contractor_name','maintenance_job_staff_history.*' , 'u2.first_name AS assignee_first_name' ,'u2.last_name AS assignee_last_name','u2.email AS assignee_email','maintenance_job.*' , 'maintenance_job_category_ref.job_category_name AS job_category_name' , 'maintenance_job_status_ref.*' , 'maintenance_job_priority_ref.*' ,'u1.first_name AS staff_first_name' ,'u1.last_name AS staff_last_name' , 'maintenance_job_sla.*' , 'maintenance_job_sla_ref.*' , 'resident.*' );
 
         }
@@ -190,11 +190,9 @@ class ApiMaintenanceAppController extends Controller
             $validator = $this->validateMaintenance($request);
 
             if( null != $validator) {
-                Log::info("AAAA");
                 return response()->json(['message' => $validator->errors()], 422);
             }
 
-            Log::info("BBB");
             $result = $this->createMaintenanceForApp($request);
 
 
@@ -226,7 +224,7 @@ class ApiMaintenanceAppController extends Controller
         }
     }
 
-  
+
 
 
     public function startMaintenanceApp(Request $request)
@@ -259,7 +257,7 @@ class ApiMaintenanceAppController extends Controller
                 $staff_user = User::where('email' , $request->staff_user)->first();
 
 
-               
+
 
                 if($staff_user){
                     // $user = Sentinel::findById($staff_user->id);
@@ -645,14 +643,14 @@ class ApiMaintenanceAppController extends Controller
 
             $user = JWTAuth::user();
 
-           
+
             $maintenance = MaintenanceJob::findOrFail($request->id_maintenance_job);
 
             DB::beginTransaction();
 
             Log::info("In maintenance package, MaintenanceDashboardController- sendEmailToContractor function " . " try to send email to contractor:" . " ------- by user " . $user->first_name . " " . $user->last_name);
 
-         
+
 
             $contractor_email = ContractorAgent::join('users','users.id','contractor_agent.id_user')->where('contractor_agent.id_contractor',$request->id_contractor)->select('users.email')->first();
 
@@ -662,7 +660,7 @@ class ApiMaintenanceAppController extends Controller
             $email_html_text = $request->html_maintenance_temp;
 
             $final_email_text = $final_email_text . $email_html_text;
-          
+
             // notes of email content
             $note_list = "<h2>Notes List</h2>";
 
@@ -720,7 +718,7 @@ class ApiMaintenanceAppController extends Controller
                 $final_message_attachment_uri = null;
 
             }
-          
+
             // return response()->json(
             //     [
             //         'code'   => 'injjjjjjjjjjamm',
@@ -737,7 +735,7 @@ class ApiMaintenanceAppController extends Controller
             if(($maintenance->commencement_date != $request->commencement_date)or ($maintenance->complete_date != $request->complete_date)){
 
 
-            
+
                 $maintenance->update([
                     'commencement_date' => $request->commencement_date,
                     'complete_date' => $request->complete_date,
@@ -759,7 +757,7 @@ class ApiMaintenanceAppController extends Controller
             $comment = $request->contractor_job_attachment_text;
 
             $final_email_text = $final_email_text . $comment;
-          
+
             $final_email_text = $this->replaceMaintenanceTemplateVariablesforApp($final_email_text,$request->id_maintenance_job,$request->id_contractor,$request->commencement_date,$request->complete_date);
 
 
@@ -808,7 +806,7 @@ class ApiMaintenanceAppController extends Controller
 
             }
 
-         
+
              //get all document of pdf file of maintenance email in database that are for this maintenance job
              $maintenance_document = MaintenanceJobDocument::where('id_maintenance_job',$request->id_maintenance_job)->where('maintenance_job_document_active',1)
              ->where('is_uploaded_file',0)
@@ -817,7 +815,7 @@ class ApiMaintenanceAppController extends Controller
             //  dd($maintenance_document);
 
              if( $maintenance_document ){
-                           
+
                 $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
 
                 $part_2digit_document_name = substr($maintenance_document->document_name,15,2);
@@ -840,10 +838,10 @@ class ApiMaintenanceAppController extends Controller
 
 
                 if( $maintenance_document ){
-               
+
                     $part_3digit_document_name = substr($maintenance_document->document_name,11,3);
-                    
-                   
+
+
                     $part_3digit_document_name = intval($part_3digit_document_name)+1;
 
                     $part_2digit_document_name = '01';
@@ -856,7 +854,7 @@ class ApiMaintenanceAppController extends Controller
                     //file name if no pdf file for maintenance email content has been created yet
                     $part_3digit_document_name = 100;
                     $part_2digit_document_name = '01';
-                   
+
                     $file_name = $legal_company[0]->short_name.'-'.date('ymd').'-'.$part_3digit_document_name.'-'.$part_2digit_document_name;
 
 
@@ -873,7 +871,7 @@ class ApiMaintenanceAppController extends Controller
             if($request['notes'] == null){
                 $selected_notes = 'N/A';
             }else{
-                
+
                 $notes = MaintenanceLog::whereIn('id_maintenance_log',$request['notes'])->get();
 
                 $selected_notes = '<html>';
@@ -888,19 +886,19 @@ class ApiMaintenanceAppController extends Controller
             }
 
             if($request['job_attachments'] == null){
-                      
+
                 $selected_document = 'N/A';
             }else{
-               
+
                 $selected_document = '<html>';
 
                 $contractor_job_attachments = MaintenanceJobDocument::whereIn('id_maintenance_job_document',$request['job_attachments'])->get();
-           
-           
+
+
                 foreach ($contractor_job_attachments as $contractor_job_attachment){
 
                     if(($contractor_job_attachment->document_extention == 'png')||($contractor_job_attachment->document_extention == 'jpg')||($contractor_job_attachment->document_extention == 'jpeg')){
-                       
+
                         $selected_document = $selected_document ."<img style='width:100px;' src='".$contractor_job_attachment->document_address.$contractor_job_attachment->document_name."'"."\>";
 
                     }else{
@@ -920,14 +918,14 @@ class ApiMaintenanceAppController extends Controller
 
             $commencement_date = $request['commencement_date'];
 
-           
+
 
             $final_email_text = $this->replaceMaintenanceTemplateVariablesforApp($request->html_maintenance_temp,$request->id_maintenance_job,$request->id_contractor,$commencement_date,$complete_date);
 
-          
+
             $final_email_text = '<html>'.$final_email_text.'</html>';
 
-         
+
             $data = [
                 'id_maintenance_job'=> $request['id_maintenance_job'],
                 'id_contractor'=> $request['id_contractor'],
@@ -940,22 +938,22 @@ class ApiMaintenanceAppController extends Controller
                 'selected_document'=> $selected_document,
 
             ];
-          
+
 
 
             $base_path = config('pdf.tempDir') ;
-          
-          
+
+
             $pdf = PDF::loadView('maintenance::download_maintenance_email', $data);
-           
-       
+
+
             // put the file in determined destination path
             $pdf->save($base_path.'/mpdf/' . $file_name.'.pdf');
 
             $file_path = config('file_storage.maintenance_email_file_path');
 
 
-        
+
 
             //add this pdf file to maintenance job document table
             $maintenance_job_document = new MaintenanceJobDocument();
@@ -1025,7 +1023,7 @@ class ApiMaintenanceAppController extends Controller
 
         try {
 
-       
+
             Log::info("In maintenance package - in ApiMaintenanceAppController - deleteMaintenanceApp function");
 
 

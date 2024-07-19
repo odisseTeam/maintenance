@@ -5,6 +5,8 @@ return [
     'maintenance_dashboard'=>'Maintenance Dashboard',
     'category'=>'Category',
     'title'=>'Title',
+    'description'=>'Description',
+    'complete_maintenance_job'=>'Complete Maintenance Job',
     'priority'=>'Priority',
     'status'=>'Status',
     'task_report_date'=>'Task Report Date',

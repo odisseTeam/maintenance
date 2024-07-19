@@ -106,8 +106,8 @@
                                                     <th>{{trans('maintenance::contractor.short_name')}}</th>
                                                     <th>{{trans('maintenance::contractor.vat_number')}}</th>
                                                     <th>{{trans('maintenance::contractor.tel_number1')}}</th>
-                                                    <th>{{trans('maintenance::contractor.tel_number2')}}</th>
-                                                    <th>{{trans('maintenance::contractor.address_line1')}}</th>
+                                                    {{-- <th>{{trans('maintenance::contractor.tel_number2')}}</th> --}}
+                                                    {{-- <th>{{trans('maintenance::contractor.address_line1')}}</th> --}}
                                                     <th>{{trans('maintenance::contractor.operation')}}</th>
                                                 </tr>
                                                 </thead>
@@ -149,8 +149,8 @@
                                                     <th>{{trans('maintenance::contractor.short_name')}}</th>
                                                     <th>{{trans('maintenance::contractor.vat_number')}}</th>
                                                     <th>{{trans('maintenance::contractor.tel_number1')}}</th>
-                                                    <th>{{trans('maintenance::contractor.tel_number2')}}</th>
-                                                    <th>{{trans('maintenance::contractor.address_line1')}}</th>
+                                                    {{-- <th>{{trans('maintenance::contractor.tel_number2')}}</th> --}}
+                                                    {{-- <th>{{trans('maintenance::contractor.address_line1')}}</th> --}}
                                                     <th>{{trans('maintenance::contractor.operation')}}</th>
                                                 </tr>
                                                 </tfoot>
@@ -760,7 +760,7 @@
 
 
                     htmlValue= htmlValue +"<tr><td>"+(counter)+"</td><td>"+name+"</td><td>"+short_name+"</td><td>"
-                        +vat_number+"</td><td>"+tel_number1+"</td><td>"+tel_number2+"</td><td>"+address_line1+"</td><td>"+operation+"</td></tr>";
+                        +vat_number+"</td><td>"+tel_number1+"</td><td>"+operation+"</td></tr>";
 
 
                 });
@@ -785,7 +785,7 @@
                 'autoWidth'   : true,
                 "aoColumnDefs": [
 
-                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5,6,7] },{ "width": "20%", "targets": 7 }
+                    { "sClass": "leftSide", "aTargets": [ 0 ,1,2,3,4,5] },{ "width": "20%", "targets": 5 }
                 ]
             });
 

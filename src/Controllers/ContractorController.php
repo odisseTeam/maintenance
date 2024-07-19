@@ -183,8 +183,9 @@ class ContractorController extends Controller
 
 
             $check_email = User::where('email' , $request->email)->first();
-            $another_contractor = ContractorAgent::where('id_user', $check_email->id)->where('contractor_agent_active' , 1)->first();
             if($check_email){
+
+                $another_contractor = ContractorAgent::where('id_user', $check_email->id)->where('contractor_agent_active' , 1)->first();
 
 
                 if($another_contractor){

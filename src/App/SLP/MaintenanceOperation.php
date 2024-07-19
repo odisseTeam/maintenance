@@ -229,7 +229,7 @@ trait MaintenanceOperation
             return
                 [
                 'code' => 'failure',
-                'message' => $e->getMessage(),//trans('maintenance::dashboard.end_maintenance_was_not_successful'),
+                'message' => trans('maintenance::dashboard.end_maintenance_was_not_successful'),
                 ];
 
 
@@ -240,6 +240,40 @@ trait MaintenanceOperation
     }
 
 
+
+
+    private function swapRowsCollection($collect){
+
+        //$first_collect = $collect;
+        $first_collect=unserialize(serialize($collect));
+        $new_collect = [];
+        for($i = 0 ; $i<count($collect) ; $i++){
+            if(isset($first_collect[$i])){
+                $new_collect[] = $first_collect[$i];
+
+            }
+            for($j=$i+1; $j<count($collect); $j++){
+                //echo ($first_collect[$i]['id_room']);
+                //echo ("**");
+                if(isset($first_collect[$i]) && isset($first_collect[$j]) && ($first_collect[$i]['room']['id_room'] == $first_collect[$j]['room']['id_room']) && ($first_collect[$i]['property']['id_property'] == $first_collect[$j]['property']['id_property']) ){
+                    $new_collect[] = $first_collect[$j];
+                    unset($first_collect[$j]);
+                }
+
+            }
+            //unset($first_collect[$i]);
+        }
+
+        // var_dump(count($collect));
+        // var_dump(count($first_collect));
+        // var_dump($i);
+        // dd($first_collect);
+
+        //$new_collect[] = $first_collect[$i];
+
+        return $new_collect;
+
+    }
 
 
     private function calculateSlaRemainTime($id_saas_client_business,$id_maintenance , $job_report_date_time ,$expected_target_minutes ){

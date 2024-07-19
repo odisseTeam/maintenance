@@ -368,7 +368,7 @@
                                                                 <th>#</th>
                                                                 <th>{{__('maintenance::maintenance_mgt.business')}}</th>
                                                                 <th>{{__('maintenance::dashboard.category')}}</th>
-                                                                <th>{{__('maintenance::dashboard.title')}}</th>
+                                                                <th>{{__('maintenance::dashboard.description')}}</th>
                                                                 <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
                                                                 <th>{{__('maintenance::dashboard.priority')}}</th>
                                                                 <th>{{__('maintenance::dashboard.status')}}</th>
@@ -394,7 +394,7 @@
                                                                 <th>#</th>
                                                                 <th>{{__('maintenance::maintenance_mgt.business')}}</th>
                                                                 <th>{{__('maintenance::dashboard.category')}}</th>
-                                                                <th>{{__('maintenance::dashboard.title')}}</th>
+                                                                <th>{{__('maintenance::dashboard.description')}}</th>
                                                                 <th>{{__('maintenance::dashboard.sla_remain_time')}}</th>
                                                                 <th>{{__('maintenance::dashboard.priority')}}</th>
                                                                 <th>{{__('maintenance::dashboard.status')}}</th>

@@ -3,6 +3,7 @@
 return [
     'page-title'  =>  'Maintenance',
     'maintenance'  =>  'Maintenance',
+    'comments'  =>  'Comments',
     'maintenance_jobs'  =>  'Maintenance Jobs',
 
     'job_select'  =>  'Select Jobs to view',
